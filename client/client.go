@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,26 +22,48 @@ import (
 
 // Client codeforces client
 type Client struct {
-	Jar      *cookiejar.Jar
-	username string
-	ftaa     string
-	bfaa     string
+	Jar      *cookiejar.Jar `json:"cookies"`
+	Username string         `json:"username"`
+	Ftaa     string         `json:"ftaa"`
+	Bfaa     string         `json:"bfaa"`
+	path     string
 }
 
 // New client
-func New() *Client {
+func New(path string) *Client {
 	jar, _ := cookiejar.New(nil)
-	return &Client{Jar: jar}
+	c := &Client{Jar: jar, path: path}
+	c.load()
+	return c
 }
 
-// findCsrf just find
-func findCsrf(body []byte) (string, error) {
-	reg, _ := regexp.Compile(`csrf='(.+?)'`)
-	tmp := reg.FindSubmatch(body)
-	if len(tmp) < 2 {
-		return "", errors.New("Cannot find csrf")
+// load from path
+func (c *Client) load() (err error) {
+	file, err := os.Open(c.path)
+	if err != nil {
+		return
 	}
-	return string(tmp[1]), nil
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bytes, c)
+}
+
+// save file to path
+func (c *Client) save() (err error) {
+	data, err := json.MarshalIndent(c, "", "  ")
+	if err == nil {
+		err = ioutil.WriteFile(c.path, data, 0644)
+	}
+	if err != nil {
+		fmt.Printf("Cannot save session to %v\n%v", c.path, err.Error())
+	}
+	return
 }
 
 // genFtaa generate a random one
@@ -58,16 +81,26 @@ func genBfaa() string {
 	return "f1b3f18c715565b589b7823cda7448ce"
 }
 
+// ErrorNotLogged not logged in
+var ErrorNotLogged = "Not logged in"
+
 // checkLogin if login return nil
-func checkLogin(username string, body []byte) (err error) {
+func checkLogin(username string, body []byte) error {
 	match, err := regexp.Match(fmt.Sprintf(`handle = "%v"`, username), body)
-	if err != nil {
-		return
+	if err != nil || !match {
+		return errors.New(ErrorNotLogged)
 	}
-	if !match {
-		err = errors.New("Cannot find")
+	return nil
+}
+
+// findCsrf just find
+func findCsrf(body []byte) (string, error) {
+	reg, _ := regexp.Compile(`csrf='(.+?)'`)
+	tmp := reg.FindSubmatch(body)
+	if len(tmp) < 2 {
+		return "", errors.New("Cannot find csrf")
 	}
-	return
+	return string(tmp[1]), nil
 }
 
 // Login codeforces with username(handler) and password
@@ -118,67 +151,10 @@ func (c *Client) Login(username, password string) (err error) {
 	}
 
 	c.Jar = jar
-	c.ftaa = ftaa
-	c.bfaa = bfaa
-	c.username = username
-	return
-}
-
-// findSubmission just find
-func findSubmission(body []byte) ([]byte, error) {
-	reg, _ := regexp.Compile(`<tr data-submission[\s\S]+?</tr>`)
-	tmp := reg.Find(body)
-	if tmp == nil {
-		return nil, errors.New("Cannot find submission")
-	}
-	return tmp, nil
-}
-
-// findSubmitID just find
-func findSubmitID(body []byte) (string, error) {
-	reg, _ := regexp.Compile(`submission/(\d+?)"`)
-	tmp := reg.FindSubmatch(body)
-	if tmp == nil {
-		return "", errors.New("Cannot find submitID")
-	}
-	return string(tmp[1]), nil
-}
-
-// findSubmitName just find
-func findSubmitName(body []byte) (string, error) {
-	reg, _ := regexp.Compile(`<a href="/contest[\s\S]*?">([\s\S]*?)</a>`)
-	tmp := reg.FindSubmatch(body)
-	if tmp == nil {
-		return "", errors.New("Cannot find submit name")
-	}
-	return strings.TrimSpace(string(tmp[1])), nil
-}
-
-// findSubmitName just find
-func findSubmitLang(body []byte) (string, error) {
-	reg, _ := regexp.Compile(`<td>([\s\S]*?)</td>`)
-	tmp := reg.FindSubmatch(body)
-	if tmp == nil {
-		return "", errors.New("Cannot find submit lang")
-	}
-	return strings.TrimSpace(string(tmp[1])), nil
-}
-
-// findChannel websocket channel
-func findChannel(body []byte) []string {
-	reg, _ := regexp.Compile(`name="cc" content="(.+?)"[\s\S]*name="pc" content="(.+?)"`)
-	// reg, _ := regexp.Compile(`name="cc" content="(.+?)"`)
-	tmp := reg.FindSubmatch(body)
-	var ret []string
-	for i := 1; i < len(tmp); i++ {
-		ret = append(ret, "s_"+string(tmp[i]))
-	}
-	return ret
-}
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	c.Ftaa = ftaa
+	c.Bfaa = bfaa
+	c.Username = username
+	return c.save()
 }
 
 // SubmitState submit state
@@ -256,6 +232,58 @@ func (s *SubmitState) display() {
 	fmt.Printf(" memory: %v\n", memory)
 }
 
+// findSubmission just find
+func findSubmission(body []byte) ([]byte, error) {
+	reg, _ := regexp.Compile(`<tr data-submission[\s\S]+?</tr>`)
+	tmp := reg.Find(body)
+	if tmp == nil {
+		return nil, errors.New("Cannot find submission")
+	}
+	return tmp, nil
+}
+
+// findSubmitID just find
+func findSubmitID(body []byte) (string, error) {
+	reg, _ := regexp.Compile(`submission/(\d+?)"`)
+	tmp := reg.FindSubmatch(body)
+	if tmp == nil {
+		return "", errors.New("Cannot find submitID")
+	}
+	return string(tmp[1]), nil
+}
+
+// findSubmitName just find
+func findSubmitName(body []byte) (string, error) {
+	reg, _ := regexp.Compile(`<a href="/contest[\s\S]*?">([\s\S]*?)</a>`)
+	tmp := reg.FindSubmatch(body)
+	if tmp == nil {
+		return "", errors.New("Cannot find submit name")
+	}
+	return strings.TrimSpace(string(tmp[1])), nil
+}
+
+// findSubmitName just find
+func findSubmitLang(body []byte) (string, error) {
+	reg, _ := regexp.Compile(`<td>([\s\S]*?)</td>`)
+	tmp := reg.FindSubmatch(body)
+	if tmp == nil {
+		return "", errors.New("Cannot find submit lang")
+	}
+	return strings.TrimSpace(string(tmp[1])), nil
+}
+
+// findChannel websocket channel
+func findChannel(body []byte) []string {
+	reg, _ := regexp.Compile(`name="cc" content="(.+?)"[\s\S]*name="pc" content="(.+?)"`)
+	// reg, _ := regexp.Compile(`name="cc" content="(.+?)"`)
+	tmp := reg.FindSubmatch(body)
+	var ret []string
+	for i := 1; i < len(tmp); i++ {
+		ret = append(ret, "s_"+string(tmp[i]))
+	}
+	return ret
+}
+
 // SubmitContest submit problem in contest (and block util pending)
 func (c *Client) SubmitContest(contestID, probID, langID, source string) (err error) {
 	fmt.Printf("Try to submit %v %v\n", contestID, probID)
@@ -273,12 +301,12 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 		return
 	}
 
-	err = checkLogin(c.username, body)
+	err = checkLogin(c.Username, body)
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("Current user: %v\n", c.username)
+	fmt.Printf("Current user: %v\n", c.Username)
 
 	csrf, err := findCsrf(body)
 	if err != nil {
@@ -288,8 +316,8 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	resp, err = client.PostForm(fmt.Sprintf("%v?csrf=%v", submitURL, csrf), url.Values{
 		"csrf_token":            {csrf},
 		"action":                {"submitSolutionFormSubmitted"},
-		"ftaa":                  {c.ftaa},
-		"bfaa":                  {c.bfaa},
+		"ftaa":                  {c.Ftaa},
+		"bfaa":                  {c.Bfaa},
 		"submittedProblemIndex": {probID},
 		"programTypeId":         {langID},
 		"source":                {source},
@@ -428,6 +456,9 @@ func (c *Client) GetLangList(url string) (langs map[string]string, err error) {
 	return findLang(block)
 }
 
+// Langs generated by
+// ^[\s\S]*?value="(.+?)"[\s\S]*?>([\s\S]+?)<[\s\S]*?$
+//     "\1": "\2",
 var Langs = map[string]string{
 	"43": "GNU GCC C11 5.1.0",
 	"52": "Clang++17 Diagnostics",

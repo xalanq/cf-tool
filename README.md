@@ -30,21 +30,29 @@ $ go build cf.go
 ## Usage
 
 ```plain
+Codeforces Tool (cf). https://github.com/xalanq/codeforces
+
 Usage:
   cf config [login | add]
-  cf submit [<filename>] [--contest=<cid> --problem=<pid>]
-  cf parse <cid>
+  cf submit [<filename>] [(<contest-id> <problem-id>)]
+  cf parse <contest-id>
 
 Examples:
-  cf config    config(store) username and password(encrypt)
-  cf submit    submit file which parent dir is ./<cid>/<pid>/<valid file>
-               if there are multiple avalible files. You have to choose one.
+  cf config   Config(store) username and password(encrypt)
+  cf submit   Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
+              If there are multiple files which satisfy above condition, you
+              have to choose one.
+  cf submit a.cpp 100 a
   cf parse 100
-  cf submit a.cpp --contest=100 --problem=A 
+
+Notes:
+  <problem-id>   could be "a" or "A", case-insensitive
+  <contest-id>   should be a number, you could find it in codeforces contest url.
+                 E.g. 1119 in https://codeforces.com/contest/1119
 
 Options:
   -h --help
-  --version`
+  --version
 ```
 
 ## Codes
