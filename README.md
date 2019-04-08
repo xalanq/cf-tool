@@ -19,11 +19,11 @@ Contributing is always welcome!
 
 You can download the pre-compiled binary file in [here](https://github.com/xalanq/cf-tool/releases).
 
-You can also compile the source:
+You can also compile from the source:
 
 ```
 $ git clone https://github.com/xalanq/cf-tool
-$ cd codeforces
+$ cd cf-tool
 $ go build cf.go
 ```
 
