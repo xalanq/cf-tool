@@ -9,8 +9,9 @@ Codeforces Tool is written by Golang. **It does not contain any Browser Driver**
 
 ## Features
 
-* [x] Submit a code.
-* [ ] Generate files(folder with samples) for round and provide a command to test samples.
+* [x] Submit a code to contest and watch status dynamically.
+* [x] List problems statis in a contest.
+* [ ] Generate files(folder with samples) for a contest and provide a command to test samples.
 * [ ] Download someone codes.
 
 Contributing is always welcome!
@@ -32,6 +33,10 @@ $ go build cf.go
 ```plain
 Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 
+cf will save
+     config(including username, encrypted password, etc.) in "~/.cfconfig",
+     session(including cookies, username, etc.) in "~/.cfsession".
+
 Usage:
   cf config [login | add]
   cf submit [<filename>]
@@ -40,19 +45,20 @@ Usage:
   cf parse <contest-id>
 
 Examples:
-  cf config      Config(store) username and password(encrypt)
-  cf submit      Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
-                 If there are multiple files which satisfy above condition, you
-                 have to choose one.
-  cf list        List current contest or <contest-id> problems' infomation
-  cf parse 100   Generate Round, include sample
+  cf config login      Config username and password(encrypt).
+  cf config add        Config
+  cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
+                       If there are multiple files which satisfy above condition, you
+                       have to choose one.
+  cf list              List current contest or <contest-id> problems' infomation
+  cf parse 100         Generate Round, include sample
   cf submit 100 a
   cf submit 100 a a.cp
 
 Notes:
-  <problem-id>   could be "a" or "A", case-insensitive
-  <contest-id>   should be a number, you could find it in codeforces contest url.
-                 E.g. 1119 in https://codeforces.com/contest/1119
+  <problem-id>         could be "a" or "A", case-insensitive
+  <contest-id>         should be a number, you could find it in codeforces contest url.
+                       E.g. 1119 in https://codeforces.com/contest/1119
 
 Options:
   -h --help
