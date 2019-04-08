@@ -1,11 +1,11 @@
-# Codeforces Tools
+# Codeforces Tool
 
 [![Build Status](https://travis-ci.org/xalanq/codeforces.svg?branch=master)](https://travis-ci.org/xalanq/codeforces)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xalanq/codeforces)](https://goreportcard.com/report/github.com/xalanq/codeforces)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.6-green.svg)](https://github.com/golang)
 [![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/xalanq/codeforces/master/LICENSE)
 
-Codeforces Tools is written by Golang. **It does not contain any Browser Driver** and it can be compiled to **a binary file**.
+Codeforces Tool is written by Golang. **It does not contain any Browser Driver** and it can be compiled to **a binary file**.
 
 ## Features
 

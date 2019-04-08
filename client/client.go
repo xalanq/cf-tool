@@ -154,6 +154,7 @@ func (c *Client) Login(username, password string) (err error) {
 	c.Ftaa = ftaa
 	c.Bfaa = bfaa
 	c.Username = username
+	fmt.Println("Succeed!!")
 	return c.save()
 }
 
@@ -207,11 +208,10 @@ func (s *SubmitState) display() {
 	if s.state != "---" {
 		ansi.CursorUp(6)
 	}
-	ansi.EraseInLine(2)
 	fmt.Printf("      #: %v\n", s.id)
-	ansi.EraseInLine(2)
-	fmt.Printf("   name: %v\n", s.name)
-	ansi.EraseInLine(2)
+	fmt.Printf("   prob: %v\n", s.name)
+	fmt.Printf("                                         \n")
+	ansi.CursorUp(1)
 	fmt.Printf("  state: ")
 	if s.end {
 		if state == "Accepted" || state == "Pretests passed" {
@@ -224,11 +224,8 @@ func (s *SubmitState) display() {
 	} else {
 		fmt.Printf("%v\n", state)
 	}
-	ansi.EraseInLine(2)
 	fmt.Printf("   lang: %v\n", s.lang)
-	ansi.EraseInLine(2)
 	fmt.Printf("   time: %v ms\n", s.time)
-	ansi.EraseInLine(2)
 	fmt.Printf(" memory: %v\n", memory)
 }
 
@@ -286,7 +283,7 @@ func findChannel(body []byte) []string {
 
 // SubmitContest submit problem in contest (and block util pending)
 func (c *Client) SubmitContest(contestID, probID, langID, source string) (err error) {
-	fmt.Printf("Try to submit %v %v\n", contestID, probID)
+	fmt.Printf("Try to submit %v %v %v\n", contestID, probID, Langs[langID])
 	color.Output = ansi.NewAnsiStdout()
 	submitURL := fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID)
 
@@ -315,9 +312,9 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 
 	resp, err = client.PostForm(fmt.Sprintf("%v?csrf=%v", submitURL, csrf), url.Values{
 		"csrf_token":            {csrf},
-		"action":                {"submitSolutionFormSubmitted"},
 		"ftaa":                  {c.Ftaa},
 		"bfaa":                  {c.Bfaa},
+		"action":                {"submitSolutionFormSubmitted"},
 		"submittedProblemIndex": {probID},
 		"programTypeId":         {langID},
 		"source":                {source},
@@ -327,8 +324,6 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Submitted")
 
 	defer resp.Body.Close()
 	body, err = ioutil.ReadAll(resp.Body)
@@ -351,6 +346,7 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	if err != nil {
 		return
 	}
+	fmt.Println("Submitted")
 	channels := findChannel(body)
 	tm := time.Now().UTC().Format("20060102150405")
 	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`, strings.Join(channels[:], "/"), tm)
