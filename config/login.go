@@ -11,7 +11,7 @@ import (
 	"io"
 	"syscall"
 
-	"github.com/xalanq/codeforces/client"
+	"github.com/xalanq/cf-tool/client"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

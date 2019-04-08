@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/xalanq/codeforces/client"
+	"github.com/xalanq/cf-tool/client"
 )
 
 // Add template

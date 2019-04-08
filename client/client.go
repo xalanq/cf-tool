@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/xalanq/codeforces/cookiejar"
+	"github.com/xalanq/cf-tool/cookiejar"
 )
 
 // Client codeforces client

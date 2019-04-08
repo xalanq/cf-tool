@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/xalanq/codeforces/cookiejar"
+	"github.com/xalanq/cf-tool/cookiejar"
 )
 
 // genFtaa generate a random one
