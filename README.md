@@ -5,14 +5,14 @@
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.6-green.svg)](https://github.com/golang)
 [![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/xalanq/cf-tool/master/LICENSE)
 
-Codeforces Tool is written by Golang. **It does not contain any Browser Driver** and it can be compiled to **a binary file**.
+Codeforces Tool is written by Golang. **It does not contain any browser driver** and it can be compiled to **a binary file**.
 
 ## Features
 
-* [x] Submit a code to contest and watch status dynamically.
+* [x] Submit a code to contest and **watch status dynamically**.
 * [x] List problems statis in a contest.
 * [ ] Generate files(folder with samples) for a contest and provide a command to test samples.
-* [ ] Download someone codes.
+* [ ] Download someone's codes.
 
 Contributing is always welcome!
 
@@ -71,4 +71,4 @@ My naive codeforces codes are [here](./codes).
 
 My old ID is [iwtwiioi](https://codeforces.com/profile/iwtwiioi), with a low rating :(, but we could make friends~
 
-Now I will use my new ID [xalanq](https://codeforces.com/profile/xalanq) to compete. A new BORN! (But I'm still weak)
+Now I will use my new ID [xalanq](https://codeforces.com/profile/xalanq) to compete. A new BORN! (But without a lower rating)

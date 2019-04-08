@@ -17,6 +17,20 @@ import (
 	ansi "github.com/k0kubun/go-ansi"
 )
 
+// SubmitState submit state
+type SubmitState struct {
+	name   string
+	id     uint64
+	state  string
+	passed uint64
+	judged uint64
+	points uint64
+	time   uint64
+	memory uint64
+	lang   string
+	end    bool
+}
+
 func (s *SubmitState) update(text interface{}) bool {
 	d := text.([]interface{})
 	if len(d) < 17 {
@@ -81,6 +95,15 @@ func (s *SubmitState) display() {
 	ansi.Printf("   lang: %v\n", s.lang)
 	ansi.Printf("   time: %v ms\n", s.time)
 	ansi.Printf(" memory: %v\n", memory)
+}
+
+func findErrorSource(body []byte) ([]byte, error) {
+	reg, _ := regexp.Compile(`"error\sfor__source">(.*?)</span>`)
+	tmp := reg.FindSubmatch(body)
+	if tmp == nil {
+		return nil, errors.New("Cannot find error")
+	}
+	return tmp[1], nil
 }
 
 // findSubmission just find
@@ -182,6 +205,10 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
+	}
+	sourceError, err := findErrorSource(body)
+	if err == nil {
+		return errors.New(string(sourceError))
 	}
 	submission, err := findSubmission(body)
 	if err != nil {

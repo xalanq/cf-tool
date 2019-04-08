@@ -103,17 +103,3 @@ func (c *Client) Login(username, password string) (err error) {
 	fmt.Println("Succeed!!")
 	return c.save()
 }
-
-// SubmitState submit state
-type SubmitState struct {
-	name   string
-	id     uint64
-	state  string
-	passed uint64
-	judged uint64
-	points uint64
-	time   uint64
-	memory uint64
-	lang   string
-	end    bool
-}
