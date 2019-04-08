@@ -28,6 +28,7 @@ type SubmitState struct {
 	time   uint64
 	memory uint64
 	lang   string
+	when   string
 	end    bool
 }
 
@@ -85,14 +86,15 @@ func (s *SubmitState) display() {
 		}
 	}
 	if s.state != "---" {
-		ansi.CursorUp(6)
+		ansi.CursorUp(7)
 	}
 	ansi.Printf("      #: %v\n", s.id)
 	ansi.Printf("   prob: %v\n", s.name)
+	ansi.Printf("   when: %v\n", s.when)
+	ansi.Printf("   lang: %v\n", s.lang)
 	ansi.Printf("                                               \n")
 	ansi.CursorUp(1)
 	ansi.Printf("  state: %v\n", state)
-	ansi.Printf("   lang: %v\n", s.lang)
 	ansi.Printf("   time: %v ms\n", s.time)
 	ansi.Printf(" memory: %v\n", memory)
 }
@@ -142,6 +144,16 @@ func findSubmitLang(body []byte) (string, error) {
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
 		return "", errors.New("Cannot find submit lang")
+	}
+	return strings.TrimSpace(string(tmp[1])), nil
+}
+
+// findSubmitName just find
+func findSubmitWhen(body []byte) (string, error) {
+	reg, _ := regexp.Compile(`data-locale[\s\S]+?>([\s\S]*?)</span>`)
+	tmp := reg.FindSubmatch(body)
+	if tmp == nil {
+		return "", errors.New("Cannot find submit when")
 	}
 	return strings.TrimSpace(string(tmp[1])), nil
 }
@@ -226,6 +238,10 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	if err != nil {
 		return
 	}
+	submitWhen, err := findSubmitWhen(submission)
+	if err != nil {
+		return
+	}
 	fmt.Println("Submitted")
 	channels := findChannel(body)
 	tm := time.Now().UTC().Format("20060102150405")
@@ -239,6 +255,7 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	state.id, err = strconv.ParseUint(submitID, 10, 64)
 	state.lang = submitLang
 	state.name = submitName
+	state.when = submitWhen + "(UTC)"
 	state.state = "---"
 	if err != nil {
 		return

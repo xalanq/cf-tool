@@ -13,6 +13,7 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * [x] List problems statis in a contest.
 * [ ] Generate files(folder with samples) for a contest and provide a command to test samples.
 * [ ] Download someone's codes.
+* [ ] Support for russian
 
 Contributing is always welcome!
 
