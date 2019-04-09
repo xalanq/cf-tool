@@ -90,7 +90,7 @@ func (c *Config) Login(path string) (err error) {
 	if err == nil {
 		c.Username = username
 		c.Password = password
-		fmt.Println("Succeed!")
+		fmt.Println("Done")
 		err = c.save()
 	}
 	return

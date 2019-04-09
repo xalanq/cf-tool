@@ -8,11 +8,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	docopt "github.com/docopt/docopt-go"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
+	"github.com/xalanq/cf-tool/util"
 )
 
 var configPath = "~/.cfconfig"
@@ -24,6 +26,8 @@ func cmdConfig(args map[string]interface{}) error {
 		return cfg.Login(sessionPath)
 	} else if args["add"].(bool) {
 		return cfg.Add()
+	} else if args["default"].(bool) {
+		return cfg.SetDefault()
 	}
 	return nil
 }
@@ -72,21 +76,10 @@ func cmdSubmit(args map[string]interface{}) error {
 		for i, name := range ava {
 			fmt.Printf("%3v: %v\n", i, name)
 		}
-		fmt.Print("Please choose one(index): ")
-		for {
-			var index string
-			_, err := fmt.Scanln(&index)
-			if err == nil {
-				i, err := strconv.Atoi(index)
-				if err == nil && i >= 0 && i < len(ava) {
-					filename = ava[i]
-					i = mp[filepath.Ext(filename)]
-					lang = cfg.Template[i].Lang
-					break
-				}
-			}
-			fmt.Println("Invalid index! Please try again: ")
-		}
+		i := util.ChooseIndex(len(ava))
+		filename = ava[i]
+		i = mp[filepath.Ext(filename)]
+		lang = cfg.Template[i].Lang
 	} else {
 		filename = ava[0]
 		i := mp[filepath.Ext(filename)]
@@ -158,7 +151,7 @@ func cmdList(args map[string]interface{}) error {
 	cfg := config.New(configPath)
 	cln := client.New(sessionPath)
 	for T := 1; T <= 3; T++ {
-		probs, err := cln.Statis(contest)
+		probs, err := cln.StatisContest(contest)
 		if err != nil {
 			if err.Error() == client.ErrorNotLogged {
 				fmt.Printf("Not logged. %v try to re-login\n", T)
@@ -204,38 +197,149 @@ func cmdList(args map[string]interface{}) error {
 }
 
 func cmdParse(args map[string]interface{}) error {
+	currentPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	cfg := config.New(configPath)
+	cln := client.New(sessionPath)
+	contestID := args["<contest-id>"].(string)
+	for T := 1; T <= 3; T++ {
+		if probID, ok := args["<problem-id>"].(string); ok {
+			err = cln.ParseContestProblem(contestID, probID, currentPath)
+		} else {
+			err = cln.ParseContest(contestID, currentPath)
+		}
+		if err != nil {
+			if err.Error() == client.ErrorNotLogged {
+				fmt.Printf("Not logged. %v try to re-login\n", T)
+				password, err := cfg.DecryptPassword()
+				if err != nil {
+					return err
+				}
+				cln.Login(cfg.Username, password)
+				continue
+			}
+			return err
+		}
+		break
+	}
+	return nil
+}
+
+func cmdGen(args map[string]interface{}) error {
+	currentPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	savePath := filepath.Join(currentPath, filepath.Base(currentPath))
+	path := ""
+	cfg := config.New(configPath)
+	if alias, ok := args["alias"].(string); ok {
+		templates := cfg.Alias(alias)
+		if len(templates) < 1 {
+			return fmt.Errorf("Cannot find any template with alias %v", alias)
+		} else if len(templates) == 1 {
+			path = templates[0].Path
+		} else {
+			fmt.Printf("There are multiple templates with alias %v\n", alias)
+			for i, template := range templates {
+				fmt.Printf("%3v: %v\n", i, template.Path)
+			}
+			i := util.ChooseIndex(len(templates))
+			path = templates[i].Path
+		}
+	} else {
+		if cfg.Default < 0 || cfg.Default >= len(cfg.Template) {
+			return fmt.Errorf("Invalid default value %v in config file", cfg.Default)
+		}
+		path = cfg.Template[cfg.Default].Path
+	}
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
+	source := string(b)
+	source = strings.ReplaceAll(source, "$%U%$", fmt.Sprintf("%v", cfg.Username))
+	source = strings.ReplaceAll(source, "$%Y%$", fmt.Sprintf("%v", now.Year()))
+	source = strings.ReplaceAll(source, "$%M%$", fmt.Sprintf("%02v", int(now.Month())))
+	source = strings.ReplaceAll(source, "$%D%$", fmt.Sprintf("%02v", now.Day()))
+	source = strings.ReplaceAll(source, "$%h%$", fmt.Sprintf("%02v", now.Hour()))
+	source = strings.ReplaceAll(source, "$%m%$", fmt.Sprintf("%02v", now.Minute()))
+	source = strings.ReplaceAll(source, "$%s%$", fmt.Sprintf("%02v", now.Second()))
+	ext := filepath.Ext(path)
+	tmpPath := savePath + ext
+	_, err = os.Stat(tmpPath)
+	for i := 1; err == nil; i++ {
+		nxtPath := fmt.Sprintf("%v%v%v", savePath, i, ext)
+		fmt.Printf("%v is existed. Rename to %v\n", filepath.Base(tmpPath), filepath.Base(nxtPath))
+		tmpPath = nxtPath
+		_, err = os.Stat(tmpPath)
+	}
+	savePath = tmpPath
+	return ioutil.WriteFile(savePath, []byte(source), 0644)
+}
+
+func cmdTest(args map[string]interface{}) error {
 	return nil
 }
 
 func main() {
 	usage := `Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 
-cf will save
-     config(including username, encrypted password, etc.) in "~/.cfconfig",
-     session(including cookies, username, etc.) in "~/.cfsession".
+File:
+  cf will save some data in following files:
+
+  "~/.cfconfig"   config file, including username, encrypted password, etc.
+  "~/.cfsession"  session file, including cookies, username, etc.
+
+  "~" is the homedir in your system
 
 Usage:
-  cf config [login | add]
+  cf config (login | add | default)
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
-  cf parse <contest-id>
+  cf parse <contest-id> [<problem-id>]
+  cf gen [<alias>]
+  cf test
 
 Examples:
   cf config login      Config username and password(encrypt).
-  cf config add        Config
+  cf config add        Add template.
+  cf config default    Set default template.
   cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
                        If there are multiple files which satisfy above condition, you
                        have to choose one.
-  cf list              List current contest or <contest-id> problems' infomation
-  cf parse 100         Generate Round, include sample
   cf submit 100 a
-  cf submit 100 a a.cp
+  cf submit 100 a a.cpp
+  cf list              List current contest or <contest-id> problems' infomation.
+  cf parse 100         Parse contest 100, all problems, including sample
+                       into ./100/<problem-id>.
+  cf parse 100 a       Parse contest 100, problem a, including sample in current path
+  cf gen               Generate default template in current path (name as current path).
+  cf gen cpp           Generate template which alias is cpp in current path (same above).
+  cf test              Test all samples with a excutable file. If there are multiple
+                       excutable files, you have to choose one.
 
 Notes:
-  <problem-id>         could be "a" or "A", case-insensitive
-  <contest-id>         should be a number, you could find it in codeforces contest url.
-                       E.g. 1119 in https://codeforces.com/contest/1119
+  <problem-id>         Could be "a" or "A", case-insensitive.
+  <contest-id>         Should be a number, you could find it in codeforces contest url.
+                       E.g. 1119 in https://codeforces.com/contest/1119.
+  <alias>              Template's alias.
+
+Template:
+    You can insert some placeholders in your template code. When generate a code from a
+  template, cf will replace all placeholders.
+
+  $%U%$   Username
+  $%Y%$   Year   (e.g. 2019)
+  $%M%$   Month  (e.g. 04)
+  $%D%$   Day    (e.g. 09)
+  $%h%$   Hour   (e.g. 08)
+  $%m%$   Minute (e.g. 05)
+  $%s%$   Second (e.g. 00)
 
 Options:
   -h --help
@@ -254,6 +358,10 @@ Options:
 			return cmdList(args)
 		} else if args["parse"].(bool) {
 			return cmdParse(args)
+		} else if args["gen"].(bool) {
+			return cmdGen(args)
+		} else if args["test"].(bool) {
+			return cmdTest(args)
 		}
 		return nil
 	}()

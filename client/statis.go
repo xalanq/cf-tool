@@ -62,8 +62,8 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 	return ret, nil
 }
 
-// Statis get prblem statis
-func (c *Client) Statis(contestID string) (probs []StatisInfo, err error) {
+// StatisContest get contest problems statis
+func (c *Client) StatisContest(contestID string) (probs []StatisInfo, err error) {
 	fmt.Printf("Get statis in contest %v\n", contestID)
 	statisURL := fmt.Sprintf("https://codeforces.com/contest/%v", contestID)
 
@@ -74,6 +74,11 @@ func (c *Client) Statis(contestID string) (probs []StatisInfo, err error) {
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	err = checkLogin(c.Username, body)
 	if err != nil {
 		return
 	}

@@ -28,6 +28,10 @@ func (c *Config) Add() (err error) {
 	var lang string
 	fmt.Scanln(&lang)
 
+	fmt.Print("Input alias(e.g. cpp): ")
+	var alias string
+	fmt.Scanln(&alias)
+
 	fmt.Print(`Template absolute path(e.g. ~/template/io.cpp): `)
 	var path string
 	for {
@@ -46,6 +50,21 @@ func (c *Config) Add() (err error) {
 	fmt.Scanln(&sf)
 	suffix := strings.Fields(sf)
 
-	c.Template = append(c.Template, CodeTemplate{lang, path, suffix})
+	c.Template = append(c.Template, CodeTemplate{alias, lang, path, suffix})
+
+	fmt.Print("Make it default (y/n)? ")
+	var tmp string
+	for {
+		fmt.Scanln(&tmp)
+		tmp = strings.TrimSpace(tmp)
+		if tmp == "y" || tmp == "Y" {
+			c.Default = len(c.Template) - 1
+			break
+		}
+		if tmp == "n" || tmp == "N" {
+			break
+		}
+		fmt.Print("Invalid input. Please input again: ")
+	}
 	return c.save()
 }

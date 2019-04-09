@@ -11,9 +11,11 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 
 * [x] Submit a code to contest and **watch status dynamically**.
 * [x] List problems statis in a contest.
-* [ ] Generate files(folder with samples) for a contest and provide a command to test samples.
+* [x] Generate problem samples and templates.
+* [ ] Test samples.
 * [ ] Download someone's codes.
 * [ ] Support for russian
+* [x] Cross-platform
 
 Contributing is always welcome!
 
@@ -34,32 +36,58 @@ $ go build cf.go
 ```plain
 Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 
-cf will save
-     config(including username, encrypted password, etc.) in "~/.cfconfig",
-     session(including cookies, username, etc.) in "~/.cfsession".
+File:
+  cf will save some data in following files:
+
+  "~/.cfconfig"   config file, including username, encrypted password, etc.
+  "~/.cfsession"  session file, including cookies, username, etc.
+
+  "~" is the homedir in your system
 
 Usage:
-  cf config [login | add]
+  cf config (login | add | default)
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
-  cf parse <contest-id>
+  cf parse <contest-id> [<problem-id>]
+  cf gen [<alias>]
+  cf test
 
 Examples:
   cf config login      Config username and password(encrypt).
-  cf config add        Config
+  cf config add        Add template.
+  cf config default    Set default template.
   cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
                        If there are multiple files which satisfy above condition, you
                        have to choose one.
-  cf list              List current contest or <contest-id> problems' infomation
-  cf parse 100         Generate Round, include sample
   cf submit 100 a
-  cf submit 100 a a.cp
+  cf submit 100 a a.cpp
+  cf list              List current contest or <contest-id> problems' infomation.
+  cf parse 100         Parse contest 100, all problems, including sample
+                       into ./100/<problem-id>.
+  cf parse 100 a       Parse contest 100, problem a, including sample in current path
+  cf gen               Generate default template in current path (name as current path).
+  cf gen cpp           Generate template which alias is cpp in current path (same above).
+  cf test              Test all samples with a excutable file. If there are multiple
+                       excutable files, you have to choose one.
 
 Notes:
-  <problem-id>         could be "a" or "A", case-insensitive
-  <contest-id>         should be a number, you could find it in codeforces contest url.
-                       E.g. 1119 in https://codeforces.com/contest/1119
+  <problem-id>         Could be "a" or "A", case-insensitive.
+  <contest-id>         Should be a number, you could find it in codeforces contest url.
+                       E.g. 1119 in https://codeforces.com/contest/1119.
+  <alias>              Template's alias.
+
+Template:
+    You can insert some placeholders in your template code. When generate a code from a
+  template, cf will replace all placeholders.
+
+  $%U%$   Username
+  $%Y%$   Year   (e.g. 2019)
+  $%M%$   Month  (e.g. 04)
+  $%D%$   Day    (e.g. 09)
+  $%h%$   Hour   (e.g. 08)
+  $%m%$   Minute (e.g. 05)
+  $%s%$   Second (e.g. 00)
 
 Options:
   -h --help
@@ -70,6 +98,6 @@ Options:
 
 My naive codeforces codes are [here](./codes).
 
-My old ID is [iwtwiioi](https://codeforces.com/profile/iwtwiioi), with a low rating :(, but we could make friends~
+My old ID is [iwtwiioi](https://codeforces.com/profile/iwtwiioi), with a low rating :(. But we could make friends~
 
-Now I will use my new ID [xalanq](https://codeforces.com/profile/xalanq) to compete. A new BORN! (But without a lower rating)
+Now I will use my new ID [xalanq](https://codeforces.com/profile/xalanq) to compete. A new BORN! (But with a lower rating QAQ)

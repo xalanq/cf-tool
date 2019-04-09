@@ -2,12 +2,14 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
 
 // CodeTemplate config parse code template
 type CodeTemplate struct {
+	Alias  string   `json:"alias"`
 	Lang   string   `json:"lang"`
 	Path   string   `json:"path"`
 	Suffix []string `json:"suffix"`
@@ -18,6 +20,7 @@ type Config struct {
 	Username string         `json:"username"`
 	Password string         `json:"password"`
 	Template []CodeTemplate `json:"template"`
+	Default  int            `json:"default"`
 	path     string
 }
 
@@ -25,7 +28,7 @@ type Config struct {
 func New(path string) *Config {
 	c := &Config{path: path}
 	if err := c.load(); err != nil {
-		return nil
+		return &Config{path: path}
 	}
 	return c
 }
@@ -51,8 +54,10 @@ func (c *Config) load() (err error) {
 func (c *Config) save() (err error) {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err == nil {
-		return
+		err = ioutil.WriteFile(c.path, data, 0644)
 	}
-	err = ioutil.WriteFile(c.path, data, 0644)
+	if err != nil {
+		fmt.Printf("Cannot save config to %v\n%v", c.path, err.Error())
+	}
 	return
 }
