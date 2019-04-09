@@ -511,7 +511,7 @@ Examples:
                        have to choose one.
   cf submit 100 a
   cf submit 100 a a.cpp
-  cf list              List current contest or <contest-id> problems' infomation.
+  cf list              List current contest or <contest-id> problems' information.
   cf parse 100         Parse contest 100, all problems, including samples,
                        into ./100/<problem-id>.
   cf parse 100 a       Parse contest 100, problem a, including samples,

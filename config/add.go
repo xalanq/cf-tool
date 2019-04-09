@@ -50,10 +50,10 @@ func (c *Config) Add() (err error) {
 	suffix := strings.Fields(util.ScanlineTrim())
 	suffix = append(suffix, strings.Replace(filepath.Ext(path), ".", "", 1))
 
-	color.Cyan("Before script (e.g. g++ $%full%$ -o $%name%$.exe -std=c++11), empty is ok: ")
+	color.Cyan("Before script (e.g. g++ $%full%$ -o $%file%$.exe -std=c++11), empty is ok: ")
 	beforeScript := util.ScanlineTrim()
 
-	color.Cyan("Script (e.g. ./$%name%$.exe): ")
+	color.Cyan("Script (e.g. ./$%file%$.exe): ")
 	script := ""
 	for {
 		script = util.ScanlineTrim()
@@ -63,7 +63,7 @@ func (c *Config) Add() (err error) {
 		color.Red("script can not be empty. Please input again: ")
 	}
 
-	color.Cyan("After script (e.g. rm $%name%$.exe): ")
+	color.Cyan("After script (e.g. rm $%file%$.exe): ")
 	afterScript := util.ScanlineTrim()
 
 	c.Template = append(c.Template, CodeTemplate{

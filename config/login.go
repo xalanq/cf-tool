@@ -70,7 +70,7 @@ func (c *Config) DecryptPassword() (string, error) {
 	return decrypt(c.Username, c.Password)
 }
 
-// Login configurate
+// Login configure username and password
 func (c *Config) Login(path string) (err error) {
 	color.Cyan("Config username/email and password(encrypt)")
 

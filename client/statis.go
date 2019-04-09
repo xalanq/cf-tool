@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// StatisInfo statis infomation
+// StatisInfo statis information
 type StatisInfo struct {
 	ID     string
 	Name   string
