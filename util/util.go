@@ -3,12 +3,25 @@ package util
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
 )
+
+// CHA map
+const CHA = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+// RandString n is the length. a-z 0-9
+func RandString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = CHA[rand.Intn(len(CHA))]
+	}
+	return string(b)
+}
 
 // Scanline scan line
 func Scanline() string {

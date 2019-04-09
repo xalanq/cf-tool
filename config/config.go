@@ -10,11 +10,13 @@ import (
 
 // CodeTemplate config parse code template
 type CodeTemplate struct {
-	Alias  string   `json:"alias"`
-	Lang   string   `json:"lang"`
-	Path   string   `json:"path"`
-	Suffix []string `json:"suffix"`
-	Build  string   `json:"build"`
+	Alias        string   `json:"alias"`
+	Lang         string   `json:"lang"`
+	Path         string   `json:"path"`
+	Suffix       []string `json:"suffix"`
+	BeforeScript string   `json:"before_script"`
+	Script       string   `json:"script"`
+	AfterScript  string   `json:"after_script"`
 }
 
 // Config load and save configuration

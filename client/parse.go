@@ -53,7 +53,7 @@ func (c *Client) ParseProblem(probURL, path string) (err error) {
 
 	for i := 0; i < len(input); i++ {
 		fileIn := filepath.Join(path, fmt.Sprintf("in%v.txt", i+1))
-		fileOut := filepath.Join(path, fmt.Sprintf("out%v.txt", i+1))
+		fileOut := filepath.Join(path, fmt.Sprintf("ans%v.txt", i+1))
 		e := ioutil.WriteFile(fileIn, input[i], 0644)
 		if e != nil {
 			color.Red(e.Error())

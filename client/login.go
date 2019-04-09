@@ -4,23 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"regexp"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
+	"github.com/xalanq/cf-tool/util"
 )
 
 // genFtaa generate a random one
 func genFtaa() string {
-	const CHA = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, 18)
-	for i := range b {
-		b[i] = CHA[rand.Intn(len(CHA))]
-	}
-	return string(b)
+	return util.RandString(18)
 }
 
 // genBfaa generate a bfaa

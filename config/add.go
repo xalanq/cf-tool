@@ -27,14 +27,14 @@ func (c *Config) Add() (err error) {
 	for _, t := range langs {
 		fmt.Printf("%5v: %v\n", t.K, t.V)
 	}
-	color.Cyan("Select a language(e.g. 42): ")
+	color.Cyan("Select a language (e.g. 42): ")
 	lang := util.ScanlineTrim()
 
-	color.Cyan("Input alias(e.g. cpp): ")
+	color.Cyan("Input alias (e.g. cpp): ")
 	alias := util.ScanlineTrim()
 
 	color.Cyan(`Template absolute path(e.g. ~/template/io.cpp): `)
-	var path string
+	path := ""
 	for {
 		path = util.ScanlineTrim()
 		path, err = homedir.Expand(path)
@@ -46,14 +46,30 @@ func (c *Config) Add() (err error) {
 		color.Red("%v is invalid. Please input again: ", path)
 	}
 
-	color.Cyan("Other suffix?(e.g. cxx cc): ")
+	color.Cyan("Other suffix? (e.g. cxx cc): ")
 	suffix := strings.Fields(util.ScanlineTrim())
 	suffix = append(suffix, strings.Replace(filepath.Ext(path), ".", "", 1))
 
-	color.Cyan("Build command(e.g. g++ {filename}.exe -o {file} -std=c++11):")
-	build := util.ScanlineTrim()
+	color.Cyan("Before script (e.g. g++ $%full%$ -o $%name%$.exe -std=c++11), empty is ok: ")
+	beforeScript := util.ScanlineTrim()
 
-	c.Template = append(c.Template, CodeTemplate{alias, lang, path, suffix, build})
+	color.Cyan("Script (e.g. ./$%name%$.exe): ")
+	script := ""
+	for {
+		script = util.ScanlineTrim()
+		if len(script) > 0 {
+			break
+		}
+		color.Red("script can not be empty. Please input again: ")
+	}
+
+	color.Cyan("After script (e.g. rm $%name%$.exe): ")
+	afterScript := util.ScanlineTrim()
+
+	c.Template = append(c.Template, CodeTemplate{
+		alias, lang, path, suffix,
+		beforeScript, script, afterScript,
+	})
 
 	color.Cyan("Make it default (y/n)? ")
 	for {

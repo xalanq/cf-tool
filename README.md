@@ -15,7 +15,7 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * [x] Support code templates.
 * [x] Cross-platform.
 * [x] Colorful.
-* [ ] Test samples.
+* [x] Test samples.
 * [ ] Download someone's codes.
 * [ ] Support for russian.
 * [ ] Scrape problems? I think we need to discuss for it. It's not a technical problem...[issue #1](https://github.com/xalanq/cf-tool/issues/1)
@@ -82,8 +82,8 @@ Notes:
   <alias>              Template's alias.
 
 Template:
-    You can insert some placeholders in your template code. When generate a code from a
-  template, cf will replace all placeholders.
+  You can insert some placeholders in your template code. When generate a code from a
+  template, cf will replace all placeholders by following rules:
 
   $%U%$   Username
   $%Y%$   Year   (e.g. 2019)
@@ -93,11 +93,21 @@ Template:
   $%m%$   Minute (e.g. 05)
   $%s%$   Second (e.g. 00)
 
-Build command:
-  You can see https://codeforces.com/blog/entry/79.
+Command:
+  Execution order is:
+    - before_script   (execute once)
+	- script          (execute number of samples times)
+    - after_script    (execute once)
+  You can set one of before_script and after_script to empty string,
+  meaning not executing.
 
-  cf will replace all {filename} to source filename (without suffix), and all {file} to
-  entire filename.
+  You can insert some placeholders in your commands. When execute these commands,
+  cf will replace all placeholders by following rules:
+
+  $%path%$   Path of test file (Excluding $%full%$, e.g. /home/xalanq/)
+  $%full%$   Full name of test file (e.g. a.cpp)
+  $%file%$   Name of testing file (Excluding suffix, e.g. a)
+  $%rand%$   Random string with 8 character (including a-z 0-9)
 
 Options:
   -h --help
@@ -122,5 +132,32 @@ int main() {
     cin.tie(0);
     
     return 0;
+}
+```
+
+## Config Template
+
+You can save it to `~/.cfconfig` (but replace `path` field to yours)
+
+```json
+{
+  "username": "",
+  "password": "",
+  "template": [
+    {
+      "alias": "cpp",
+      "lang": "42",
+      "path": "C:\\develop\\template\\cf.cpp",
+      "suffix": [
+        "cxx",
+        "cc",
+        "cpp"
+      ],
+      "before_script": "g++ $%full%$ -o $%file%$.exe -std=c++11 -O2",
+      "script": "./$%file%$.exe",
+      "after_script": ""
+    }
+  ],
+  "default": 0
 }
 ```
