@@ -12,12 +12,13 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * [x] Submit a code to contest and **watch status dynamically**.
 * [x] List problems statis in a contest.
 * [x] Generate problem samples(parallel).
-* [x] Support code templates
+* [x] Support code templates.
+* [x] Cross-platform.
+* [x] Colorful.
 * [ ] Test samples.
 * [ ] Download someone's codes.
-* [ ] Support for russian
-* [x] Cross-platform
-* [x] Colorful!
+* [ ] Support for russian.
+* [ ] Scrape problems? I think we need to discuss for it. It's not a technical problem...[issue #1](https://github.com/xalanq/cf-tool/issues/1)
 
 Contributing is always welcome!
 
