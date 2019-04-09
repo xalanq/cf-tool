@@ -10,6 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
+	ansi "github.com/k0kubun/go-ansi"
+
 	docopt "github.com/docopt/docopt-go"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/xalanq/cf-tool/client"
@@ -72,7 +75,7 @@ func cmdSubmit(args map[string]interface{}) error {
 		return errors.New("Cannot find any supported file to submit\nYou can add the suffix with `cf config add`")
 	}
 	if len(ava) > 1 {
-		fmt.Println("There are multiple files can be submitted.")
+		color.Cyan("There are multiple files can be submitted.")
 		for i, name := range ava {
 			fmt.Printf("%3v: %v\n", i, name)
 		}
@@ -143,7 +146,11 @@ func cmdList(args map[string]interface{}) error {
 		if err != nil {
 			return err
 		}
-		contest = filepath.Base(filepath.Dir(currentPath))
+		if _, err := strconv.Atoi(filepath.Base(currentPath)); err == nil {
+			contest = filepath.Base(currentPath)
+		} else {
+			contest = filepath.Base(filepath.Dir(currentPath))
+		}
 	}
 	if _, err := strconv.Atoi(contest); err != nil {
 		return fmt.Errorf(`Contest should be a number instead of "%v"`, contest)
@@ -189,7 +196,13 @@ func cmdList(args map[string]interface{}) error {
 		format += "\n"
 		fmt.Printf(format, "#", "Name", "AC", "Limit", "IO")
 		for _, prob := range probs {
-			fmt.Printf(format, prob.ID, prob.Name, prob.Passed, prob.Limit, prob.IO)
+			info := fmt.Sprintf(format, prob.ID, prob.Name, prob.Passed, prob.Limit, prob.IO)
+			if strings.Contains(prob.State, "accepted") {
+				info = color.New(color.BgGreen).Sprint(info)
+			} else if strings.Contains(prob.State, "rejected") {
+				info = color.New(color.BgRed).Sprint(info)
+			}
+			ansi.Print(info)
 		}
 		break
 	}
@@ -235,7 +248,7 @@ func cmdGen(args map[string]interface{}) error {
 	savePath := filepath.Join(currentPath, filepath.Base(currentPath))
 	path := ""
 	cfg := config.New(configPath)
-	if alias, ok := args["alias"].(string); ok {
+	if alias, ok := args["<alias>"].(string); ok {
 		templates := cfg.Alias(alias)
 		if len(templates) < 1 {
 			return fmt.Errorf("Cannot find any template with alias %v", alias)
@@ -244,7 +257,8 @@ func cmdGen(args map[string]interface{}) error {
 		} else {
 			fmt.Printf("There are multiple templates with alias %v\n", alias)
 			for i, template := range templates {
-				fmt.Printf("%3v: %v\n", i, template.Path)
+				fmt.Printf(`%3v: "%v" "%v"`, i, template.Path, template.Build)
+				fmt.Println()
 			}
 			i := util.ChooseIndex(len(templates))
 			path = templates[i].Path
@@ -278,7 +292,11 @@ func cmdGen(args map[string]interface{}) error {
 		_, err = os.Stat(tmpPath)
 	}
 	savePath = tmpPath
-	return ioutil.WriteFile(savePath, []byte(source), 0644)
+	err = ioutil.WriteFile(savePath, []byte(source), 0644)
+	if err == nil {
+		color.Green("Generated! See %v", filepath.Base(savePath))
+	}
+	return err
 }
 
 func cmdTest(args map[string]interface{}) error {
@@ -303,7 +321,7 @@ Usage:
   cf list [<contest-id>]
   cf parse <contest-id> [<problem-id>]
   cf gen [<alias>]
-  cf test [<executable-filename>]
+  cf test [<filename>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -315,13 +333,14 @@ Examples:
   cf submit 100 a
   cf submit 100 a a.cpp
   cf list              List current contest or <contest-id> problems' infomation.
-  cf parse 100         Parse contest 100, all problems, including sample
+  cf parse 100         Parse contest 100, all problems, including samples,
                        into ./100/<problem-id>.
-  cf parse 100 a       Parse contest 100, problem a, including sample in current path
+  cf parse 100 a       Parse contest 100, problem a, including samples,
+                       into current path
   cf gen               Generate default template in current path (name as current path).
   cf gen cpp           Generate template which alias is cpp in current path (same above).
-  cf test              Test all samples with a excutable file (stdio). If there are
-                       multiple excutable files, you have to choose one.
+  cf test              Compile the source with build config first. Then test all samples.
+                       If there are multiple files, you have to choose one.
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
@@ -341,11 +360,18 @@ Template:
   $%m%$   Minute (e.g. 05)
   $%s%$   Second (e.g. 00)
 
+Build command:
+  You can see https://codeforces.com/blog/entry/79.
+
+  cf will replace all {filename} to source filename (without suffix), and all {file} to
+  entire filename.
+
 Options:
   -h --help
   --version`
 
 	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.1.0", false)
+	color.Output = ansi.NewAnsiStdout()
 	configPath, _ = homedir.Expand(configPath)
 	sessionPath, _ = homedir.Expand(sessionPath)
 

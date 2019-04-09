@@ -172,7 +172,7 @@ func findChannel(body []byte) []string {
 
 // SubmitContest submit problem in contest (and block util pending)
 func (c *Client) SubmitContest(contestID, probID, langID, source string) (err error) {
-	fmt.Printf("Try to submit %v %v %v\n", contestID, probID, Langs[langID])
+	color.Cyan("Try to submit %v %v %v", contestID, probID, Langs[langID])
 	submitURL := fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID)
 
 	client := &http.Client{Jar: c.Jar}
@@ -242,7 +242,7 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	if err != nil {
 		return
 	}
-	fmt.Println("Submitted")
+	color.Green("Submitted")
 	channels := findChannel(body)
 	tm := time.Now().UTC().Format("20060102150405")
 	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`, strings.Join(channels[:], "/"), tm)

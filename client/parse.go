@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
@@ -54,11 +56,11 @@ func (c *Client) ParseProblem(probURL, path string) (err error) {
 		fileOut := filepath.Join(path, fmt.Sprintf("out%v.txt", i+1))
 		e := ioutil.WriteFile(fileIn, input[i], 0644)
 		if e != nil {
-			fmt.Println(e.Error())
+			color.Red(e.Error())
 		}
 		e = ioutil.WriteFile(fileOut, output[i], 0644)
 		if e != nil {
-			fmt.Println(e.Error())
+			color.Red(e.Error())
 		}
 	}
 	return nil
@@ -76,7 +78,7 @@ func (c *Client) ParseContestProblem(contestID, probID, path string) (err error)
 
 // ParseContest parse for contest
 func (c *Client) ParseContest(contestID, rootPath string) (err error) {
-	fmt.Printf("Try to parse contest %v to %v\n", contestID, rootPath)
+	color.Cyan("Try to parse contest %v to %v", contestID, rootPath)
 	probs, err := c.StatisContest(contestID)
 	if err != nil {
 		return err
@@ -92,9 +94,9 @@ func (c *Client) ParseContest(contestID, rootPath string) (err error) {
 			path := filepath.Join(rootPath, contestID, probID)
 			err := c.ParseContestProblem(contestID, prob.ID, path)
 			if err != nil {
-				fmt.Printf("%v: %v", prob.ID, err.Error())
+				color.Red("%v: %v", prob.ID, err.Error())
 			} else {
-				fmt.Printf("%v: Done!\n", prob.ID)
+				color.Green("%v: Done!", prob.ID)
 			}
 		}()
 	}

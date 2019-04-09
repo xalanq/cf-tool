@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"regexp"
 
+	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
 )
 
@@ -100,6 +101,6 @@ func (c *Client) Login(username, password string) (err error) {
 	c.Ftaa = ftaa
 	c.Bfaa = bfaa
 	c.Username = username
-	fmt.Println("Succeed!!")
+	color.Green("Succeed!!")
 	return c.save()
 }

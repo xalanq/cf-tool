@@ -2,10 +2,10 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
 )
 
@@ -50,7 +50,7 @@ func (c *Client) save() (err error) {
 		err = ioutil.WriteFile(c.path, data, 0644)
 	}
 	if err != nil {
-		fmt.Printf("Cannot save session to %v\n%v", c.path, err.Error())
+		color.Red("Cannot save session to %v\n%v", c.path, err.Error())
 	}
 	return
 }

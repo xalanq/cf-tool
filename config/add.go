@@ -3,16 +3,19 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/xalanq/cf-tool/client"
+	"github.com/xalanq/cf-tool/util"
 )
 
 // Add template
 func (c *Config) Add() (err error) {
-	fmt.Println("Language list:")
+	color.Cyan("Language list:")
 	type kv struct {
 		K, V string
 	}
@@ -24,39 +27,37 @@ func (c *Config) Add() (err error) {
 	for _, t := range langs {
 		fmt.Printf("%5v: %v\n", t.K, t.V)
 	}
-	fmt.Print("Select a language(e.g. 42): ")
-	var lang string
-	fmt.Scanln(&lang)
+	color.Cyan("Select a language(e.g. 42): ")
+	lang := util.ScanlineTrim()
 
-	fmt.Print("Input alias(e.g. cpp): ")
-	var alias string
-	fmt.Scanln(&alias)
+	color.Cyan("Input alias(e.g. cpp): ")
+	alias := util.ScanlineTrim()
 
-	fmt.Print(`Template absolute path(e.g. ~/template/io.cpp): `)
+	color.Cyan(`Template absolute path(e.g. ~/template/io.cpp): `)
 	var path string
 	for {
-		fmt.Scanln(&path)
-		path, err := homedir.Expand(path)
+		path = util.ScanlineTrim()
+		path, err = homedir.Expand(path)
 		if err == nil {
 			if _, err := os.Stat(path); err == nil {
 				break
 			}
 		}
-		fmt.Printf("%v is invalid. Please input again: ", path)
+		color.Red("%v is invalid. Please input again: ", path)
 	}
 
-	fmt.Print("Match suffix(e.g. cpp cxx): ")
-	var sf string
-	fmt.Scanln(&sf)
-	suffix := strings.Fields(sf)
+	color.Cyan("Other suffix?(e.g. cxx cc): ")
+	suffix := strings.Fields(util.ScanlineTrim())
+	suffix = append(suffix, strings.Replace(filepath.Ext(path), ".", "", 1))
 
-	c.Template = append(c.Template, CodeTemplate{alias, lang, path, suffix})
+	color.Cyan("Build command(e.g. g++ {filename}.exe -o {file} -std=c++11):")
+	build := util.ScanlineTrim()
 
-	fmt.Print("Make it default (y/n)? ")
-	var tmp string
+	c.Template = append(c.Template, CodeTemplate{alias, lang, path, suffix, build})
+
+	color.Cyan("Make it default (y/n)? ")
 	for {
-		fmt.Scanln(&tmp)
-		tmp = strings.TrimSpace(tmp)
+		tmp := util.ScanlineTrim()
 		if tmp == "y" || tmp == "Y" {
 			c.Default = len(c.Template) - 1
 			break
@@ -64,7 +65,7 @@ func (c *Config) Add() (err error) {
 		if tmp == "n" || tmp == "N" {
 			break
 		}
-		fmt.Print("Invalid input. Please input again: ")
+		color.Red("Invalid input. Please input again: ")
 	}
 	return c.save()
 }

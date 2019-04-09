@@ -2,9 +2,10 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/fatih/color"
 )
 
 // CodeTemplate config parse code template
@@ -13,6 +14,7 @@ type CodeTemplate struct {
 	Lang   string   `json:"lang"`
 	Path   string   `json:"path"`
 	Suffix []string `json:"suffix"`
+	Build  string   `json:"build"`
 }
 
 // Config load and save configuration
@@ -57,7 +59,7 @@ func (c *Config) save() (err error) {
 		err = ioutil.WriteFile(c.path, data, 0644)
 	}
 	if err != nil {
-		fmt.Printf("Cannot save config to %v\n%v", c.path, err.Error())
+		color.Red("Cannot save config to %v\n%v", c.path, err.Error())
 	}
 	return
 }

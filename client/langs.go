@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -43,7 +42,6 @@ func (c *Client) GetLangList(url string) (langs map[string]string, err error) {
 		return
 	}
 
-	fmt.Println(string(body))
 	block, err := findLangBlock(body)
 	if err != nil {
 		return

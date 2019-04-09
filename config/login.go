@@ -11,7 +11,9 @@ import (
 	"io"
 	"syscall"
 
+	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/client"
+	"github.com/xalanq/cf-tool/util"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -70,16 +72,17 @@ func (c *Config) DecryptPassword() (string, error) {
 
 // Login configurate
 func (c *Config) Login(path string) (err error) {
-	fmt.Println("Config username(email) and password(encrypt)")
+	color.Cyan("Config username/email and password(encrypt)")
+
 	fmt.Printf("username: ")
-	var username string
-	fmt.Scanln(&username)
+	username := util.ScanlineTrim()
+
 	fmt.Printf("password: ")
-	bytes, err := terminal.ReadPassword(int(syscall.Stdin))
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return err
 	}
-	password := string(bytes)
+	password := string(bytePassword)
 	fmt.Println()
 
 	err = client.New(path).Login(username, password)
@@ -90,7 +93,6 @@ func (c *Config) Login(path string) (err error) {
 	if err == nil {
 		c.Username = username
 		c.Password = password
-		fmt.Println("Done")
 		err = c.save()
 	}
 	return

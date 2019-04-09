@@ -1,7 +1,8 @@
 package config
 
 import (
-	"fmt"
+	"github.com/fatih/color"
+	ansi "github.com/k0kubun/go-ansi"
 
 	"github.com/xalanq/cf-tool/util"
 )
@@ -11,9 +12,10 @@ func (c *Config) SetDefault() error {
 	for i, template := range c.Template {
 		star := " "
 		if i == c.Default {
-			star = "*"
+			star = color.New(color.FgGreen).Sprint("*")
 		}
-		fmt.Printf("%v%2v: (%v) %v\n", star, i, template.Alias, template.Path)
+		ansi.Printf(`%v%2v: "%v" "%v" "%v"`, star, i, template.Alias, template.Path, template.Build)
+		ansi.Println()
 	}
 	c.Default = util.ChooseIndex(len(c.Template))
 	return c.save()
