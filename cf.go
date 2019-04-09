@@ -303,7 +303,7 @@ Usage:
   cf list [<contest-id>]
   cf parse <contest-id> [<problem-id>]
   cf gen [<alias>]
-  cf test
+  cf test [<executable-filename>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -320,8 +320,8 @@ Examples:
   cf parse 100 a       Parse contest 100, problem a, including sample in current path
   cf gen               Generate default template in current path (name as current path).
   cf gen cpp           Generate template which alias is cpp in current path (same above).
-  cf test              Test all samples with a excutable file. If there are multiple
-                       excutable files, you have to choose one.
+  cf test              Test all samples with a excutable file (stdio). If there are
+                       multiple excutable files, you have to choose one.
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
