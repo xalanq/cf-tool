@@ -62,6 +62,47 @@ func plain(raw []byte) string {
 	return b.String()
 }
 
+func judge(sampleID, command string) error {
+	inPath := fmt.Sprintf("in%v.txt", sampleID)
+	ansPath := fmt.Sprintf("ans%v.txt", sampleID)
+	input, err := os.Open(inPath)
+	if err != nil {
+		return err
+	}
+	var o bytes.Buffer
+	output := io.Writer(&o)
+
+	cmds := splitCmd(command)
+
+	st := time.Now()
+	cmd := exec.Command(cmds[0], cmds[1:]...)
+	cmd.Stdin = input
+	cmd.Stdout = output
+	cmd.Stderr = os.Stderr
+	cmd.Run()
+	dt := time.Now().Sub(st)
+
+	b, err := ioutil.ReadFile(ansPath)
+	if err != nil {
+		b = []byte{}
+	}
+	ans := plain(b)
+	out := plain(o.Bytes())
+
+	state := ""
+	diff := ""
+	if out == ans {
+		state = color.New(color.FgGreen).Sprintf("Passed #%v", sampleID)
+	} else {
+		state = color.New(color.FgRed).Sprintf("Failed #%v", sampleID)
+		dmp := diffmatchpatch.New()
+		d := dmp.DiffMain(out, ans, true)
+		diff = dmp.DiffPrettyText(d) + "\n"
+	}
+	ansi.Printf("%v .... %.3fs\n%v", state, dt.Seconds(), diff)
+	return nil
+}
+
 // Test command
 func Test(args map[string]interface{}) error {
 	cfg := config.New(config.ConfigPath)
@@ -152,44 +193,10 @@ func Test(args map[string]interface{}) error {
 	}
 	if s := filter(template.Script); len(s) > 0 {
 		for _, i := range samples {
-			inFile := fmt.Sprintf("in%v.txt", i)
-			ansFile := fmt.Sprintf("ans%v.txt", i)
-			input, err := os.Open(inFile)
+			err := judge(i, s)
 			if err != nil {
 				color.Red(err.Error())
-				continue
 			}
-			var o bytes.Buffer
-			output := io.Writer(&o)
-
-			cmds := splitCmd(s)
-
-			st := time.Now()
-			cmd := exec.Command(cmds[0], cmds[1:]...)
-			cmd.Stdin = input
-			cmd.Stdout = output
-			cmd.Stderr = os.Stderr
-			cmd.Run()
-			dt := time.Now().Sub(st)
-
-			b, err := ioutil.ReadFile(ansFile)
-			if err != nil {
-				b = []byte{}
-			}
-			ans := plain(b)
-			out := plain(o.Bytes())
-
-			state := ""
-			diff := ""
-			if out == ans {
-				state = color.New(color.FgGreen).Sprintf("Passed #%v", i)
-			} else {
-				state = color.New(color.FgRed).Sprintf("Failed #%v", i)
-				dmp := diffmatchpatch.New()
-				d := dmp.DiffMain(out, ans, true)
-				diff = dmp.DiffPrettyText(d) + "\n"
-			}
-			ansi.Printf("%v .... %.3f sec\n%v", state, dt.Seconds(), diff)
 		}
 	} else {
 		color.Red("Invalid script command. Please check config file")
