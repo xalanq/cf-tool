@@ -21,6 +21,8 @@ Contributing is always welcome!
 
 ## TODO
 
+* Watch all submission
+* Add standing
 * Download someone's codes.
 * Support for russian.
 * Scrape problems? I think we need to discuss for it. It's not a technical problem...[issue #1](https://github.com/xalanq/cf-tool/issues/1)
