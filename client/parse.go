@@ -78,7 +78,7 @@ func (c *Client) ParseContestProblem(contestID, probID, path string) (err error)
 
 // ParseContest parse for contest
 func (c *Client) ParseContest(contestID, rootPath string) (err error) {
-	color.Cyan("Try to parse contest %v to %v", contestID, rootPath)
+	color.Cyan("Parse contest %v to %v", contestID, rootPath)
 	probs, err := c.StatisContest(contestID)
 	if err != nil {
 		return err

@@ -12,10 +12,10 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * Submit a code to contest and **watch status dynamically**.
 * List problems statis in a contest.
 * Generate problem samples(parallel).
+* Test samples.
 * Support code templates.
 * Cross-platform.
 * Colorful CLI.
-* Test samples.
 
 Contributing is always welcome!
 
@@ -34,7 +34,7 @@ You can also compile from the source:
 ```
 $ git clone https://github.com/xalanq/cf-tool
 $ cd cf-tool
-$ go build cf.go
+$ go build -ldflags "-s -w" cf.go
 ```
 
 ## Usage
@@ -99,10 +99,10 @@ Template:
 Command:
   Execution order is:
     - before_script   (execute once)
-	- script          (execute number of samples times)
+    - script          (execute number of samples times)
     - after_script    (execute once)
   You can set one of before_script and after_script to empty string,
-  meaning not executing.
+  meaning not executing. You have to run your program in script(standard input/output).
 
   You can insert some placeholders in your commands. When execute these commands,
   cf will replace all placeholders by following rules:

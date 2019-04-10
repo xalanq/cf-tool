@@ -34,6 +34,9 @@ func New(path string) *Config {
 	if err := c.load(); err != nil {
 		return &Config{path: path}
 	}
+	if c.Default < 0 || c.Default >= len(c.Template) {
+		c.Default = 0
+	}
 	return c
 }
 

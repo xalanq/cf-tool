@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+
+	"github.com/fatih/color"
 )
 
 func findLangBlock(body []byte) ([]byte, error) {
@@ -31,6 +33,7 @@ func findLang(body []byte) (map[string]string, error) {
 
 // GetLangList get language list from url (require login)
 func (c *Client) GetLangList(url string) (langs map[string]string, err error) {
+	color.Cyan("Getting language list...")
 	resp, err := http.Get(url)
 	if err != nil {
 		return

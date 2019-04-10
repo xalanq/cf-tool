@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // StatisInfo statis information
@@ -71,7 +73,7 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 
 // StatisContest get contest problems statis
 func (c *Client) StatisContest(contestID string) (probs []StatisInfo, err error) {
-	fmt.Printf("Get statis in contest %v\n", contestID)
+	color.Cyan("Get statis in contest %v\n", contestID)
 	statisURL := fmt.Sprintf("https://codeforces.com/contest/%v", contestID)
 
 	client := &http.Client{Jar: c.Jar}

@@ -48,7 +48,7 @@ func findCsrf(body []byte) (string, error) {
 // Login codeforces with username(handler) and password
 func (c *Client) Login(username, password string) (err error) {
 	jar, _ := cookiejar.New(nil)
-	fmt.Printf("Login %v...\n", username)
+	color.Cyan("Login %v...\n", username)
 
 	client := &http.Client{Jar: jar}
 

@@ -172,7 +172,7 @@ func findChannel(body []byte) []string {
 
 // SubmitContest submit problem in contest (and block util pending)
 func (c *Client) SubmitContest(contestID, probID, langID, source string) (err error) {
-	color.Cyan("Try to submit %v %v %v", contestID, probID, Langs[langID])
+	color.Cyan("Submit %v %v %v", contestID, probID, Langs[langID])
 	submitURL := fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID)
 
 	client := &http.Client{Jar: c.Jar}
