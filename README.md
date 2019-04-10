@@ -68,6 +68,7 @@ Examples:
   cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
                        If there are multiple files which satisfy above condition, you
                        have to choose one.
+  cf submit a.cpp
   cf submit 100 a
   cf submit 100 a a.cpp
   cf list              List current contest or <contest-id> problems' infomation.

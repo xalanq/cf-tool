@@ -36,6 +36,7 @@ Examples:
   cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
                        If there are multiple files which satisfy above condition, you
                        have to choose one.
+  cf submit a.cpp
   cf submit 100 a
   cf submit 100 a a.cpp
   cf list              List current contest or <contest-id> problems' information.
@@ -86,7 +87,7 @@ Options:
   -h --help
   --version`
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.1.1", false)
+	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.1.2", false)
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)

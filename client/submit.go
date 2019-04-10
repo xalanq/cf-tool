@@ -209,6 +209,7 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 		"tabSize":               {"4"},
 		"_tta":                  {"594"},
 	})
+	tm := time.Now()
 	if err != nil {
 		return err
 	}
@@ -238,14 +239,10 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	if err != nil {
 		return
 	}
-	submitWhen, err := findSubmitWhen(submission)
-	if err != nil {
-		return
-	}
 	color.Green("Submitted")
 	channels := findChannel(body)
-	tm := time.Now().UTC().Format("20060102150405")
-	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`, strings.Join(channels[:], "/"), tm)
+	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`,
+		strings.Join(channels[:], "/"), tm.UTC().Format("20060102150405"))
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return
@@ -255,7 +252,7 @@ func (c *Client) SubmitContest(contestID, probID, langID, source string) (err er
 	state.id, err = strconv.ParseUint(submitID, 10, 64)
 	state.lang = submitLang
 	state.name = submitName
-	state.when = submitWhen + "(UTC)"
+	state.when = tm.Format("2006-01-02 15:04:05")
 	state.state = "---"
 	if err != nil {
 		return

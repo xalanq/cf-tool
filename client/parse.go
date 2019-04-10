@@ -29,7 +29,7 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 }
 
 // ParseProblem parse problem to path
-func (c *Client) ParseProblem(probURL, path string) (err error) {
+func (c *Client) ParseProblem(probURL, path string) (samples int, err error) {
 	client := &http.Client{Jar: c.Jar}
 	resp, err := client.Get(probURL)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *Client) ParseProblem(probURL, path string) (err error) {
 			color.Red(e.Error())
 		}
 	}
-	return nil
+	return len(input), nil
 }
 
 // ParseContestProblem parse contest problem
@@ -73,30 +73,37 @@ func (c *Client) ParseContestProblem(contestID, probID, path string) (err error)
 		return
 	}
 	probURL := fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, probID)
-	return c.ParseProblem(probURL, path)
+	samples, err := c.ParseProblem(probURL, path)
+	if err != nil {
+		return
+	}
+	color.Green("Parsed %v %v with %v samples", contestID, probID, samples)
+	return nil
 }
 
 // ParseContest parse for contest
 func (c *Client) ParseContest(contestID, rootPath string) (err error) {
-	color.Cyan("Parse contest %v to %v", contestID, rootPath)
 	probs, err := c.StatisContest(contestID)
 	if err != nil {
 		return err
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(probs))
+	mu := sync.Mutex{}
 	for t := range probs {
 		prob := probs[t]
 		go func() {
 			defer wg.Done()
-			fmt.Printf("Parsing %v\n", prob.ID)
+			mu.Lock()
+			fmt.Printf("Parsing %v %v\n", contestID, prob.ID)
+			mu.Unlock()
 			probID := strings.ToLower(prob.ID)
 			path := filepath.Join(rootPath, contestID, probID)
 			err := c.ParseContestProblem(contestID, prob.ID, path)
 			if err != nil {
+				mu.Lock()
 				color.Red("%v: %v", prob.ID, err.Error())
-			} else {
-				color.Green("%v: Done!", prob.ID)
+				mu.Unlock()
 			}
 		}()
 	}

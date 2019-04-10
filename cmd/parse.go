@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
@@ -15,27 +15,21 @@ func Parse(args map[string]interface{}) error {
 		return err
 	}
 	cfg := config.New(config.ConfigPath)
-	cln := client.New(config.SessionPath)
-	contestID := args["<contest-id>"].(string)
-	for T := 1; T <= 3; T++ {
-		if probID, ok := args["<problem-id>"].(string); ok {
-			err = cln.ParseContestProblem(contestID, probID, currentPath)
-		} else {
-			err = cln.ParseContest(contestID, currentPath)
-		}
-		if err != nil {
-			if err.Error() == client.ErrorNotLogged {
-				fmt.Printf("Not logged. %v try to re-login\n", T)
-				password, err := cfg.DecryptPassword()
-				if err != nil {
-					return err
-				}
-				cln.Login(cfg.Username, password)
-				continue
-			}
-			return err
-		}
-		break
+	contestID, err := getContestID(args)
+	if err != nil {
+		return err
 	}
-	return nil
+	cln := client.New(config.SessionPath)
+	work := func() error {
+		if probID, ok := args["<problem-id>"].(string); ok {
+			return cln.ParseContestProblem(contestID, probID, filepath.Join(currentPath, probID))
+		}
+		return cln.ParseContest(contestID, currentPath)
+	}
+	if err := work(); err != nil {
+		if err = loginAgain(cfg, cln, err); err == nil {
+			err = work()
+		}
+	}
+	return err
 }

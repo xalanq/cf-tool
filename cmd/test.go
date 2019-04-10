@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 	"unicode"
@@ -109,63 +108,18 @@ func Test(args map[string]interface{}) error {
 	if len(cfg.Template) == 0 {
 		return errors.New("You have to add at least one code template by `cf config add`")
 	}
-	var template config.CodeTemplate
-	ava := []string{}
-	mp := make(map[string]int)
-	samples := []string{}
-	for i, temp := range cfg.Template {
-		for _, suffix := range temp.Suffix {
-			mp["."+suffix] = i
-		}
+
+	samples := getSampleID()
+	if len(samples) == 0 {
+		color.Red("There is no sample data")
+		return nil
 	}
-	filename, ok := args["<filename>"].(string)
-	currentPath, err := os.Getwd()
+
+	filename, index, err := getOneCode(args, cfg.Template)
 	if err != nil {
 		return err
 	}
-	paths, err := ioutil.ReadDir(currentPath)
-	if err != nil {
-		return err
-	}
-	sampleReg, _ := regexp.Compile(`in(\d+).txt`)
-	for _, path := range paths {
-		name := path.Name()
-		tmp := sampleReg.FindSubmatch([]byte(name))
-		if tmp != nil {
-			idx := string(tmp[1])
-			ans := fmt.Sprintf("ans%v.txt", idx)
-			if _, err := os.Stat(ans); err == nil {
-				samples = append(samples, idx)
-			}
-		}
-		if !ok {
-			ext := filepath.Ext(name)
-			if _, ok := mp[ext]; ok {
-				ava = append(ava, name)
-			}
-		}
-	}
-	if ok {
-		ext := filepath.Ext(filename)
-		if _, ok := mp[ext]; ok {
-			ava = append(ava, filename)
-		}
-	}
-	if len(ava) < 1 {
-		return errors.New("Cannot find any supported file to test\nYou can add the suffix with `cf config add`")
-	}
-	if len(ava) > 1 {
-		color.Cyan("There are multiple files can be tested.")
-		for i, name := range ava {
-			fmt.Printf("%3v: %v\n", i, name)
-		}
-		i := util.ChooseIndex(len(ava))
-		filename = ava[i]
-		template = cfg.Template[mp[filepath.Ext(filename)]]
-	} else {
-		filename = ava[0]
-		template = cfg.Template[mp[filepath.Ext(filename)]]
-	}
+	template := cfg.Template[index]
 	path, full := filepath.Split(filename)
 	ext := filepath.Ext(filename)
 	file := full[:len(full)-len(ext)]
@@ -179,18 +133,18 @@ func Test(args map[string]interface{}) error {
 		return cmd
 	}
 
-	if len(samples) == 0 {
-		color.Red("There is no sample data")
-		return nil
+	run := func(script string) {
+		if s := filter(script); len(s) > 0 {
+			fmt.Println(s)
+			cmds := splitCmd(s)
+			cmd := exec.Command(cmds[0], cmds[1:]...)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.Run()
+		}
 	}
-	if s := filter(template.BeforeScript); len(s) > 0 {
-		fmt.Println(s)
-		cmds := splitCmd(s)
-		cmd := exec.Command(cmds[0], cmds[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Run()
-	}
+
+	run(template.BeforeScript)
 	if s := filter(template.Script); len(s) > 0 {
 		for _, i := range samples {
 			err := judge(i, s)
@@ -202,13 +156,7 @@ func Test(args map[string]interface{}) error {
 		color.Red("Invalid script command. Please check config file")
 		return nil
 	}
-	if s := filter(template.AfterScript); len(s) > 0 {
-		fmt.Println(s)
-		cmds := splitCmd(s)
-		cmd := exec.Command(cmds[0], cmds[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Run()
-	}
+	run(template.AfterScript)
+
 	return nil
 }
