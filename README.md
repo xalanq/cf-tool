@@ -21,6 +21,8 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 
 Contributing is always welcome!
 
+![](./assets/readme_1.gif)
+
 ## TODO
 
 * Support standing.
