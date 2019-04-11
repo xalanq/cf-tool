@@ -29,6 +29,8 @@ func Eval(args map[string]interface{}) error {
 		return Gen(args)
 	} else if args["test"].(bool) {
 		return Test(args)
+	} else if args["watch"].(bool) {
+		return Watch(args)
 	}
 	return nil
 }
@@ -77,7 +79,7 @@ func getSampleID() (samples []string) {
 	if err != nil {
 		return
 	}
-	reg, _ := regexp.Compile(`in(\d+).txt`)
+	reg := regexp.MustCompile(`in(\d+).txt`)
 	for _, path := range paths {
 		name := path.Name()
 		tmp := reg.FindSubmatch([]byte(name))

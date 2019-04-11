@@ -13,6 +13,7 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * List problems statis in a contest.
 * Generate problem samples(parallel).
 * Test samples.
+* Watch all submissions.
 * Support code templates.
 * Cross-platform.
 * Colorful CLI.
@@ -21,11 +22,12 @@ Contributing is always welcome!
 
 ## TODO
 
-* Watch all submission
-* Add standing
+* Add standing.
+* Support gym.
+* Support problemset.
 * Download someone's codes.
-* Support for russian.
-* Scrape problems? I think we need to discuss for it. It's not a technical problem...[issue #1](https://github.com/xalanq/cf-tool/issues/1)
+* Support russian.
+* Scrape problems? I think we need to discuss for it. It's not a technical problem...[issue #1](https://github.com/xalanq/cf-tool/issues/1).
 
 ## Install
 
@@ -60,6 +62,7 @@ Usage:
   cf parse <contest-id> [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
+  cf watch [<contest-id>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -71,7 +74,7 @@ Examples:
   cf submit a.cpp
   cf submit 100 a
   cf submit 100 a a.cpp
-  cf list              List current contest or <contest-id> problems' infomation.
+  cf list              List current contest or <contest-id> problems' information.
   cf parse 100         Parse contest 100, all problems, including samples,
                        into ./100/<problem-id>.
   cf parse 100 a       Parse contest 100, problem a, including samples,
@@ -80,6 +83,7 @@ Examples:
   cf gen cpp           Generate template which alias is cpp in current path (same above).
   cf test              Compile the source with build config first. Then test all samples.
                        If there are multiple files, you have to choose one.
+  cf watch             Watch the first 10 submissions
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.

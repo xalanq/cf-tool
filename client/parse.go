@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"html"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,24 +15,30 @@ import (
 )
 
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
-	irg, _ := regexp.Compile(`class="input"[\s\S]*?<pre>\s*([\s\S]*?)\s*</pre>`)
-	org, _ := regexp.Compile(`class="output"[\s\S]*?<pre>\s*([\s\S]*?)\s*</pre>`)
+	irg := regexp.MustCompile(`class="input"[\s\S]*?<pre>([\s\S]*?)</pre>`)
+	org := regexp.MustCompile(`class="output"[\s\S]*?<pre>([\s\S]*?)</pre>`)
 	a := irg.FindAllSubmatch(body, -1)
 	b := org.FindAllSubmatch(body, -1)
 	if a == nil || b == nil || len(a) != len(b) {
 		return nil, nil, fmt.Errorf("Cannot parse sample with input %v and output %v", len(a), len(b))
 	}
+	newline := regexp.MustCompile(`<[\s/br]+?>`)
+	filter := func(src []byte) []byte {
+		src = newline.ReplaceAll(src, []byte("\n"))
+		s := html.UnescapeString(string(src))
+		return []byte(strings.TrimSpace(s))
+	}
 	for i := 0; i < len(a); i++ {
-		input = append(input, a[i][1])
-		output = append(output, b[i][1])
+		input = append(input, filter(a[i][1]))
+		output = append(output, filter(b[i][1]))
 	}
 	return
 }
 
 // ParseProblem parse problem to path
-func (c *Client) ParseProblem(probURL, path string) (samples int, err error) {
+func (c *Client) ParseProblem(problemURL, path string) (samples int, err error) {
 	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(probURL)
+	resp, err := client.Get(problemURL)
 	if err != nil {
 		return
 	}
@@ -67,44 +74,45 @@ func (c *Client) ParseProblem(probURL, path string) (samples int, err error) {
 }
 
 // ParseContestProblem parse contest problem
-func (c *Client) ParseContestProblem(contestID, probID, path string) (err error) {
+func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples int, err error) {
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		return
 	}
-	probURL := fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, probID)
-	samples, err := c.ParseProblem(probURL, path)
+	problemURL := fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID)
+	samples, err = c.ParseProblem(problemURL, path)
 	if err != nil {
 		return
 	}
-	color.Green("Parsed %v %v with %v samples", contestID, probID, samples)
-	return nil
+	return
 }
 
 // ParseContest parse for contest
 func (c *Client) ParseContest(contestID, rootPath string) (err error) {
-	probs, err := c.StatisContest(contestID)
+	problems, err := c.StatisContest(contestID)
 	if err != nil {
 		return err
 	}
 	wg := sync.WaitGroup{}
-	wg.Add(len(probs))
+	wg.Add(len(problems))
 	mu := sync.Mutex{}
-	for t := range probs {
-		prob := probs[t]
+	for t := range problems {
+		problem := problems[t]
 		go func() {
 			defer wg.Done()
 			mu.Lock()
-			fmt.Printf("Parsing %v %v\n", contestID, prob.ID)
+			fmt.Printf("Parsing %v %v\n", contestID, problem.ID)
 			mu.Unlock()
-			probID := strings.ToLower(prob.ID)
-			path := filepath.Join(rootPath, contestID, probID)
-			err := c.ParseContestProblem(contestID, prob.ID, path)
+			problemID := strings.ToLower(problem.ID)
+			path := filepath.Join(rootPath, contestID, problemID)
+			samples, err := c.ParseContestProblem(contestID, problem.ID, path)
+			mu.Lock()
 			if err != nil {
-				mu.Lock()
-				color.Red("%v: %v", prob.ID, err.Error())
-				mu.Unlock()
+				color.Red("Failed %v %v", contestID, problem.ID)
+			} else {
+				color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
 			}
+			mu.Unlock()
 		}()
 	}
 	wg.Wait()

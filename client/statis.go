@@ -22,7 +22,7 @@ type StatisInfo struct {
 }
 
 func findStatisBlock(body []byte) ([]byte, error) {
-	reg, _ := regexp.Compile(`class="problems"[\s\S]+?</tr>([\s\S]+?)</table>`)
+	reg := regexp.MustCompile(`class="problems"[\s\S]+?</tr>([\s\S]+?)</table>`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
 		return nil, errors.New("Cannot find any problem statis")
@@ -31,17 +31,17 @@ func findStatisBlock(body []byte) ([]byte, error) {
 }
 
 func findProblems(body []byte) ([]StatisInfo, error) {
-	reg, _ := regexp.Compile(`<tr[\s\S]*?>`)
+	reg := regexp.MustCompile(`<tr[\s\S]*?>`)
 	tmp := reg.FindAllIndex(body, -1)
 	if tmp == nil {
 		return nil, errors.New("Cannot find any problem")
 	}
 	ret := []StatisInfo{}
-	scr, _ := regexp.Compile(`<script[\s\S]*?>[\s\S]*?</script>`)
-	cls, _ := regexp.Compile(`class="(.+?)"`)
-	rep, _ := regexp.Compile(`<[\s\S]+?>`)
-	ton, _ := regexp.Compile(`<\s+`)
-	rmv, _ := regexp.Compile(`<+`)
+	scr := regexp.MustCompile(`<script[\s\S]*?>[\s\S]*?</script>`)
+	cls := regexp.MustCompile(`class="(.+?)"`)
+	rep := regexp.MustCompile(`<[\s\S]+?>`)
+	ton := regexp.MustCompile(`<\s+`)
+	rmv := regexp.MustCompile(`<+`)
 	tmp = append(tmp, []int{len(body), 0})
 	for i := 1; i < len(tmp); i++ {
 		state := ""
@@ -72,7 +72,7 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 }
 
 // StatisContest get contest problems statis
-func (c *Client) StatisContest(contestID string) (probs []StatisInfo, err error) {
+func (c *Client) StatisContest(contestID string) (problems []StatisInfo, err error) {
 	color.Cyan("Get statis in contest %v\n", contestID)
 	statisURL := fmt.Sprintf("https://codeforces.com/contest/%v", contestID)
 

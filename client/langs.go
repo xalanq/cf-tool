@@ -10,7 +10,7 @@ import (
 )
 
 func findLangBlock(body []byte) ([]byte, error) {
-	reg, _ := regexp.Compile(`name="programTypeId".+?</select>`)
+	reg := regexp.MustCompile(`name="programTypeId".+?</select>`)
 	tmp := reg.Find(body)
 	if tmp == nil {
 		return nil, errors.New("Cannot find language selection")
@@ -19,7 +19,7 @@ func findLangBlock(body []byte) ([]byte, error) {
 }
 
 func findLang(body []byte) (map[string]string, error) {
-	reg, _ := regexp.Compile(`value="(.+?)"[\s\S]*?>([\s\S]+?)<`)
+	reg := regexp.MustCompile(`value="(.+?)"[\s\S]*?>([\s\S]+?)<`)
 	tmp := reg.FindAllSubmatch(body, -1)
 	if tmp == nil {
 		return nil, errors.New("Cannot find any language")

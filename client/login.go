@@ -35,9 +35,8 @@ func checkLogin(username string, body []byte) error {
 	return nil
 }
 
-// findCsrf just find
 func findCsrf(body []byte) (string, error) {
-	reg, _ := regexp.Compile(`csrf='(.+?)'`)
+	reg := regexp.MustCompile(`csrf='(.+?)'`)
 	tmp := reg.FindSubmatch(body)
 	if len(tmp) < 2 {
 		return "", errors.New("Cannot find csrf")

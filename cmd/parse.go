@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
@@ -21,8 +23,13 @@ func Parse(args map[string]interface{}) error {
 	}
 	cln := client.New(config.SessionPath)
 	work := func() error {
-		if probID, ok := args["<problem-id>"].(string); ok {
-			return cln.ParseContestProblem(contestID, probID, filepath.Join(currentPath, probID))
+		if problemID, ok := args["<problem-id>"].(string); ok {
+			samples, err := cln.ParseContestProblem(contestID, problemID, filepath.Join(currentPath, problemID))
+			if err != nil {
+				return fmt.Errorf("Failed %v %v", contestID, problemID)
+			}
+			color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
+			return nil
 		}
 		return cln.ParseContest(contestID, currentPath)
 	}

@@ -28,6 +28,7 @@ Usage:
   cf parse <contest-id> [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
+  cf watch [<contest-id>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -48,6 +49,7 @@ Examples:
   cf gen cpp           Generate template which alias is cpp in current path (same above).
   cf test              Compile the source with build config first. Then test all samples.
                        If there are multiple files, you have to choose one.
+  cf watch             Watch the first 10 submissions
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
@@ -87,7 +89,7 @@ Options:
   -h --help
   --version`
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.1.2", false)
+	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.2.0", false)
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)
