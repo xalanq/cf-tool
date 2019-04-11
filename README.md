@@ -13,7 +13,7 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * List problems statis in a contest.
 * Generate problem samples(parallel).
 * Test samples.
-* Watch all submissions.
+* Watch submissions.
 * Support code templates.
 * Cross-platform.
 * Colorful CLI.
@@ -22,7 +22,7 @@ Contributing is always welcome!
 
 ## TODO
 
-* Add standing.
+* Support standing.
 * Support gym.
 * Support problemset.
 * Download someone's codes.
