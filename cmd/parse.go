@@ -26,7 +26,7 @@ func Parse(args map[string]interface{}) error {
 		}
 		return cln.ParseContest(contestID, currentPath)
 	}
-	if err := work(); err != nil {
+	if err = work(); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {
 			err = work()
 		}

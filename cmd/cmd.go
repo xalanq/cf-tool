@@ -119,6 +119,9 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 		return
 	}
 	paths, err := ioutil.ReadDir(path)
+	if err != nil {
+		return
+	}
 
 	for _, path := range paths {
 		name := path.Name()
