@@ -133,18 +133,21 @@ func Test(args map[string]interface{}) error {
 		return cmd
 	}
 
-	run := func(script string) {
+	run := func(script string) error {
 		if s := filter(script); len(s) > 0 {
 			fmt.Println(s)
 			cmds := splitCmd(s)
 			cmd := exec.Command(cmds[0], cmds[1:]...)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			cmd.Run()
+			return cmd.Run()
 		}
+		return nil
 	}
 
-	run(template.BeforeScript)
+	if err := run(template.BeforeScript); err != nil {
+		return err
+	}
 	if s := filter(template.Script); len(s) > 0 {
 		for _, i := range samples {
 			err := judge(i, s)
@@ -156,7 +159,9 @@ func Test(args map[string]interface{}) error {
 		color.Red("Invalid script command. Please check config file")
 		return nil
 	}
-	run(template.AfterScript)
+	if err := run(template.AfterScript); err != nil {
+		return err
+	}
 
 	return nil
 }

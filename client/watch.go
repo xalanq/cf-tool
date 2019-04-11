@@ -134,7 +134,7 @@ func (s *Submission) display(first bool, maxWidth *int) {
 	ansi.Printf("   lang: %v\n", s.lang)
 	refreshLine(1, *maxWidth)
 	ansi.Printf(updateLine(fmt.Sprintf(" status: %v\n", s.ParseStatus()), maxWidth))
-	ansi.Printf("   time: %v ms\n", s.ParseTime())
+	ansi.Printf("   time: %v\n", s.ParseTime())
 	ansi.Printf(" memory: %v\n", s.ParseMemory())
 }
 
@@ -197,7 +197,7 @@ func findChannel(body []byte) []string {
 }
 
 func findSubmission(body []byte, n int) ([][]byte, error) {
-	reg := regexp.MustCompile(`<tr data-submission-id=['"]\d[\s\S]+?</tr>`)
+	reg := regexp.MustCompile(`data-submission-id=['"]\d[\s\S]+?</tr>`)
 	tmp := reg.FindAll(body, n)
 	if tmp == nil {
 		return nil, errors.New("Cannot find any submission")
@@ -215,13 +215,13 @@ func parseWhen(raw, cfOffset string) string {
 	data := fmt.Sprintf("%v %v", raw, cfOffset)
 	tm, err := time.Parse(ruTime, data)
 	if err != nil {
-		tm, _ = time.Parse(enTime, data)
+		tm, err = time.Parse(enTime, data)
 	}
 	return tm.In(time.Local).Format("2006-01-02 15:04")
 }
 
 func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
-	data := fmt.Sprintf("<table>%v</table>", string(body))
+	data := fmt.Sprintf("<table><tr %v</table>", string(body))
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(data))
 	if err != nil {
 		return
@@ -251,6 +251,12 @@ func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 	status = colReg.ReplaceAllString(status, `${c-$1}`)
 	status = tagReg.ReplaceAllString(status, "")
 	status = strings.TrimSpace(status)
+	when := get(".format-time")
+	if when != "" {
+		when = parseWhen(when, cfOffset)
+	} else {
+		when = strings.TrimSpace(doc.Find("td").First().Next().Text())
+	}
 	if status == "" {
 		status = "Unknown"
 	}
@@ -266,7 +272,7 @@ func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 		status: status,
 		time:   getInt(".time-consumed-cell"),
 		memory: getInt(".memory-consumed-cell") * 1024,
-		when:   parseWhen(get(".format-time"), cfOffset),
+		when:   when,
 		passed: num,
 		judged: num,
 		points: num,

@@ -61,10 +61,14 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 			}
 		}
 		if len(tot) >= 5 {
+			tot[4] = strings.ReplaceAll(tot[4], "x", "")
+			tot[4] = strings.ReplaceAll(tot[4], "&nbsp;", "")
+			if tot[4] == "" {
+				tot[4] = "0"
+			}
 			ret = append(ret, StatisInfo{
 				tot[0], tot[1], tot[2], tot[3],
-				strings.ReplaceAll(tot[4], "&nbsp;x", ""),
-				state,
+				tot[4], state,
 			})
 		}
 	}

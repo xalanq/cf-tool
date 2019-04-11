@@ -31,6 +31,7 @@ Usage:
   cf watch [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
   cf hack [<contest-id>]
+  cf race <contest-id>
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -46,14 +47,17 @@ Examples:
   cf parse 100         Parse contest 100, all problems, including samples,
                        into ./100/<problem-id>.
   cf parse 100 a       Parse contest 100, problem a, including samples,
-                       into current path
+                       into current path.
   cf gen               Generate default template in current path (name as current path).
   cf gen cpp           Generate template which alias is cpp in current path (same above).
   cf test              Compile the source with build config first. Then test all samples.
                        If there are multiple files, you have to choose one.
-  cf watch             Watch the first 10 submissions
-  cf open              Open page with default browser
-  cf hack              Open standing page with default browser
+  cf watch             Watch the first 10 submissions.
+  cf open 1136 a       Open page of contest 1136, problem a with default browser.
+  cf open 1136         Open page of contest 1136 with default browser.
+  cf hack              Open standing page with default browser.
+  cf race 1136         Race for contest. It will excute 'cf open 1136 a', 'cf open 1136 b',
+                       until 'cf open 1136 e', and 'cf parse 1136' when the contest begins.
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
@@ -93,7 +97,7 @@ Options:
   -h --help
   --version`
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.2.1", false)
+	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.3.0", false)
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)
