@@ -29,6 +29,8 @@ Usage:
   cf gen [<alias>]
   cf test [<filename>]
   cf watch [<contest-id>]
+  cf open [<contest-id>] [<problem-id>]
+  cf hack [<contest-id>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -50,6 +52,8 @@ Examples:
   cf test              Compile the source with build config first. Then test all samples.
                        If there are multiple files, you have to choose one.
   cf watch             Watch the first 10 submissions
+  cf open              Open page with default browser
+  cf hack              Open standing page with default browser
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
@@ -89,7 +93,7 @@ Options:
   -h --help
   --version`
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.2.0", false)
+	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.2.1", false)
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)

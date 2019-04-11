@@ -14,6 +14,7 @@ Codeforces Tool is written by Golang. **It does not contain any browser driver**
 * Generate problem samples(parallel).
 * Test samples.
 * Watch submissions.
+* Open page(problem, standing) with default browser.
 * Support code templates.
 * Cross-platform.
 * Colorful CLI.
@@ -63,6 +64,8 @@ Usage:
   cf gen [<alias>]
   cf test [<filename>]
   cf watch [<contest-id>]
+  cf open [<contest-id>] [<problem-id>]
+  cf hack [<contest-id>]
 
 Examples:
   cf config login      Config username and password(encrypt).
@@ -84,6 +87,8 @@ Examples:
   cf test              Compile the source with build config first. Then test all samples.
                        If there are multiple files, you have to choose one.
   cf watch             Watch the first 10 submissions
+  cf open              Open page with default browser
+  cf hack              Open standing page with default browser
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.

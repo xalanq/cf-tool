@@ -99,6 +99,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:519621a373ae7d96a16415a6356d7b97722ed3a292f73409b361b7c0322971e3"
+  name = "github.com/skratchdot/open-golang"
+  packages = ["open"]
+  pruneopts = "UT"
+  revision = "79abb63cd66e41cb1473e26d11ebdcd68b04c8e5"
+
+[[projects]]
+  branch = "master"
   digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -139,6 +147,7 @@
     "github.com/mitchellh/go-homedir",
     "github.com/olekukonko/tablewriter",
     "github.com/sergi/go-diff/diffmatchpatch",
+    "github.com/skratchdot/open-golang/open",
     "golang.org/x/crypto/ssh/terminal",
   ]
   solver-name = "gps-cdcl"
