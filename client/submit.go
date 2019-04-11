@@ -58,6 +58,7 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		"source":                {source},
 		"tabSize":               {"4"},
 		"_tta":                  {"594"},
+		"sourceCodeConfirmed":   {"true"},
 	})
 	if err != nil {
 		return err
