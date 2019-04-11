@@ -51,7 +51,7 @@ func getContestID(args map[string]interface{}) (string, error) {
 		if _, err := strconv.Atoi(c); err == nil {
 			return c, nil
 		}
-		if c == path {
+		if filepath.Dir(path) == path {
 			break
 		}
 		path = filepath.Dir(path)
