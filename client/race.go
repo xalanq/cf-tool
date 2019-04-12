@@ -15,7 +15,7 @@ import (
 )
 
 func findCountdown(body []byte) (int, error) {
-	reg := regexp.MustCompile(`class="countdown">(\d+):(\d+):(\d+)`)
+	reg := regexp.MustCompile(`class=["']countdown["'][\s\S]*?(\d+):(\d+):(\d+)`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
 		return 0, errors.New("Cannot find countdown")

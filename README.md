@@ -97,7 +97,7 @@ Examples:
   cf open 1136 a       Open page of contest 1136, problem a with default browser.
   cf open 1136         Open page of contest 1136 with default browser.
   cf hack              Open standing page with default browser.
-  cf race 1136         Race for contest. It will excute 'cf open 1136 a', 'cf open 1136 b',
+  cf race 1136         Race for contest. It will execute 'cf open 1136 a', 'cf open 1136 b',
                        until 'cf open 1136 e', and 'cf parse 1136' when the contest begins.
 
 Notes:
