@@ -33,8 +33,8 @@ func Eval(args map[string]interface{}) error {
 		return Watch(args)
 	} else if args["open"].(bool) {
 		return Open(args)
-	} else if args["hack"].(bool) {
-		return Hack(args)
+	} else if args["stand"].(bool) {
+		return Stand(args)
 	} else if args["race"].(bool) {
 		return Race(args)
 	}

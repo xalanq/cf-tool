@@ -22,8 +22,8 @@ func Open(args map[string]interface{}) error {
 	return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID))
 }
 
-// Hack command
-func Hack(args map[string]interface{}) error {
+// Stand command
+func Stand(args map[string]interface{}) error {
 	contestID, err := getContestID(args)
 	if err != nil {
 		return err

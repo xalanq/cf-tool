@@ -1,44 +1,38 @@
 # Codeforces Tool
 
+[![Github release](https://img.shields.io/github/release/xalanq/cf-tool.svg)](https://github.com/xalanq/cf-tool/releases)
+[![platform](https://img.shields.io/badge/platform-win%20%7C%20osx%20%7C%20linux-blue.svg)](https://github.com/xalanq/cf-tool/releases)
 [![Build Status](https://travis-ci.org/xalanq/cf-tool.svg?branch=master)](https://travis-ci.org/xalanq/cf-tool)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xalanq/cf-tool)](https://goreportcard.com/report/github.com/xalanq/cf-tool)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.12-green.svg)](https://github.com/golang)
 [![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/xalanq/cf-tool/master/LICENSE)
 
-Codeforces Tool is written by Golang. **It does not contain any browser driver** and it can be compiled to **a binary file**.
+Codeforces Tool is a tool for [Codeforces](https://codeforces.com).
+
+It's fast, small, cross-platorm and powerful.
 
 ## Features
 
-* Submit a code to contest and **watch status dynamically**.
-* List problems statis in a contest.
-* Generate problem samples(parallel).
+* Submit a code to a contest.
+* Watch submissions' status dynamically.
+* List problems stats in a contest.
+* Parse problems' samples (parallel).
+* Generate code by templates.
 * Test samples.
-* Watch submissions.
-* Open page(problem, standing) with default browser.
-* Support code templates.
-* Cross-platform.
+* Use default web browser to open problem, standing page.
 * Colorful CLI.
 
-Contributing is always welcome!
+Pull requests are always welcome.
 
 ![](./assets/readme_1.gif)
 
-## TODO
-
-* Support standing.
-* Support gym.
-* Support problemset.
-* Download someone's codes.
-* Support russian.
-* Scrape problems? I think we need to discuss for it. It's not a technical problem... [issue #1](https://github.com/xalanq/cf-tool/issues/1).
-
-## Install
+## Installation
 
 You can download the pre-compiled binary file in [here](https://github.com/xalanq/cf-tool/releases).
 
-You can also compile from the source:
+Or you can compile it from the source:
 
-```
+```plain
 $ git clone https://github.com/xalanq/cf-tool
 $ cd cf-tool
 $ go build -ldflags "-s -w" cf.go
@@ -46,20 +40,12 @@ $ go build -ldflags "-s -w" cf.go
 
 ## Usage
 
-**You should execute `cf config login` and `cf config add` at first.**
-
-If you want to compete, the best command is `cf race 1111`, where `1111` is the contest id.
-
 ```plain
 Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 
-File:
-  cf will save some data in following files:
+You should run "cf config login" and "cf config add" at first.
 
-  "~/.cfconfig"   config file, including username, encrypted password, etc.
-  "~/.cfsession"  session file, including cookies, username, etc.
-
-  "~" is the homedir in your system
+If you want to compete, the best command is "cf race 1111", where "1111" is the contest id.
 
 Usage:
   cf config (login | add | default)
@@ -71,43 +57,51 @@ Usage:
   cf test [<filename>]
   cf watch [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
-  cf hack [<contest-id>]
+  cf stand [<contest-id>]
   cf race <contest-id>
 
 Examples:
-  cf config login      Config username and password(encrypt).
-  cf config add        Add template.
+  cf config login      Config your username and password.
+  cf config add        Add a template.
   cf config default    Set default template.
-  cf submit            Current path must be <contest-id>/<problem-id>/<file.[suffix]>.
-                       If there are multiple files which satisfy above condition, you
-                       have to choose one.
+  cf submit            Current path must be "<contest-id>/<problem-id>", cf will find which
+                       file can be submitted.
   cf submit a.cpp
   cf submit 100 a
   cf submit 100 a a.cpp
-  cf list              List current contest or <contest-id> problems' information.
-  cf parse 100         Parse contest 100, all problems, including samples,
-                       into ./100/<problem-id>.
-  cf parse 100 a       Parse contest 100, problem a, including samples,
-                       into current path.
-  cf gen               Generate default template in current path (name as current path).
-  cf gen cpp           Generate template which alias is cpp in current path (same above).
-  cf test              Compile the source with build config first. Then test all samples.
-                       If there are multiple files, you have to choose one.
-  cf watch             Watch the first 10 submissions.
-  cf open 1136 a       Open page of contest 1136, problem a with default browser.
-  cf open 1136         Open page of contest 1136 with default browser.
-  cf hack              Open standing page with default browser.
-  cf race 1136         Race for contest. It will execute 'cf open 1136 a', 'cf open 1136 b',
-                       until 'cf open 1136 e', and 'cf parse 1136' when the contest begins.
+  cf list              List problems' stats of current contest.
+  cf list 1119         
+  cf parse 100         Parse all problems of contest 100, including samples, into
+                       "./100/<problem-id>".
+  cf parse 100 a       Parse problem "a" of contest 100, including samples, into current path.
+  cf gen               Generate default template into current path.
+  cf gen cpp           Generate the template which's alias is "cpp" into current path.
+  cf test              Compile a source which satisfy at least one template's suffix.
+                       Then test all samples.
+  cf watch             Watch the first 10 submissionso of current contest.
+  cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
+  cf open 1136         Use default web browser to open the page of contest 1136.
+  cf stand             Use default web browser to open the standing page.
+  cf race 1136         Count down before contest 1136 begins. Then it will run 'cf open 1136 a',
+                       'cf open 1136 b', ..., 'cf open 1136 e', 'cf parse 1136' when the contest
+                       begins.
 
 Notes:
   <problem-id>         Could be "a" or "A", case-insensitive.
   <contest-id>         Should be a number, you could find it in codeforces contest url.
-                       E.g. 1119 in https://codeforces.com/contest/1119.
+                       E.g. "1119" in "https://codeforces.com/contest/1119".
   <alias>              Template's alias.
 
+File:
+  cf will save some data in following files:
+
+  "~/.cfconfig"        configuration file, including username, encrypted password, etc.
+  "~/.cfsession"       session file, including cookies, username, etc.
+
+  "~" is the home directory of current user in your system.
+
 Template:
-  You can insert some placeholders in your template code. When generate a code from a
+  You can insert some placeholders in your template code. When generate a code from the
   template, cf will replace all placeholders by following rules:
 
   $%U%$   Username
@@ -123,16 +117,18 @@ Command:
     - before_script   (execute once)
     - script          (execute number of samples times)
     - after_script    (execute once)
-  You can set one of before_script and after_script to empty string,
-  meaning not executing. You have to run your program in script(standard input/output).
+  You could set "before_script" or "after_script" to empty string if you want,
+  meaning not executing.
+  You have to run your program in "script" with standard input/output (no need to
+  redirect).
 
-  You can insert some placeholders in your commands. When execute these commands,
+  You can insert some placeholders in your scripts. When execute a script,
   cf will replace all placeholders by following rules:
 
-  $%path%$   Path of test file (Excluding $%full%$, e.g. /home/xalanq/)
-  $%full%$   Full name of test file (e.g. a.cpp)
-  $%file%$   Name of testing file (Excluding suffix, e.g. a)
-  $%rand%$   Random string with 8 character (including a-z 0-9)
+  $%path%$   Path to source file (Excluding $%full%$, e.g. "/home/xalanq/")
+  $%full%$   Full name of source file (e.g. "a.cpp")
+  $%file%$   Name of source file (Excluding suffix, e.g. "a")
+  $%rand%$   Random string with 8 character (including "a-z" "0-9")
 
 Options:
   -h --help
