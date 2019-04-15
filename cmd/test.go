@@ -159,9 +159,5 @@ func Test(args map[string]interface{}) error {
 		color.Red("Invalid script command. Please check config file")
 		return nil
 	}
-	if err := run(template.AfterScript); err != nil {
-		return err
-	}
-
-	return nil
+	return run(template.AfterScript)
 }

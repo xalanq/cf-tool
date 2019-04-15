@@ -7,7 +7,7 @@
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.12-green.svg)](https://github.com/golang)
 [![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/xalanq/cf-tool/master/LICENSE)
 
-Codeforces Tool is a tool for [Codeforces](https://codeforces.com).
+Codeforces Tool is a command-line interface tool for [Codeforces](https://codeforces.com).
 
 It's fast, small, cross-platorm and powerful.
 
@@ -15,7 +15,7 @@ It's fast, small, cross-platorm and powerful.
 
 * Submit a code to a contest.
 * Watch submissions' status dynamically.
-* List problems stats in a contest.
+* List problems' stats in a contest.
 * Parse problems' samples (parallel).
 * Generate code by templates.
 * Test samples.

@@ -57,7 +57,7 @@ func (c *Client) RaceContest(contestID string) (err error) {
 		}
 		color.Green("Count down: ")
 		count--
-		time.Sleep(700 * time.Millisecond)
+		time.Sleep(900 * time.Millisecond)
 		for count > 0 {
 			time.Sleep(time.Second)
 			count--

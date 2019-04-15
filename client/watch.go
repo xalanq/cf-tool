@@ -215,7 +215,7 @@ func parseWhen(raw, cfOffset string) string {
 	data := fmt.Sprintf("%v %v", raw, cfOffset)
 	tm, err := time.Parse(ruTime, data)
 	if err != nil {
-		tm, err = time.Parse(enTime, data)
+		tm, _ = time.Parse(enTime, data)
 	}
 	return tm.In(time.Local).Format("2006-01-02 15:04")
 }
