@@ -103,7 +103,7 @@ Options:
   -h --help
   --version`
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.3.2", false)
+	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.3.3", false)
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)
