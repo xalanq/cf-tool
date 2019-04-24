@@ -389,7 +389,7 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 	display(submissions, true, &maxWidth, line)
 
 	channels := findChannel(body)
-	url := fmt.Sprintf(`ws://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`,
+	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`,
 		strings.Join(channels[:], "/"), time.Now().UTC().Format("20060102150405"))
 
 	return watch(url, channels[0], submissions, &maxWidth, line)

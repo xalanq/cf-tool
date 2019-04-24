@@ -11,6 +11,8 @@ Codeforces Tool is a command-line interface tool for [Codeforces](https://codefo
 
 It's fast, small, cross-platorm and powerful.
 
+[中文说明请看这](./README_cn.md)
+
 ## Features
 
 * Submit a code to a contest.
@@ -78,7 +80,7 @@ Examples:
   cf gen cpp           Generate the template which's alias is "cpp" into current path.
   cf test              Compile a source which satisfy at least one template's suffix.
                        Then test all samples.
-  cf watch             Watch the first 10 submissionso of current contest.
+  cf watch             Watch the first 10 submissions of current contest.
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
   cf open 1136         Use default web browser to open the page of contest 1136.
   cf stand             Use default web browser to open the standing page.
