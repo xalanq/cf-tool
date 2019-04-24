@@ -26,7 +26,7 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	filter := func(src []byte) []byte {
 		src = newline.ReplaceAll(src, []byte("\n"))
 		s := html.UnescapeString(string(src))
-		return []byte(strings.TrimSpace(s))
+		return []byte(strings.TrimSpace(s) + "\n")
 	}
 	for i := 0; i < len(a); i++ {
 		input = append(input, filter(a[i][1]))
