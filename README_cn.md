@@ -30,7 +30,7 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 
 你可以从[这里](https://github.com/xalanq/cf-tool/releases)直接下载一个可执行文件，直接用就好啦。
 
-或者你可以把整个 repo 给 clone 下来，然后自己编译：
+或者你可以把整个 repo 给 clone 下来，然后自己编译 (go >= 1.12)：
 
 ```plain
 $ git clone https://github.com/xalanq/cf-tool
@@ -75,14 +75,13 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   cf parse 100 a       获取比赛 id 为 100 的题目 a 的样例到当前文件夹下。
   cf gen               用默认的模板生成一份代码到当前文件夹下。
   cf gen cpp           用名字为 "cpp" 的模板来生成一份代码到当前文件夹下。
-  cf test              对当前目录下符合条件的代码进行操作，并测试全部样例。
+  cf test              在当前目录下执行模板里的命令，并测试全部样例。
   cf watch             查看自己在当前比赛的最后 10 次提交结果。
   cf open 1136 a       用默认的浏览器打开比赛 id 为 1136 的题目 a。
   cf open 1136         用默认的浏览器打开比赛 id 为 1136 的总览页面。
   cf stand             用默认的浏览器当前比赛的榜单。
   cf race 1136         如果比赛还未开始且进入倒计时，则该命令会倒计时。当倒计时完后，会自动执行
                        'cf open 1136 a', 'cf open 1136 b', ..., 'cf open 1136 e', 'cf parse 1136'
-                       这些命令
 
 注意:
   <problem-id>         表示题目的 id，比如 "a" 或者 "A"，不区分大小写。
@@ -110,13 +109,12 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   $%s%$   秒  (e.g. 00)
 
 模板内的脚本:
-  模板支持三个脚本命令，当使用 `cf test` 时会依次执行：
+  模板支持三个脚本命令，当使用 "cf test" 时会依次执行：
     - before_script   (只会执行一次)
     - script          (有多少个样例就会执行多少次)
     - after_script    (只会执行一次)
   "before_script" 或者 "after_script" 你可以根据需要来设置，也可以设置为空。
-  不过 "script" 你必须要运行你的程序，通过标准 IO 来输入/输出数据（不用重定向），
-  以便 cf 测试。
+  在 "script" 里你必须要运行你的程序，通过标准 IO 来输入/输出数据（不用重定向）。
 
   你在这些脚本命令里也能插入一些标识符，这些标识符会按照以下规则替换：
   
@@ -178,3 +176,23 @@ int main() {
   "default": 0
 }
 ```
+
+## 常见问题
+
+### 我双击了这个程序但是没啥效果
+
+Codeforces Tool 是命令行界面的工具，你应该在终端里运行这个工具。
+
+### 我无法使用 `cf` 这个命令
+
+你应该将 `cf` 这个程序放到一个已经加入到系统变量 PATH 的路径里 (比如说 Linux 里的 `/usr/bin` )。
+
+或者你直接去搜 "怎样添加路径到系统变量 PATH"。
+
+### 你 GIF 里的 `cp` 命令是啥啊
+
+`cp` 是一个系统命令，表示复制文件。
+
+在上边的 GIF 里，我只是将我已经写好的代码复制到当前文件夹下，这样我就不用写代码了。
+
+事实上，你可以执行 `cf gen` 生成模板代码到当前文件夹下。
