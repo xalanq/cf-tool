@@ -96,7 +96,11 @@ func judge(sampleID, command string) error {
 		state = color.New(color.FgRed).Sprintf("Failed #%v", sampleID)
 		dmp := diffmatchpatch.New()
 		d := dmp.DiffMain(out, ans, true)
-		diff = dmp.DiffPrettyText(d) + "\n"
+		diff += color.New(color.FgBlue).Sprintf("Your Answer:\n")
+		diff += color.New(color.FgBlue).Sprintf(dmp.DiffText1(d) + "\n")
+		diff += color.New(color.FgGreen).Sprintf("Answer:\n")
+		diff += color.New(color.FgGreen).Sprintf(dmp.DiffText2(d) + "\n")
+		diff += dmp.DiffPrettyText(d) + "\n"
 	}
 	ansi.Printf("%v .... %.3fs\n%v", state, dt.Seconds(), diff)
 	return nil
