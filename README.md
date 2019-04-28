@@ -11,7 +11,7 @@ Codeforces Tool is a command-line interface tool for [Codeforces](https://codefo
 
 It's fast, small, cross-platorm and powerful.
 
-[中文说明请看这](./README_cn.md)
+[中文说明请看这](./README_zh_CN.md)
 
 ## Features
 

@@ -289,7 +289,6 @@ func watch(url string, channel string, submissions []Submission, maxWidth *int, 
 			endCount++
 		}
 	}
-	return errors.New("ggmf")
 
 	if endCount != len(submissions) {
 		dialer := &websocket.Dialer{
