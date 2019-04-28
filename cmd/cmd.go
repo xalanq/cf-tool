@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/client"
@@ -37,6 +38,8 @@ func Eval(args map[string]interface{}) error {
 		return Stand(args)
 	} else if args["race"].(bool) {
 		return Race(args)
+	} else if args["pull"].(bool) {
+		return Pull(args)
 	}
 	return nil
 }
@@ -67,13 +70,13 @@ func getContestID(args map[string]interface{}) (string, error) {
 
 func getProblemID(args map[string]interface{}) (string, error) {
 	if p, ok := args["<problem-id>"].(string); ok {
-		return p, nil
+		return strings.ToLower(p), nil
 	}
 	path, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Base(path), nil
+	return strings.ToLower(filepath.Base(path)), nil
 }
 
 func getSampleID() (samples []string) {

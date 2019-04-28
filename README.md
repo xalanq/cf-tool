@@ -19,6 +19,7 @@ It's fast, small, cross-platorm and powerful.
 * Watch submissions' status dynamically.
 * List all problems' stats of a contest.
 * Fetch all problems' samples of a contest (parallel).
+* Fetch the latest or "Accepted" codes of a contest.
 * Generate a code from the specified template (including timestamp, author, etc.)
 * Test samples and feedback.
 * Use default web browser to open problems, the standing page.
@@ -54,13 +55,14 @@ Usage:
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
-  cf parse <contest-id> [<problem-id>]
+  cf parse [<contest-id>] [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
-  cf watch [<contest-id>]
+  cf watch [all] [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
   cf stand [<contest-id>]
   cf race <contest-id>
+  cf pull [ac] [<contest-id>] [<problem-id>]
 
 Examples:
   cf config login      Config your username and password.
@@ -75,17 +77,23 @@ Examples:
   cf list              List all problems' stats of a contest.
   cf list 1119
   cf parse 100         Fetch all problems' samples of contest 100 into "./100/<problem-id>".
-  cf parse 100 a       Fetch samples of problem "a" of contest 100 into current path.
+  cf parse 100 a       Fetch samples of problem "a" of contest 100 into "./100/a".
+  cf parse             Fetch samples of current problem into current path.
   cf gen               Generate a code from default template.
   cf gen cpp           Generate a code from the template which's alias is "cpp" into current path.
   cf test              Run the commands of a template in current path. Then test all samples.
   cf watch             Watch the first 10 submissions of current contest.
+  cf watch all         Watch all submissions of current contest.
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
   cf open 1136         Use default web browser to open the page of contest 1136.
   cf stand             Use default web browser to open the standing page.
   cf race 1136         If the contest 1136 has not started yet, it will countdown. After the
                        countdown ends, it will run 'cf open 1136 a', 'cf open 1136 b', ...,
                        'cf open 1136 e', 'cf parse 1136'.
+  cf pull 100          Pull all problems' latest codes of contest 100 into "./100/<problem-id>".
+  cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
+  cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
+  cf pull              Pull the latest code of current problem into current path.
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.

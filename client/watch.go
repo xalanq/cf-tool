@@ -349,7 +349,7 @@ func watch(url string, channel string, submissions []Submission, maxWidth *int, 
 	return nil
 }
 
-func (c *Client) getSubmissions(myURL string, n int, line bool) (submissions []Submission, channels []string, err error) {
+func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, channels []string, err error) {
 	client := &http.Client{Jar: c.Jar}
 	resp, err := client.Get(myURL)
 	if err != nil {
@@ -392,7 +392,7 @@ func (c *Client) getSubmissions(myURL string, n int, line bool) (submissions []S
 
 // WatchSubmission n is the number of submissions
 func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
-	submissions, channels, err := c.getSubmissions(myURL, n, line)
+	submissions, channels, err := c.getSubmissions(myURL, n)
 	if err != nil {
 		return err
 	}
@@ -404,8 +404,13 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 		strings.Join(channels[:], "/"), time.Now().UTC().Format("20060102150405"))
 
 	if err = watch(url, channels[0], submissions, &maxWidth, line); err != nil {
-		ansi.CursorUp(7)
-		refreshLine(7, maxWidth)
+		if line {
+			ansi.CursorUp(7)
+			refreshLine(7, maxWidth)
+		} else {
+			ansi.CursorUp(len(submissions) + 2)
+			refreshLine(len(submissions)+2, maxWidth)
+		}
 		color.Red("Websocket got a problem:\n%v\nNow auto-refresh the status page\n", err.Error())
 	}
 
@@ -421,7 +426,7 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 		if endCount == len(submissions) {
 			break
 		}
-		submissions, channels, err = c.getSubmissions(myURL, n, line)
+		submissions, channels, err = c.getSubmissions(myURL, n)
 		if err != nil {
 			return err
 		}
@@ -429,7 +434,7 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 		display(submissions, first, &maxWidth, line)
 		first = false
 		sub := time.Now().Sub(st)
-		if sub.Seconds() < 1.0 {
+		if sub < time.Second {
 			time.Sleep(time.Duration(time.Second - sub))
 		}
 	}

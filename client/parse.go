@@ -104,7 +104,7 @@ func (c *Client) ParseContest(contestID, rootPath string) (err error) {
 			fmt.Printf("Parsing %v %v\n", contestID, problem.ID)
 			mu.Unlock()
 			problemID := strings.ToLower(problem.ID)
-			path := filepath.Join(rootPath, contestID, problemID)
+			path := filepath.Join(rootPath, problemID)
 			samples, err := c.ParseContestProblem(contestID, problem.ID, path)
 			mu.Lock()
 			if err != nil {

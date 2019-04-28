@@ -86,3 +86,33 @@ var Langs = map[string]string{
 	"34": "JavaScript V8 4.8.0",
 	"55": "Node.js 9.4.0",
 }
+
+// LangsExt language's ext
+var LangsExt = map[string]string{
+	"GNU C11":               "c",
+	"Clang++17 Diagnostics": "cpp",
+	"GNU C++11":             "cpp",
+	"GNU C++14":             "cpp",
+	"GNU C++17":             "cpp",
+	"MS C++":                "cpp",
+	"MS C++ 2017":           "cpp",
+	"Mono C#":               "cs",
+	"D":                     "d",
+	"Go":                    "go",
+	"Haskell":               "hs",
+	"Kotlin":                "kt",
+	"Ocaml":                 "ml",
+	"Delphi":                "pas",
+	"FPC":                   "pas",
+	"PascalABC.NET":         "pas",
+	"Perl":                  "pl",
+	"PHP":                   "php",
+	"Python 2":              "py",
+	"Python 3":              "py",
+	"PyPy 2":                "py",
+	"PyPy 3":                "py",
+	"Ruby":                  "rb",
+	"Rust":                  "rs",
+	"JavaScript":            "js",
+	"Node.js":               "js",
+}

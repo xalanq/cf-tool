@@ -1,24 +1,23 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 
-// Parse command
-func Parse(args map[string]interface{}) error {
+// Pull command
+func Pull(args map[string]interface{}) error {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 	cfg := config.New(config.ConfigPath)
 	cln := client.New(config.SessionPath)
+	ac := args["ac"].(bool)
 	work := func() error {
 		contestID := ""
 		problemID := ""
@@ -26,7 +25,7 @@ func Parse(args map[string]interface{}) error {
 		ok := false
 		if contestID, ok = args["<contest-id>"].(string); ok {
 			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return cln.ParseContest(contestID, filepath.Join(currentPath, contestID))
+				return cln.PullContest(contestID, "", filepath.Join(currentPath, contestID), ac)
 			}
 			problemID = strings.ToLower(problemID)
 			path = filepath.Join(currentPath, contestID, problemID)
@@ -40,15 +39,10 @@ func Parse(args map[string]interface{}) error {
 				return err
 			}
 			if problemID == contestID {
-				return cln.ParseContest(contestID, currentPath)
+				return cln.PullContest(contestID, "", currentPath, ac)
 			}
 		}
-		samples, err := cln.ParseContestProblem(contestID, problemID, path)
-		if err != nil {
-			return fmt.Errorf("Failed %v %v", contestID, problemID)
-		}
-		color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
-		return nil
+		return cln.PullContest(contestID, problemID, path, ac)
 	}
 	if err = work(); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {

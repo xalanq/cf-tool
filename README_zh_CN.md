@@ -17,6 +17,7 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 * 查看提交后的情况（动态刷新）
 * 列出某场比赛的所有题目的整体信息
 * 并行地获取某场比赛所有题目（或者某道题）的样例
+* 获取某场比赛所有的最新代码或者AC代码
 * 根据你事先准备好的模板代码，生成一份带有时间戳、作者等信息的代码
 * 全自动测试样例是否通过，若有错还会给出对比信息
 * 用默认的网页浏览器打开题目页面、榜单
@@ -52,13 +53,14 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
-  cf parse <contest-id> [<problem-id>]
+  cf parse [<contest-id>] [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
-  cf watch [<contest-id>]
+  cf watch [all] [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
   cf stand [<contest-id>]
   cf race <contest-id>
+  cf pull [ac] [<contest-id>] [<problem-id>]
 
 例子:
   cf config login      配置你的用户名和密码。
@@ -73,16 +75,22 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   cf list              列出当前比赛的题目通过、时限等信息。
   cf list 1119         
   cf parse 100         获取比赛 id 为 100 的所有题目的样例到文件夹 "./100/<problem-id>" 下。
-  cf parse 100 a       获取比赛 id 为 100 的题目 a 的样例到当前文件夹下。
+  cf parse 100 a       获取比赛 id 为 100 的题目 a 的样例到文件夹 "./100/a" 下。
+  cf parse             获取当前比赛的当前题目到当前文件夹下。
   cf gen               用默认的模板生成一份代码到当前文件夹下。
   cf gen cpp           用名字为 "cpp" 的模板来生成一份代码到当前文件夹下。
   cf test              在当前目录下执行模板里的命令，并测试全部样例。
   cf watch             查看自己在当前比赛的最后 10 次提交结果。
+  cf watch all         查看自己在当前比赛的全部提交结果
   cf open 1136 a       用默认的浏览器打开比赛 id 为 1136 的题目 a。
   cf open 1136         用默认的浏览器打开比赛 id 为 1136 的总览页面。
   cf stand             用默认的浏览器当前比赛的榜单。
   cf race 1136         如果比赛还未开始且进入倒计时，则该命令会倒计时。当倒计时完后，会自动执行
                        'cf open 1136 a', 'cf open 1136 b', ..., 'cf open 1136 e', 'cf parse 1136'
+  cf pull 100          拉取比赛 id 为 100 每道题的最新代码到文件夹 "./100/<problem-id>" 下。
+  cf pull 100 a        拉取比赛 id 为 100 的题目 a 的最新代码到文件夹 "./100/a" 下。
+  cf pull ac 100 a     拉取比赛 id 为 100 的题目 a 的 AC 代码。
+  cf pull              拉取当前题目的最新代码到当前文件夹下。
 
 注意:
   <problem-id>         表示题目的 id，比如 "a" 或者 "A"，不区分大小写。
