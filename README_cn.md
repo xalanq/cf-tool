@@ -48,7 +48,7 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 如果你想用本工具打比赛，那么最好用 "cf race 1111" 命令，其中 "1111" 是比赛的 id
 
 支持的命令:
-  cf config (login | add | default)
+  cf config (login | add | del | default)
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
@@ -63,6 +63,7 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
 例子:
   cf config login      配置你的用户名和密码。
   cf config add        添加一份模板。
+  cf config del        删掉一份模板。
   cf config default    设置默认的模板。
   cf submit            如果当前路径是 "<contest-id>/<problem-id>" 那 cf 会找到匹配某个模板的代码，
                        然后提交到 <contest-id> 这场比赛的 <problem-id> 题目。

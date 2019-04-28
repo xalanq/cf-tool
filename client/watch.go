@@ -289,9 +289,14 @@ func watch(url string, channel string, submissions []Submission, maxWidth *int, 
 			endCount++
 		}
 	}
+	return errors.New("ggmf")
 
 	if endCount != len(submissions) {
-		ws, _, err := websocket.DefaultDialer.Dial(url, nil)
+		dialer := &websocket.Dialer{
+			Proxy:            http.ProxyFromEnvironment,
+			HandshakeTimeout: 3 * time.Second,
+		}
+		ws, _, err := dialer.Dial(url, nil)
 		if err != nil {
 			return err
 		}
@@ -345,8 +350,7 @@ func watch(url string, channel string, submissions []Submission, maxWidth *int, 
 	return nil
 }
 
-// WatchSubmission n is the number of submissions
-func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
+func (c *Client) getSubmissions(myURL string, n int, line bool) (submissions []Submission, channels []string, err error) {
 	client := &http.Client{Jar: c.Jar}
 	resp, err := client.Get(myURL)
 	if err != nil {
@@ -373,8 +377,6 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 		return
 	}
 
-	submissions := []Submission{}
-
 	for _, submissionBody := range submissionsBody {
 		if submission, err := parseSubmission(submissionBody, cfOffset); err == nil {
 			submissions = append(submissions, submission)
@@ -382,17 +384,58 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 	}
 
 	if len(submissions) < 1 {
-		return errors.New("Cannot find any submission")
+		return nil, nil, errors.New("Cannot find any submission")
+	}
+
+	channels = findChannel(body)
+	return
+}
+
+// WatchSubmission n is the number of submissions
+func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
+	submissions, channels, err := c.getSubmissions(myURL, n, line)
+	if err != nil {
+		return err
 	}
 
 	maxWidth := 0
 	display(submissions, true, &maxWidth, line)
 
-	channels := findChannel(body)
 	url := fmt.Sprintf(`wss://pubsub.codeforces.com/ws/%v?_=%v&tag=&time=&eventid=`,
 		strings.Join(channels[:], "/"), time.Now().UTC().Format("20060102150405"))
 
-	return watch(url, channels[0], submissions, &maxWidth, line)
+	if err = watch(url, channels[0], submissions, &maxWidth, line); err != nil {
+		ansi.CursorUp(7)
+		refreshLine(7, maxWidth)
+		color.Red("Websocket got a problem:\n%v\nNow auto-refresh the status page\n", err.Error())
+	}
+
+	first := true
+	for {
+		st := time.Now()
+		endCount := 0
+		for _, submission := range submissions {
+			if submission.end {
+				endCount++
+			}
+		}
+		if endCount == len(submissions) {
+			break
+		}
+		submissions, channels, err = c.getSubmissions(myURL, n, line)
+		if err != nil {
+			return err
+		}
+
+		display(submissions, first, &maxWidth, line)
+		first = false
+		sub := time.Now().Sub(st)
+		if sub.Seconds() < 1.0 {
+			time.Sleep(time.Duration(time.Second - sub))
+		}
+	}
+
+	return nil
 }
 
 var colorMap = map[string]color.Attribute{

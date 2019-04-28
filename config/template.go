@@ -8,13 +8,14 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	ansi "github.com/k0kubun/go-ansi"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/util"
 )
 
-// Add template
-func (c *Config) Add() (err error) {
+// AddTemplate add template
+func (c *Config) AddTemplate() (err error) {
 	color.Cyan("Language list:")
 	type kv struct {
 		K, V string
@@ -84,4 +85,57 @@ func (c *Config) Add() (err error) {
 		color.Red("Invalid input. Please input again: ")
 	}
 	return c.save()
+}
+
+// RemoveTemplate remove template
+func (c *Config) RemoveTemplate() (err error) {
+	if len(c.Template) == 0 {
+		color.Red("There is no template. Please add one")
+		return nil
+	}
+	for i, template := range c.Template {
+		star := " "
+		if i == c.Default {
+			star = color.New(color.FgGreen).Sprint("*")
+		}
+		ansi.Printf(`%v%2v: "%v" "%v"`, star, i, template.Alias, template.Path)
+		ansi.Println()
+	}
+	idx := util.ChooseIndex(len(c.Template))
+	c.Template = append(c.Template[:idx], c.Template[idx+1:]...)
+	if idx == c.Default {
+		c.Default = 0
+	} else if idx < c.Default {
+		c.Default--
+	}
+	return c.save()
+}
+
+// SetDefaultTemplate set default template index
+func (c *Config) SetDefaultTemplate() error {
+	if len(c.Template) == 0 {
+		color.Red("There is no template. Please add one")
+		return nil
+	}
+	for i, template := range c.Template {
+		star := " "
+		if i == c.Default {
+			star = color.New(color.FgGreen).Sprint("*")
+		}
+		ansi.Printf(`%v%2v: "%v" "%v"`, star, i, template.Alias, template.Path)
+		ansi.Println()
+	}
+	c.Default = util.ChooseIndex(len(c.Template))
+	return c.save()
+}
+
+// TemplateByAlias return all template which alias equals to alias
+func (c *Config) TemplateByAlias(alias string) []CodeTemplate {
+	ret := []CodeTemplate{}
+	for _, template := range c.Template {
+		if template.Alias == alias {
+			ret = append(ret, template)
+		}
+	}
+	return ret
 }

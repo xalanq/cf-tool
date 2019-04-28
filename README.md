@@ -50,7 +50,7 @@ You should run "cf config login" and "cf config add" at first.
 If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
 
 Usage:
-  cf config (login | add | default)
+  cf config (login | add | del | default)
   cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
@@ -65,6 +65,7 @@ Usage:
 Examples:
   cf config login      Config your username and password.
   cf config add        Add a template.
+  cf config del        Remove a template.
   cf config default    Set default template.
   cf submit            If current path is "<contest-id>/<problem-id>", cf will find the
                        code which can be submitted. Then submit to <contest-id> <problem-id>.

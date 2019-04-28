@@ -93,13 +93,20 @@ func judge(sampleID, command string) error {
 	if out == ans {
 		state = color.New(color.FgGreen).Sprintf("Passed #%v", sampleID)
 	} else {
+		input, err := ioutil.ReadFile(inPath)
+		if err != nil {
+			return err
+		}
 		state = color.New(color.FgRed).Sprintf("Failed #%v", sampleID)
 		dmp := diffmatchpatch.New()
 		d := dmp.DiffMain(out, ans, true)
-		diff += color.New(color.FgBlue).Sprintf("Your Answer:\n")
-		diff += color.New(color.FgBlue).Sprintf(dmp.DiffText1(d) + "\n")
-		diff += color.New(color.FgGreen).Sprintf("Answer:\n")
-		diff += color.New(color.FgGreen).Sprintf(dmp.DiffText2(d) + "\n")
+		diff += color.New(color.FgCyan).Sprintf("-----Input-----\n")
+		diff += string(input) + "\n"
+		diff += color.New(color.FgCyan).Sprintf("-----Output-----\n")
+		diff += dmp.DiffText1(d) + "\n"
+		diff += color.New(color.FgCyan).Sprintf("-----Answer-----\n")
+		diff += dmp.DiffText2(d) + "\n"
+		diff += color.New(color.FgCyan).Sprintf("-----Diff-----\n")
 		diff += dmp.DiffPrettyText(d) + "\n"
 	}
 	ansi.Printf("%v .... %.3fs\n%v", state, dt.Seconds(), diff)

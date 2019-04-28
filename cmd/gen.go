@@ -36,7 +36,7 @@ func Gen(args map[string]interface{}) error {
 	var path string
 
 	if alias, ok := args["<alias>"].(string); ok {
-		templates := cfg.Alias(alias)
+		templates := cfg.TemplateByAlias(alias)
 		if len(templates) < 1 {
 			return fmt.Errorf("Cannot find any template with alias %v", alias)
 		} else if len(templates) == 1 {

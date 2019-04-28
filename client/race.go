@@ -49,6 +49,11 @@ func (c *Client) RaceContest(contestID string) (err error) {
 		return
 	}
 
+	err = checkLogin(c.Username, body)
+	if err != nil {
+		return
+	}
+
 	_, err = findStatisBlock(body)
 	if err != nil {
 		count, err := findCountdown(body)
