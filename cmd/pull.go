@@ -22,7 +22,7 @@ func Pull(args map[string]interface{}) error {
 		contestID := ""
 		problemID := ""
 		path := currentPath
-		ok := false
+		var ok bool
 		if contestID, ok = args["<contest-id>"].(string); ok {
 			if problemID, ok = args["<problem-id>"].(string); !ok {
 				return cln.PullContest(contestID, "", filepath.Join(currentPath, contestID), ac)

@@ -62,7 +62,7 @@ func (c *Client) PullCode(codeURL, path, ext string) (filename string, err error
 // PullContest pull all latest codes or ac codes of contest's problem
 func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (err error) {
 	color.Cyan("Pull code from %v%v, accepted: %v", contestID, problemID, ac)
-	submissons, _, err := c.getSubmissions(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), -1)
+	submissions, _, err := c.getSubmissions(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), -1)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 	saved := map[string](map[string]bool){}
 	used := []Submission{}
 
-	for _, submission := range submissons {
+	for _, submission := range submissions {
 		pid := strings.ToLower(strings.Split(submission.name, " ")[0])
 		if problemID != "" && problemID != pid {
 			continue
