@@ -40,6 +40,8 @@ func Eval(args map[string]interface{}) error {
 		return Race(args)
 	} else if args["pull"].(bool) {
 		return Pull(args)
+	} else if args["upgrade"].(bool) {
+		return Upgrade(args["{version}"].(string))
 	}
 	return nil
 }

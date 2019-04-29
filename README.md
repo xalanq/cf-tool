@@ -44,8 +44,6 @@ $ go build -ldflags "-s -w" cf.go
 ## Usage
 
 ```plain
-Codeforces Tool (cf). https://github.com/xalanq/cf-tool
-
 You should run "cf config login" and "cf config add" at first.
 
 If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
@@ -63,6 +61,7 @@ Usage:
   cf stand [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf upgrade
 
 Examples:
   cf config login      Config your username and password.
@@ -94,6 +93,7 @@ Examples:
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
   cf pull              Pull the latest code of current problem into current path.
+  cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.

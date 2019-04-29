@@ -51,3 +51,18 @@ func ChooseIndex(maxLen int) int {
 		color.Red("Invalid index! Please try again: ")
 	}
 }
+
+// YesOrNo must choose one
+func YesOrNo(note string) bool {
+	color.Cyan(note)
+	for {
+		tmp := ScanlineTrim()
+		if tmp == "y" || tmp == "Y" {
+			return true
+		}
+		if tmp == "n" || tmp == "N" {
+			return false
+		}
+		color.Red("Invalid input. Please input again: ")
+	}
+}

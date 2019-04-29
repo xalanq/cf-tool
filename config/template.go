@@ -72,18 +72,10 @@ func (c *Config) AddTemplate() (err error) {
 		beforeScript, script, afterScript,
 	})
 
-	color.Cyan("Make it default (y/n)? ")
-	for {
-		tmp := util.ScanlineTrim()
-		if tmp == "y" || tmp == "Y" {
-			c.Default = len(c.Template) - 1
-			break
-		}
-		if tmp == "n" || tmp == "N" {
-			break
-		}
-		color.Red("Invalid input. Please input again: ")
+	if util.YesOrNo("Make it default (y/n)? ") {
+		c.Default = len(c.Template) - 1
 	}
+
 	return c.save()
 }
 

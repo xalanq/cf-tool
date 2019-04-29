@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
 	"github.com/xalanq/cf-tool/cmd"
@@ -9,8 +12,10 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
+const version = "v0.5.0"
+
 func main() {
-	usage := `Codeforces Tool (cf). https://github.com/xalanq/cf-tool
+	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
 You should run "cf config login" and "cf config add" at first.
 
@@ -29,6 +34,7 @@ Usage:
   cf stand [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf upgrade
 
 Examples:
   cf config login      Config your username and password.
@@ -60,6 +66,7 @@ Examples:
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
   cf pull              Pull the latest code of current problem into current path.
+  cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.
@@ -106,8 +113,10 @@ Script in template:
 Options:
   -h --help
   --version`
+	usage = strings.Replace(usage, `$%version%$`, version, 1)
 
-	args, _ := docopt.Parse(usage, nil, true, "Codeforces Tool (cf) v0.4.0", false)
+	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("Codeforces Tool (cf) %v", version), false)
+	args[`{version}`] = version
 	color.Output = ansi.NewAnsiStdout()
 	config.Init()
 	err := cmd.Eval(args)

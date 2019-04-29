@@ -42,8 +42,6 @@ $ go build -ldflags "-s -w" cf.go
 ## 使用方法
 
 ```plain
-Codeforces Tool (cf). https://github.com/xalanq/cf-tool
-
 首先你得用 "cf config login"、 "cf config add" 命令来配置一下
 
 如果你想用本工具打比赛，那么最好用 "cf race 1111" 命令，其中 "1111" 是比赛的 id
@@ -61,6 +59,7 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   cf stand [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf upgrade
 
 例子:
   cf config login      配置你的用户名和密码。
@@ -91,6 +90,7 @@ Codeforces Tool (cf). https://github.com/xalanq/cf-tool
   cf pull 100 a        拉取比赛 id 为 100 的题目 a 的最新代码到文件夹 "./100/a" 下。
   cf pull ac 100 a     拉取比赛 id 为 100 的题目 a 的 AC 代码。
   cf pull              拉取当前题目的最新代码到当前文件夹下。
+  cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 注意:
   <problem-id>         表示题目的 id，比如 "a" 或者 "A"，不区分大小写。
