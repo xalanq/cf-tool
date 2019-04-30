@@ -159,33 +159,6 @@ int main() {
 }
 ```
 
-## 配置文件例子
-
-你可以将以下内容保存到 `~/.cfconfig` 里 (不过你需要将 `path` 替换成你自己的路径)
-
-```json
-{
-  "username": "",
-  "password": "",
-  "template": [
-    {
-      "alias": "cpp",
-      "lang": "42",
-      "path": "C:\\develop\\template\\cf.cpp",
-      "suffix": [
-        "cxx",
-        "cc",
-        "cpp"
-      ],
-      "before_script": "g++ $%full%$ -o $%file%$.exe -std=c++11 -O2",
-      "script": "./$%file%$.exe",
-      "after_script": ""
-    }
-  ],
-  "default": 0
-}
-```
-
 ## 常见问题
 
 ### 我双击了这个程序但是没啥效果

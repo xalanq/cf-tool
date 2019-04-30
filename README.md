@@ -164,33 +164,6 @@ int main() {
 }
 ```
 
-## Config Template
-
-You can save it to `~/.cfconfig` (but replace `path` field to yours)
-
-```json
-{
-  "username": "",
-  "password": "",
-  "template": [
-    {
-      "alias": "cpp",
-      "lang": "42",
-      "path": "C:\\develop\\template\\cf.cpp",
-      "suffix": [
-        "cxx",
-        "cc",
-        "cpp"
-      ],
-      "before_script": "g++ $%full%$ -o $%file%$.exe -std=c++11 -O2",
-      "script": "./$%file%$.exe",
-      "after_script": ""
-    }
-  ],
-  "default": 0
-}
-```
-
 ## FAQ
 
 ### I double click the program but it doesn't work
