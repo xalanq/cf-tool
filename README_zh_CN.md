@@ -90,7 +90,7 @@ $ go build -ldflags "-s -w" cf.go
   cf pull 100 a        拉取比赛 id 为 100 的题目 a 的最新代码到文件夹 "./100/a" 下。
   cf pull ac 100 a     拉取比赛 id 为 100 的题目 a 的 AC 代码。
   cf pull              拉取当前题目的最新代码到当前文件夹下。
-  cf upgrade           Upgrade the "cf" to the latest version from GitHub.
+  cf upgrade           从 GitHub 更新 "cf" 到最新版。
 
 注意:
   <problem-id>         表示题目的 id，比如 "a" 或者 "A"，不区分大小写。
