@@ -101,7 +101,7 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 		)
 		if err == nil {
 			saved[pid][ext] = true
-			color.Green(fmt.Sprintf(`Downloaded code of %v %v into %v`, contestID, problemID, filepath.Base(filename)))
+			color.Green(fmt.Sprintf(`Downloaded code of %v %v into %v`, contestID, pid, filepath.Base(filename)))
 			used = append(used, submission)
 		}
 	}

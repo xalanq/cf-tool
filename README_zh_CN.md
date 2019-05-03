@@ -21,6 +21,7 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 * 根据你事先准备好的模板代码，生成一份带有时间戳、作者等信息的代码
 * 全自动测试样例是否通过，若有错还会给出对比信息
 * 用默认的网页浏览器打开题目页面、榜单
+* 支持 codeforces 上全部的编程语言
 * 不是黑白的命令行界面
 
 欢迎大家一起完善这个工具呀，欢迎Pull requests。

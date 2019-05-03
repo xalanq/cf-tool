@@ -23,6 +23,7 @@ It's fast, small, cross-platorm and powerful.
 * Generate a code from the specified template (including timestamp, author, etc.)
 * Test samples and feedback.
 * Use default web browser to open problems, the standing page.
+* Support all programming languages in codeforces.
 * Colorful CLI.
 
 Pull requests are always welcome.
