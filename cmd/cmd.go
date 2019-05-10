@@ -114,9 +114,13 @@ type CodeList struct {
 func getCode(args map[string]interface{}, templates []config.CodeTemplate) (codes []CodeList) {
 	mp := make(map[string][]int)
 	for i, temp := range templates {
+		suffixMap := map[string]bool{}
 		for _, suffix := range temp.Suffix {
-			sf := "." + suffix
-			mp[sf] = append(mp[sf], i)
+			if _, ok := suffixMap[suffix]; !ok {
+				suffixMap[suffix] = true
+				sf := "." + suffix
+				mp[sf] = append(mp[sf], i)
+			}
 		}
 	}
 
@@ -166,7 +170,7 @@ func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (n
 			fmt.Printf("%3v: %v\n", i, client.Langs[templates[idx].Lang])
 		}
 		i := util.ChooseIndex(len(codes[0].Index))
-		codes[0].Index[0] = codes[i].Index[i]
+		codes[0].Index[0] = codes[0].Index[i]
 	}
 	return codes[0].Name, codes[0].Index[0], nil
 }

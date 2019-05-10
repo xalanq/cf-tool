@@ -31,7 +31,7 @@ func (c *Config) AddTemplate() (err error) {
 	color.Cyan("Select a language (e.g. 42): ")
 	lang := util.ScanlineTrim()
 
-	color.Cyan("Input alias (e.g. cpp): ")
+	color.Cyan("Alias (e.g. cpp): ")
 	alias := util.ScanlineTrim()
 
 	color.Cyan(`Template absolute path(e.g. ~/template/io.cpp): `)
@@ -47,9 +47,17 @@ func (c *Config) AddTemplate() (err error) {
 		color.Red("%v is invalid. Please input again: ", path)
 	}
 
-	color.Cyan("Other suffix? (e.g. cxx cc): ")
-	suffix := strings.Fields(util.ScanlineTrim())
-	suffix = append(suffix, strings.Replace(filepath.Ext(path), ".", "", 1))
+	color.Cyan("(The suffix of template above will be added by default) Other suffix? (e.g. cxx cc): ")
+	tmpSuffix := strings.Fields(util.ScanlineTrim())
+	tmpSuffix = append(tmpSuffix, strings.Replace(filepath.Ext(path), ".", "", 1))
+	suffixMap := map[string]bool{}
+	suffix := []string{}
+	for _, s := range tmpSuffix {
+		if _, ok := suffixMap[s]; !ok {
+			suffixMap[s] = true
+			suffix = append(suffix, s)
+		}
+	}
 
 	color.Cyan("Before script (e.g. g++ $%full%$ -o $%file%$.exe -std=c++11), empty is ok: ")
 	beforeScript := util.ScanlineTrim()

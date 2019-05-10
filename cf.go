@@ -12,7 +12,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v0.5.0"
+const version = "v0.5.1"
 
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
