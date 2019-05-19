@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 	"unicode"
 
 	"github.com/fatih/color"
@@ -73,7 +72,6 @@ func judge(sampleID, command string) error {
 
 	cmds := splitCmd(command)
 
-	st := time.Now()
 	cmd := exec.Command(cmds[0], cmds[1:]...)
 	cmd.Stdin = input
 	cmd.Stdout = output
@@ -81,7 +79,6 @@ func judge(sampleID, command string) error {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("Runtime Error: " + err.Error())
 	}
-	dt := time.Now().Sub(st)
 
 	b, err := ioutil.ReadFile(ansPath)
 	if err != nil {
@@ -111,7 +108,7 @@ func judge(sampleID, command string) error {
 		diff += color.New(color.FgCyan).Sprintf("-----Diff-----\n")
 		diff += dmp.DiffPrettyText(d) + "\n"
 	}
-	ansi.Printf("%v .... %.3fs\n%v", state, dt.Seconds(), diff)
+	ansi.Printf("%v .... %.3fs\n%v", state, cmd.ProcessState.UserTime().Seconds(), diff)
 	return nil
 }
 

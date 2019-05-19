@@ -53,8 +53,8 @@ Examples:
   cf gen               Generate a code from default template.
   cf gen cpp           Generate a code from the template which's alias is "cpp" into current path.
   cf test              Run the commands of a template in current path. Then test all samples.
-                       If you want to add a new testcase, create "inK.txt" and "ansK.txt" where
-                       K is a string with 0~9.
+                       If you want to add a new testcase, create two files "inK.txt" and "ansK.txt"
+                       where K is a string with 0~9.
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
