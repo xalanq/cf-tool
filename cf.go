@@ -12,7 +12,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v0.5.1"
+const version = "v0.5.2"
 
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
@@ -23,7 +23,6 @@ If you want to compete, the best command is "cf race 1111" where "1111" is the c
 
 Usage:
   cf config (login | add | del | default)
-  cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
   cf parse [<contest-id>] [<problem-id>]
@@ -54,6 +53,8 @@ Examples:
   cf gen               Generate a code from default template.
   cf gen cpp           Generate a code from the template which's alias is "cpp" into current path.
   cf test              Run the commands of a template in current path. Then test all samples.
+                       If you want to add a new testcase, create "inK.txt" and "ansK.txt" where
+                       K is a string with 0~9.
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.

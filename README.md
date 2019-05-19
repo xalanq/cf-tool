@@ -82,6 +82,8 @@ Examples:
   cf gen               Generate a code from default template.
   cf gen cpp           Generate a code from the template which's alias is "cpp" into current path.
   cf test              Run the commands of a template in current path. Then test all samples.
+                       If you want to add a new testcase, create two files "inK.txt" and "ansK.txt"
+                       where K is a string with 0~9.
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
@@ -177,10 +179,14 @@ You should put the `cf` program to a path (e.g. `/usr/bin` in Linux) which has b
 
 Or just google "how to add a path to system environment variable PATH".
 
-### what's the `cp` command in the GIF above
+### What's the `cp` command in the GIF above
 
 `cp` is a system command, meaning copy a file.
 
 In the GIF above, I just copied the file (already written) to current path. So I didn't need to write codes.
 
 In fact, you can run `cf gen` to generate a code (named as "a.cpp" or otherelse) from a template into current path.
+
+### How to add a new testcase
+
+Create two extra testcase files `inK.txt` and `ansK.txt` (K is a string with 0~9).

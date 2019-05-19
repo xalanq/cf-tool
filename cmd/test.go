@@ -78,7 +78,9 @@ func judge(sampleID, command string) error {
 	cmd.Stdin = input
 	cmd.Stdout = output
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("Runtime Error: " + err.Error())
+	}
 	dt := time.Now().Sub(st)
 
 	b, err := ioutil.ReadFile(ansPath)
