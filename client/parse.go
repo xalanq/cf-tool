@@ -91,7 +91,7 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 func (c *Client) ParseContest(contestID, rootPath string) (err error) {
 	problems, err := c.StatisContest(contestID)
 	if err != nil {
-		return err
+		return
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(problems))
@@ -108,7 +108,7 @@ func (c *Client) ParseContest(contestID, rootPath string) (err error) {
 			samples, err := c.ParseContestProblem(contestID, problem.ID, path)
 			mu.Lock()
 			if err != nil {
-				color.Red("Failed %v %v", contestID, problem.ID)
+				color.Red("Failed %v %v. Error: %v", contestID, problem.ID, err.Error())
 			} else {
 				color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
 			}
@@ -116,5 +116,5 @@ func (c *Client) ParseContest(contestID, rootPath string) (err error) {
 		}()
 	}
 	wg.Wait()
-	return nil
+	return
 }

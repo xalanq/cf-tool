@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,7 +44,8 @@ func Parse(args map[string]interface{}) error {
 		}
 		samples, err := cln.ParseContestProblem(contestID, problemID, path)
 		if err != nil {
-			return fmt.Errorf("Failed %v %v", contestID, problemID)
+			color.Red("Failed %v %v", contestID, problemID)
+			return err
 		}
 		color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
 		return nil
