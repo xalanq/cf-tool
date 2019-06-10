@@ -129,6 +129,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 		if idx, ok := mp[ext]; ok {
 			return []CodeList{CodeList{filename, idx}}
 		}
+		return
 	}
 
 	path, err := os.Getwd()
@@ -154,7 +155,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (name string, index int, err error) {
 	codes := getCode(args, templates)
 	if len(codes) < 1 {
-		return "", 0, errors.New("Cannot find any supported file\nYou can add some suffixes by `cf config add`")
+		return "", 0, errors.New("Cannot find any supported code\nYou can add some suffixes by `cf config add`")
 	}
 	if len(codes) > 1 {
 		color.Cyan("There are multiple files can be selected.")
@@ -165,7 +166,7 @@ func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (n
 		codes[0] = codes[i]
 	}
 	if len(codes[0].Index) > 1 {
-		color.Cyan("There are multiple language match the file.")
+		color.Cyan("There are multiple languages match the file.")
 		for i, idx := range codes[0].Index {
 			fmt.Printf("%3v: %v\n", i, client.Langs[templates[idx].Lang])
 		}
