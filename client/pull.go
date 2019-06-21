@@ -45,7 +45,7 @@ func (c *Client) PullCode(codeURL, path, ext string) (filename string, err error
 	i := 1
 	for _, err := os.Stat(filename); err == nil; _, err = os.Stat(filename) {
 		tmpPath := fmt.Sprintf("%v%v%v", path, i, ext)
-		fmt.Printf("%v is existed. Rename to %v\n", filepath.Base(filename), filepath.Base(tmpPath))
+		fmt.Printf("%v exists. Rename to %v\n", filepath.Base(filename), filepath.Base(tmpPath))
 		filename = tmpPath
 		i++
 	}
