@@ -70,7 +70,7 @@ func Gen(args map[string]interface{}) error {
 	i := 1
 	for _, err := os.Stat(savePath); err == nil; _, err = os.Stat(savePath) {
 		tmpPath := fmt.Sprintf("%v%v%v", path, i, ext)
-		fmt.Printf("%v is existed. Rename to %v\n", filepath.Base(savePath), filepath.Base(tmpPath))
+		fmt.Printf("%v exists. Rename to %v\n", filepath.Base(savePath), filepath.Base(tmpPath))
 		savePath = tmpPath
 		i++
 	}
