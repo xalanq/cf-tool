@@ -36,6 +36,8 @@ func Eval(args map[string]interface{}) error {
 		return Open(args)
 	} else if args["stand"].(bool) {
 		return Stand(args)
+	} else if args["sid"].(bool) {
+		return Sid(args)
 	} else if args["race"].(bool) {
 		return Race(args)
 	} else if args["pull"].(bool) {

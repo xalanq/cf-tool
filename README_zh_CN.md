@@ -58,6 +58,7 @@ $ go build -ldflags "-s -w" cf.go
   cf watch [all] [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
   cf stand [<contest-id>]
+  cf sid <submission-id> [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
   cf upgrade
@@ -85,7 +86,8 @@ $ go build -ldflags "-s -w" cf.go
   cf watch all         查看自己在当前比赛的全部提交结果
   cf open 1136 a       用默认的浏览器打开比赛 id 为 1136 的题目 a。
   cf open 1136         用默认的浏览器打开比赛 id 为 1136 的总览页面。
-  cf stand             用默认的浏览器当前比赛的榜单。
+  cf stand             用默认的浏览器打开当前比赛的榜单。
+  cf sid 52531875      用默认的浏览器打开 52531875 这个提交页面.
   cf race 1136         如果比赛还未开始且进入倒计时，则该命令会倒计时。当倒计时完后，会自动执行
                        'cf open 1136 a', 'cf open 1136 b', ..., 'cf open 1136 e', 'cf parse 1136'
   cf pull 100          拉取比赛 id 为 100 每道题的最新代码到文件夹 "./100/<problem-id>" 下。

@@ -12,7 +12,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v0.5.4"
+const version = "v0.5.5"
 
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
@@ -31,6 +31,7 @@ Usage:
   cf watch [all] [<contest-id>]
   cf open [<contest-id>] [<problem-id>]
   cf stand [<contest-id>]
+  cf sid <submission-id> [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
   cf upgrade
@@ -60,6 +61,7 @@ Examples:
   cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
   cf open 1136         Use default web browser to open the page of contest 1136.
   cf stand             Use default web browser to open the standing page.
+  cf sid 52531875      Use default web browser to open the submission 52531875's page.
   cf race 1136         If the contest 1136 has not started yet, it will countdown. After the
                        countdown ends, it will run 'cf open 1136 a', 'cf open 1136 b', ...,
                        'cf open 1136 e', 'cf parse 1136'.
