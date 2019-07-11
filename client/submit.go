@@ -11,6 +11,12 @@ import (
 	"github.com/fatih/color"
 )
 
+// SaveSubmission save it in session
+type SaveSubmission struct {
+	ContestID    string `json:"contest_id"`
+	SubmissionID string `json:"submission_id"`
+}
+
 func findErrorSource(body []byte) ([]byte, error) {
 	reg := regexp.MustCompile(`"error\sfor__source">(.*?)</span>`)
 	tmp := reg.FindSubmatch(body)
@@ -61,7 +67,7 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		"sourceCodeConfirmed":   {"true"},
 	})
 	if err != nil {
-		return err
+		return
 	}
 
 	defer resp.Body.Close()
@@ -75,5 +81,16 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 	}
 	color.Green("Submitted")
 
-	return c.WatchSubmission(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), 1, true)
+	submissions, err := c.WatchSubmission(contestID, 1, true)
+	if err != nil {
+		return
+	}
+
+	c.LastSubmission = &SaveSubmission{
+		ContestID:    contestID,
+		SubmissionID: submissions[0].ParseID(),
+	}
+	c.save()
+
+	return
 }

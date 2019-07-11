@@ -11,17 +11,18 @@ import (
 
 // Client codeforces client
 type Client struct {
-	Jar      *cookiejar.Jar `json:"cookies"`
-	Username string         `json:"username"`
-	Ftaa     string         `json:"ftaa"`
-	Bfaa     string         `json:"bfaa"`
-	path     string
+	Jar            *cookiejar.Jar  `json:"cookies"`
+	Username       string          `json:"username"`
+	Ftaa           string          `json:"ftaa"`
+	Bfaa           string          `json:"bfaa"`
+	LastSubmission *SaveSubmission `json:"last_submission"`
+	path           string
 }
 
 // New client
 func New(path string) *Client {
 	jar, _ := cookiejar.New(nil)
-	c := &Client{Jar: jar, path: path}
+	c := &Client{Jar: jar, path: path, LastSubmission: nil}
 	c.load()
 	return c
 }

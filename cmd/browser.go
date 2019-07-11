@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/skratchdot/open-golang/open"
+	"github.com/xalanq/cf-tool/client"
+	"github.com/xalanq/cf-tool/config"
 )
 
 // Open command
@@ -34,13 +36,26 @@ func Stand(args map[string]interface{}) error {
 
 // Sid command
 func Sid(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
-	if err != nil {
-		return err
+	contestID := ""
+	submissionID := ""
+	if args["<submission-id>"] == nil {
+		cln := client.New(config.SessionPath)
+		if cln.LastSubmission != nil {
+			contestID = cln.LastSubmission.ContestID
+			submissionID = cln.LastSubmission.SubmissionID
+		} else {
+			return fmt.Errorf(`You have not submitted any problem yet`)
+		}
+	} else {
+		var err error
+		contestID, err = getContestID(args)
+		if err != nil {
+			return err
+		}
+		submissionID, _ = args["<submission-id>"].(string)
+		if _, err = strconv.Atoi(submissionID); err != nil {
+			return err
+		}
 	}
-	c, _ := args["<submission-id>"].(string)
-	if _, err := strconv.Atoi(c); err == nil {
-		return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, c))
-	}
-	return fmt.Errorf(`Submission ID should be a number instead of "%v"`, c)
+	return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, submissionID))
 }

@@ -271,14 +271,15 @@ func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, 
 }
 
 // WatchSubmission n is the number of submissions
-func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
+func (c *Client) WatchSubmission(contestID string, n int, line bool) (submissions []Submission, err error) {
+	URL := fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID)
 	maxWidth := 0
 	first := true
 	for {
 		st := time.Now()
-		submissions, err := c.getSubmissions(myURL, n)
+		submissions, err = c.getSubmissions(URL, n)
 		if err != nil {
-			return err
+			return
 		}
 		display(submissions, first, &maxWidth, line)
 		first = false
@@ -289,15 +290,13 @@ func (c *Client) WatchSubmission(myURL string, n int, line bool) (err error) {
 			}
 		}
 		if endCount == len(submissions) {
-			break
+			return
 		}
 		sub := time.Now().Sub(st)
 		if sub < time.Second {
 			time.Sleep(time.Duration(time.Second - sub))
 		}
 	}
-
-	return nil
 }
 
 var colorMap = map[string]color.Attribute{
