@@ -16,6 +16,7 @@ import (
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
 	"github.com/sergi/go-diff/diffmatchpatch"
+	"github.com/shirou/gopsutil/process"
 	"github.com/xalanq/cf-tool/config"
 	"github.com/xalanq/cf-tool/util"
 )
@@ -76,8 +77,33 @@ func judge(sampleID, command string) error {
 	cmd.Stdin = input
 	cmd.Stdout = output
 	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("Runtime Error: " + err.Error())
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("Runtime Error #%v ... %v", sampleID, err.Error())
+	}
+
+	pid := int32(cmd.Process.Pid)
+	maxMemory := uint64(0)
+	ch := make(chan error)
+	go func() {
+		ch <- cmd.Wait()
+	}()
+	running := true
+	for running {
+		select {
+		case err := <-ch:
+			if err != nil {
+				return fmt.Errorf("Runtime Error #%v ... %v", sampleID, err.Error())
+			}
+			running = false
+		default:
+			p, err := process.NewProcess(pid)
+			if err == nil {
+				m, err := p.MemoryInfo()
+				if err == nil && m.RSS > maxMemory {
+					maxMemory = m.RSS
+				}
+			}
+		}
 	}
 
 	b, err := ioutil.ReadFile(ansPath)
@@ -108,7 +134,17 @@ func judge(sampleID, command string) error {
 		diff += color.New(color.FgCyan).Sprintf("-----Diff-----\n")
 		diff += dmp.DiffPrettyText(d) + "\n"
 	}
-	ansi.Printf("%v .... %.3fs\n%v", state, cmd.ProcessState.UserTime().Seconds(), diff)
+
+	parseMemory := func(memory uint64) string {
+		if memory > 1024*1024 {
+			return fmt.Sprintf("%.3fMB", float64(memory)/1024.0/1024.0)
+		} else if memory > 1024 {
+			return fmt.Sprintf("%.3fKB", float64(memory)/1024.0)
+		}
+		return fmt.Sprintf("%vB", memory)
+	}
+
+	ansi.Printf("%v ... %.3fs %v\n%v", state, cmd.ProcessState.UserTime().Seconds(), parseMemory(maxMemory), diff)
 	return nil
 }
 
