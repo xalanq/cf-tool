@@ -77,6 +77,7 @@ func (c *Client) Login(username, password string) (err error) {
 		"handleOrEmail": {username},
 		"password":      {password},
 		"_tta":          {"176"},
+		"remember":      {"on"},
 	})
 	if err != nil {
 		return
