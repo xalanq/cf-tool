@@ -49,7 +49,6 @@ $ go build -ldflags "-s -w" cf.go
 
 支持的命令:
   cf config (login | add | del | default)
-  cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
   cf parse [<contest-id>] [<problem-id>]
@@ -172,17 +171,9 @@ Codeforces Tool 是命令行界面的工具，你应该在终端里运行这个�
 
 ### 我无法使用 `cf` 这个命令
 
-你应该将 `cf` 这个程序放到一个已经加入到系统变量 PATH 的路径里 (比如说 Linux 里的 `/usr/bin` )。
+你应该将 `cf` 这个程序放到一个已经加入到系统变量 PATH 的路径里 (比如说 Linux 里的 `/usr/bin/` )。
 
 或者你直接去搜 "怎样添加路径到系统变量 PATH"。
-
-### 你 GIF 里的 `cp` 命令是啥啊
-
-`cp` 是一个系统命令，表示复制文件。
-
-在上边的 GIF 里，我只是将我已经写好的代码复制到当前文件夹下，这样我就不用写代码了。
-
-事实上，你可以执行 `cf gen` 生成模板代码到当前文件夹下。
 
 ### 如何加一个新的测试数据
 

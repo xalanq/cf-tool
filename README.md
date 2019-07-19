@@ -51,7 +51,6 @@ If you want to compete, the best command is "cf race 1111" where "1111" is the c
 
 Usage:
   cf config (login | add | del | default)
-  cf submit [<filename>]
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
   cf parse [<contest-id>] [<problem-id>]
@@ -178,17 +177,9 @@ Codeforces Tool is a command-line tool. You should run it in terminal.
 
 ### I cannot use `cf` command
 
-You should put the `cf` program to a path (e.g. `/usr/bin` in Linux) which has been added to system environment variable PATH.
+You should put the `cf` program to a path (e.g. `/usr/bin/` in Linux) which has been added to system environment variable PATH.
 
 Or just google "how to add a path to system environment variable PATH".
-
-### What's the `cp` command in the GIF above
-
-`cp` is a system command, meaning copy a file.
-
-In the GIF above, I just copied the file (already written) to current path. So I didn't need to write codes.
-
-In fact, you can run `cf gen` to generate a code (named as "a.cpp" or otherelse) from a template into current path.
 
 ### How to add a new testcase
 
