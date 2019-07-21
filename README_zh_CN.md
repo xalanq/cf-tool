@@ -178,3 +178,9 @@ Codeforces Tool 是命令行界面的工具，你应该在终端里运行这个�
 ### 如何加一个新的测试数据
 
 新建两个额外的测试数据文件 `inK.txt` 和 `ansK.txt` （K 是包含 0~9 的字符串）。
+
+### 在终端里启用 tab 补全命令
+
+使用这个工具 [Infinidat/infi.docopt_completion](https://github.com/Infinidat/infi.docopt_completion) 即可。
+
+注意：如果有一个新版本发布（尤其是添加了新命令），你应该重新运行 `docopt-completion cf`。

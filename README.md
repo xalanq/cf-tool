@@ -184,3 +184,9 @@ Or just google "how to add a path to system environment variable PATH".
 ### How to add a new testcase
 
 Create two extra testcase files `inK.txt` and `ansK.txt` (K is a string with 0~9).
+
+### Enable tab completion in terminal
+
+Use this [Infinidat/infi.docopt_completion](https://github.com/Infinidat/infi.docopt_completion).
+
+Note: If there is a new version released (especially a new command added), you should run `docopt-completion cf` again.
