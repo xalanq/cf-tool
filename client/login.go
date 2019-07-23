@@ -49,9 +49,9 @@ func (c *Client) Login(username, password string) (err error) {
 	jar, _ := cookiejar.New(nil)
 	color.Cyan("Login %v...\n", username)
 
-	client := &http.Client{Jar: jar}
+	c.client = &http.Client{Jar: jar}
 
-	resp, err := client.Get("https://codeforces.com/enter")
+	resp, err := c.client.Get("https://codeforces.com/enter")
 	if err != nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (c *Client) Login(username, password string) (err error) {
 	ftaa := genFtaa()
 	bfaa := genBfaa()
 
-	resp, err = client.PostForm("https://codeforces.com/enter", url.Values{
+	resp, err = c.client.PostForm("https://codeforces.com/enter", url.Values{
 		"csrf_token":    {csrf},
 		"action":        {"enter"},
 		"ftaa":          {ftaa},

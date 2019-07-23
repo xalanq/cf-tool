@@ -14,6 +14,14 @@ import (
 	"github.com/fatih/color"
 )
 
+// ToGym if length of contestID >= 6, replace contest to gym
+func ToGym(URL, contestID string) string {
+	if len(contestID) >= 6 {
+		URL = strings.Replace(URL, "contest", "gym", -1)
+	}
+	return URL
+}
+
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	irg := regexp.MustCompile(`class="input"[\s\S]*?<pre>([\s\S]*?)</pre>`)
 	org := regexp.MustCompile(`class="output"[\s\S]*?<pre>([\s\S]*?)</pre>`)
@@ -36,9 +44,9 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 }
 
 // ParseProblem parse problem to path
-func (c *Client) ParseProblem(problemURL, path string) (samples int, err error) {
-	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(problemURL)
+func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
+	client := &http.Client{Jar: c.Jar.Copy()}
+	resp, err := client.Get(URL)
 	if err != nil {
 		return
 	}
@@ -79,8 +87,8 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 	if err != nil {
 		return
 	}
-	problemURL := fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID)
-	samples, err = c.ParseProblem(problemURL, path)
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID), contestID)
+	samples, err = c.ParseProblem(URL, path)
 	if err != nil {
 		return
 	}

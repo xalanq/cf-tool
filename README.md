@@ -15,15 +15,16 @@ It's fast, small, cross-platorm and powerful.
 
 ## Features
 
-* Submit codes to a problem of a contest.
+* Support all programming languages in Codeforces.
+* Support contests and gym in Codeforces.
+* Submit codes.
 * Watch submissions' status dynamically.
-* List all problems' stats of a contest.
-* Fetch all problems' samples of a contest (parallel).
-* Fetch the latest or "Accepted" codes of a contest.
-* Generate a code from the specified template (including timestamp, author, etc.)
-* Test samples and feedback.
-* Use default web browser to open problems, the standing page.
-* Support all programming languages in codeforces.
+* Fetch problems' samples.
+* Build, test and run.
+* Clone all codes of someone.
+* Generate codes from the specified template (including timestamp, author, etc.)
+* List problems' stats.
+* Use default web browser to open problems' pages, standings' page, etc.
 * Colorful CLI.
 
 Pull requests are always welcome.
@@ -62,6 +63,7 @@ Usage:
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf clone [ac] <username>
   cf upgrade
 
 Examples:
@@ -98,6 +100,7 @@ Examples:
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
   cf pull              Pull the latest code of current problem into current path.
+  cf clone xalanq      Clone all codes of xalanq.
   cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 Notes:

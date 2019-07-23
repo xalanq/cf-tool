@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"regexp"
 
@@ -29,10 +28,9 @@ func findErrorSource(body []byte) ([]byte, error) {
 // SubmitContest submit problem in contest (and block util pending)
 func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err error) {
 	color.Cyan("Submit %v %v %v", contestID, problemID, Langs[langID])
-	submitURL := fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID)
 
-	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(submitURL)
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID), contestID)
+	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
 	}
@@ -54,7 +52,7 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
-	resp, err = client.PostForm(fmt.Sprintf("%v?csrf=%v", submitURL, csrf), url.Values{
+	resp, err = c.client.PostForm(fmt.Sprintf("%v?csrf=%v", URL, csrf), url.Values{
 		"csrf_token":            {csrf},
 		"ftaa":                  {c.Ftaa},
 		"bfaa":                  {c.Bfaa},

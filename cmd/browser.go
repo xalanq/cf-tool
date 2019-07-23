@@ -20,9 +20,9 @@ func Open(args map[string]interface{}) error {
 		return err
 	}
 	if problemID == contestID {
-		return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v", contestID))
+		return open.Run(client.ToGym(fmt.Sprintf("https://codeforces.com/contest/%v", contestID), contestID))
 	}
-	return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID))
+	return open.Run(client.ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID), contestID))
 }
 
 // Stand command
@@ -31,7 +31,7 @@ func Stand(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/standings", contestID))
+	return open.Run(client.ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/standings", contestID), contestID))
 }
 
 // Sid command
@@ -57,5 +57,5 @@ func Sid(args map[string]interface{}) error {
 			return err
 		}
 	}
-	return open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, submissionID))
+	return open.Run(client.ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, submissionID), contestID))
 }

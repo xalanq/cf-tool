@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/fatih/color"
@@ -17,13 +18,17 @@ type Client struct {
 	Bfaa           string          `json:"bfaa"`
 	LastSubmission *SaveSubmission `json:"last_submission"`
 	path           string
+	client         *http.Client
 }
 
 // New client
 func New(path string) *Client {
 	jar, _ := cookiejar.New(nil)
-	c := &Client{Jar: jar, path: path, LastSubmission: nil}
-	c.load()
+	c := &Client{Jar: jar, LastSubmission: nil, path: path, client: nil}
+	if path != "" {
+		c.load()
+	}
+	c.client = &http.Client{Jar: c.Jar}
 	return c
 }
 

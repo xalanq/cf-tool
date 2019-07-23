@@ -13,16 +13,17 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 
 ## 特点
 
-* 提交代码到某场比赛的某道题目
-* 查看提交后的情况（动态刷新）
+* 支持 Codeforces 中的所有编程语言
+* 支持 Codeforces 的 contests 和 gym
+* 提交代码
+* 动态刷新提交后的情况
+* 拉取问题的样例
+* 构建，测试和运行
+* 拉取某人的所有代码
+* 从指定模板生成代码（包括时间戳，作者等）
 * 列出某场比赛的所有题目的整体信息
-* 并行地获取某场比赛所有题目（或者某道题）的样例
-* 获取某场比赛所有的最新代码或者AC代码
-* 根据你事先准备好的模板代码，生成一份带有时间戳、作者等信息的代码
-* 全自动测试样例是否通过，若有错还会给出对比信息
-* 用默认的网页浏览器打开题目页面、榜单
-* 支持 codeforces 上全部的编程语言
-* 不是黑白的命令行界面
+* 用默认的网页浏览器打开题目页面、榜单。
+* 丰富多彩的CLI。
 
 欢迎大家一起完善这个工具呀，欢迎Pull requests。
 
@@ -60,6 +61,7 @@ $ go build -ldflags "-s -w" cf.go
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf clone [ac] <username>
   cf upgrade
 
 例子:
@@ -94,6 +96,7 @@ $ go build -ldflags "-s -w" cf.go
   cf pull 100 a        拉取比赛 id 为 100 的题目 a 的最新代码到文件夹 "./100/a" 下。
   cf pull ac 100 a     拉取比赛 id 为 100 的题目 a 的 AC 代码。
   cf pull              拉取当前题目的最新代码到当前文件夹下。
+  cf clone xalanq      拉取 xalanq 的所有提交代码。
   cf upgrade           从 GitHub 更新 "cf" 到最新版。
 
 注意:

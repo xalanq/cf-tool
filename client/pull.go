@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"html"
@@ -18,15 +19,41 @@ func findCode(body []byte) (string, error) {
 	reg := regexp.MustCompile(`<pre[\s\S]*?>([\s\S]*?)</pre>`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
-		return "", errors.New("Cannot find code")
+		return "", errors.New("Cannot find any code")
 	}
 	return html.UnescapeString(string(tmp[1])), nil
 }
 
+func findMessage(body []byte) (string, error) {
+	reg := regexp.MustCompile(`Codeforces.showMessage\("([\s\S]*?)"\)`)
+	tmp := reg.FindAllSubmatch(body, -1)
+	if tmp != nil {
+		for _, s := range tmp {
+			if !bytes.Contains(s[1], []byte("The source code has been copied into the clipboard")) {
+				return string(s[1]), nil
+			}
+		}
+	}
+	return "", errors.New("Cannot find any message")
+}
+
 // PullCode pull problem's code to path
-func (c *Client) PullCode(codeURL, path, ext string) (filename string, err error) {
-	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(codeURL)
+func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool) (filename string, err error) {
+	filename = path + ext
+	if rename {
+		i := 1
+		for _, err := os.Stat(filename); err == nil; _, err = os.Stat(filename) {
+			tmpPath := fmt.Sprintf("%v_%v%v", path, i, ext)
+			filename = tmpPath
+			i++
+		}
+	} else if _, err := os.Stat(filename); err == nil {
+		return "", fmt.Errorf("Exists, skip")
+	}
+
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, submissionID), contestID)
+	client := &http.Client{Jar: c.Jar.Copy()}
+	resp, err := client.Get(URL)
 	if err != nil {
 		return
 	}
@@ -36,18 +63,14 @@ func (c *Client) PullCode(codeURL, path, ext string) (filename string, err error
 		return
 	}
 
+	message, err := findMessage(body)
+	if err == nil {
+		return "", fmt.Errorf("%v", message)
+	}
+
 	code, err := findCode(body)
 	if err != nil {
 		return
-	}
-
-	filename = path + ext
-	i := 1
-	for _, err := os.Stat(filename); err == nil; _, err = os.Stat(filename) {
-		tmpPath := fmt.Sprintf("%v%v%v", path, i, ext)
-		fmt.Printf("%v exists. Rename to %v\n", filepath.Base(filename), filepath.Base(tmpPath))
-		filename = tmpPath
-		i++
 	}
 
 	err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
@@ -61,13 +84,14 @@ func (c *Client) PullCode(codeURL, path, ext string) (filename string, err error
 
 // PullContest pull all latest codes or ac codes of contest's problem
 func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (err error) {
-	color.Cyan("Pull code from %v%v, accepted: %v", contestID, problemID, ac)
-	submissions, err := c.getSubmissions(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), -1)
+	color.Cyan("Pull code from %v%v, ac: %v", contestID, problemID, ac)
+
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), contestID)
+	submissions, err := c.getSubmissions(URL, -1)
 	if err != nil {
-		return err
+		return
 	}
 
-	saved := map[string](map[string]bool){}
 	used := []Submission{}
 
 	for _, submission := range submissions {
@@ -82,27 +106,25 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 		if !ok {
 			continue
 		}
-		if _, ok = saved[pid]; !ok {
-			saved[pid] = map[string]bool{}
-		}
-		if _, ok = saved[pid][ext]; ok {
-			continue
-		}
 		path := ""
 		if problemID == "" {
 			path = filepath.Join(rootPath, pid, pid)
 		} else {
 			path = filepath.Join(rootPath, strings.ToLower(problemID))
 		}
+		submissionID := fmt.Sprintf("%v", submission.id)
 		filename, err := c.PullCode(
-			fmt.Sprintf("https://codeforces.com/contest/%v/submission/%v", contestID, submission.id),
+			contestID,
+			submissionID,
 			path,
 			"."+ext,
+			true,
 		)
 		if err == nil {
-			saved[pid][ext] = true
-			color.Green(fmt.Sprintf(`Downloaded code of %v %v into %v`, contestID, pid, filepath.Base(filename)))
+			color.Green(fmt.Sprintf(`Saved %v`, filename))
 			used = append(used, submission)
+		} else {
+			color.Red(fmt.Sprintf(`Error in %v|%v: %v`, contestID, submissionID, err.Error()))
 		}
 	}
 

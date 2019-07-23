@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"regexp"
 	"strings"
 
@@ -77,11 +76,10 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 
 // StatisContest get contest problems statis
 func (c *Client) StatisContest(contestID string) (problems []StatisInfo, err error) {
-	color.Cyan("Get statis in contest %v\n", contestID)
-	statisURL := fmt.Sprintf("https://codeforces.com/contest/%v", contestID)
+	color.Cyan(ToGym("Get statis in contest %v\n", contestID), contestID)
 
-	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(statisURL)
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v", contestID), contestID)
+	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
 	}

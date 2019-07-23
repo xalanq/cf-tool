@@ -12,7 +12,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v0.6.1"
+const version = "v0.7.0"
 
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
@@ -34,6 +34,7 @@ Usage:
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
+  cf clone [ac] <username>
   cf upgrade
 
 Examples:
@@ -70,6 +71,7 @@ Examples:
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
   cf pull              Pull the latest code of current problem into current path.
+  cf clone xalanq      Clone all codes of xalanq.
   cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 Notes:

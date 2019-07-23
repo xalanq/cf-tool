@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -18,7 +17,7 @@ func findCountdown(body []byte) (int, error) {
 	reg := regexp.MustCompile(`class=["']countdown["'][\s\S]*?(\d+):(\d+):(\d+)`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
-		return 0, errors.New("Cannot find countdown")
+		return 0, errors.New("Cannot find any countdown")
 	}
 	h, _ := strconv.Atoi(string(tmp[1]))
 	m, _ := strconv.Atoi(string(tmp[2]))
@@ -28,18 +27,17 @@ func findCountdown(body []byte) (int, error) {
 
 func raceContest(contestID string) (err error) {
 	for _, problemID := range []string{"A", "B", "C", "D", "E"} {
-		open.Run(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID))
+		open.Run(ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID), contestID))
 	}
 	return nil
 }
 
 // RaceContest wait for contest starting
 func (c *Client) RaceContest(contestID string) (err error) {
-	color.Cyan("Race for contest %v\n", contestID)
-	statisURL := fmt.Sprintf("https://codeforces.com/contest/%v", contestID)
+	color.Cyan(ToGym("Race for contest %v\n", contestID), contestID)
 
-	client := &http.Client{Jar: c.Jar}
-	resp, err := client.Get(statisURL)
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v", contestID), contestID)
+	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
 	}
