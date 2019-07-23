@@ -53,7 +53,7 @@ Examples:
   cf parse 100 a       Fetch samples of problem "a" of contest 100 into "./100/a".
   cf parse             Fetch samples of current problem into current path.
   cf gen               Generate a code from default template.
-  cf gen cpp           Generate a code from the template which's alias is "cpp" into current path.
+  cf gen cpp           Generate a code from the template whose alias is "cpp" into current path.
   cf test              Run the commands of a template in current path. Then test all samples.
                        If you want to add a new testcase, create two files "inK.txt" and "ansK.txt"
                        where K is a string with 0~9.
