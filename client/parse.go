@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/skratchdot/open-golang/open"
 )
 
 // ToGym if length of contestID >= 6, replace contest to gym
@@ -96,10 +97,15 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 }
 
 // ParseContest parse for contest
-func (c *Client) ParseContest(contestID, rootPath string) (err error) {
+func (c *Client) ParseContest(contestID, rootPath string, race bool) (err error) {
 	problems, err := c.StatisContest(contestID)
 	if err != nil {
 		return
+	}
+	if race {
+		for _, problem := range problems {
+			open.Run(ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problem.ID), contestID))
+		}
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(problems))

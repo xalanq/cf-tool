@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
-	"github.com/skratchdot/open-golang/open"
 )
 
 func findCountdown(body []byte) (int, error) {
@@ -25,18 +25,11 @@ func findCountdown(body []byte) (int, error) {
 	return h*60*60 + m*60 + s, nil
 }
 
-func raceContest(contestID string) (err error) {
-	for _, problemID := range []string{"A", "B", "C", "D", "E"} {
-		open.Run(ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID), contestID))
-	}
-	return nil
-}
-
 // RaceContest wait for contest starting
 func (c *Client) RaceContest(contestID string) (err error) {
 	color.Cyan(ToGym("Race for contest %v\n", contestID), contestID)
 
-	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v", contestID), contestID)
+	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/countdown", contestID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
@@ -52,24 +45,23 @@ func (c *Client) RaceContest(contestID string) (err error) {
 		return
 	}
 
-	_, err = findStatisBlock(body)
-	if err != nil {
+	if !bytes.Contains(body, []byte(`Go!</a>`)) {
 		count, err := findCountdown(body)
 		if err != nil {
 			return err
 		}
-		color.Green("Count down: ")
-		count--
-		time.Sleep(900 * time.Millisecond)
+		color.Green("Countdown: ")
 		for count > 0 {
-			time.Sleep(time.Second)
-			count--
 			h := count / 60 / 60
 			m := count/60 - h*60
 			s := count - h*60*60 - m*60
 			fmt.Printf("%02d:%02d:%02d\n", h, m, s)
 			ansi.CursorUp(1)
+			count--
+			time.Sleep(time.Second)
 		}
+		time.Sleep(900 * time.Millisecond)
 	}
-	return raceContest(contestID)
+
+	return
 }

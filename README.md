@@ -93,9 +93,8 @@ Examples:
   cf stand             Use default web browser to open the standing page.
   cf sid 52531875      Use default web browser to open the submission 52531875's page.
   cf sid               Open the last submission's page.
-  cf race 1136         If the contest 1136 has not started yet, it will countdown. After the
-                       countdown ends, it will run 'cf open 1136 a', 'cf open 1136 b', ...,
-                       'cf open 1136 e', 'cf parse 1136'.
+  cf race 1136         If the contest 1136 has not started yet, it will countdown. When the
+                       countdown ends, it will open all problems' pages and parse samples.
   cf pull 100          Pull all problems' latest codes of contest 100 into "./100/<problem-id>".
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.

@@ -25,7 +25,7 @@ func Parse(args map[string]interface{}) error {
 		var ok bool
 		if contestID, ok = args["<contest-id>"].(string); ok {
 			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return cln.ParseContest(contestID, filepath.Join(currentPath, contestID))
+				return cln.ParseContest(contestID, filepath.Join(currentPath, contestID), args["race"].(bool))
 			}
 			problemID = strings.ToLower(problemID)
 			path = filepath.Join(currentPath, contestID, problemID)
@@ -39,7 +39,7 @@ func Parse(args map[string]interface{}) error {
 				return err
 			}
 			if problemID == contestID {
-				return cln.ParseContest(contestID, currentPath)
+				return cln.ParseContest(contestID, currentPath, args["race"].(bool))
 			}
 		}
 		samples, err := cln.ParseContestProblem(contestID, problemID, path)
