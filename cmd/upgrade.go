@@ -97,7 +97,8 @@ type WriteCounter struct {
 
 // Print print progress
 func (w *WriteCounter) Print() {
-	fmt.Printf("\rProgress: %v/%v KB  Speed: %v KB/s", w.Count/1024, w.Total/1024, (w.Count-w.last)/1024)
+	fmt.Printf("\rProgress: %v/%v KB  Speed: %v KB/s  Remain: %.0f s           ",
+		w.Count/1024, w.Total/1024, (w.Count-w.last)/1024, float64(w.Total-w.Count)/float64(w.Count-w.last))
 	w.last = w.Count
 }
 
@@ -107,7 +108,28 @@ func (w *WriteCounter) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-func upgrade(url, exe string, size uint) (err error) {
+func upgrade(url, exePath string, size uint) (err error) {
+	updateDir := filepath.Dir(exePath)
+
+	oldPath := filepath.Join(updateDir, fmt.Sprintf(".%s.old", filepath.Base(exePath)))
+	color.Cyan("Move the old one to %v", oldPath)
+	if err = os.Rename(exePath, oldPath); err != nil {
+		return
+	}
+	defer func() {
+		if err != nil {
+			color.Cyan("Move the old one back")
+			if e := os.Rename(oldPath, exePath); e != nil {
+				color.Red(e.Error())
+			}
+		} else {
+			color.Cyan("Remove the old one")
+			if e := os.Remove(oldPath); e != nil {
+				color.Red(e.Error() + "\nYou could remove it manually")
+			}
+		}
+	}()
+
 	color.Cyan("Download %v", url)
 	counter := &WriteCounter{Count: 0, Total: size, last: 0}
 	counter.Print()
@@ -126,15 +148,12 @@ func upgrade(url, exe string, size uint) (err error) {
 	defer resp.Body.Close()
 
 	data, err := ioutil.ReadAll(io.TeeReader(resp.Body, counter))
-	if err != nil {
-		ticker.Stop()
-		counter.Print()
-		fmt.Println()
-		return
-	}
 	ticker.Stop()
 	counter.Print()
 	fmt.Println()
+	if err != nil {
+		return
+	}
 	reader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	if err != nil {
 		return
@@ -144,38 +163,26 @@ func upgrade(url, exe string, size uint) (err error) {
 	if err != nil {
 		return
 	}
-	defer rc.Close()
-
-	newPath := filepath.Join(os.TempDir(), fmt.Sprintf(".%s.new", filepath.Base(exe)))
-	oldPath := filepath.Join(os.TempDir(), fmt.Sprintf(".%s.old", filepath.Base(exe)))
-
-	file, err := os.OpenFile(newPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	newData, err := ioutil.ReadAll(rc)
+	rc.Close()
 	if err != nil {
 		return
 	}
-	defer file.Close()
 
-	_, err = io.Copy(file, rc)
-	if err != nil {
-		return
-	}
-	file.Close()
-
-	err = os.Rename(exe, oldPath)
-	if err != nil {
-		os.Remove(newPath)
+	newPath := filepath.Join(updateDir, fmt.Sprintf(".%s.new", filepath.Base(exePath)))
+	color.Cyan("Save the new one to %v", newPath)
+	if err = ioutil.WriteFile(newPath, newData, 0755); err != nil {
 		return
 	}
 
-	err = os.Rename(newPath, exe)
-	if err != nil {
-		os.Rename(oldPath, exe)
-		os.Remove(newPath)
-		return
+	if err = os.Rename(newPath, exePath); err != nil {
+		color.Cyan("Delete the new one %v", newPath)
+		if e := os.Remove(newPath); e != nil {
+			color.Red(e.Error())
+		}
 	}
 
-	os.Remove(oldPath)
-	return nil
+	return
 }
 
 // Upgrade itself
@@ -198,16 +205,16 @@ func Upgrade(version string) error {
 		return nil
 	}
 
-	exe, err := os.Executable()
+	exePath, err := os.Executable()
 	if err != nil {
 		return err
 	}
 
-	if exe, err = filepath.EvalSymlinks(exe); err != nil {
+	if exePath, err = filepath.EvalSymlinks(exePath); err != nil {
 		return err
 	}
 
-	if err = upgrade(url, exe, size); err != nil {
+	if err = upgrade(url, exePath, size); err != nil {
 		return err
 	}
 
