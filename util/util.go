@@ -29,7 +29,7 @@ func Scanline() string {
 	if scanner.Scan() {
 		return scanner.Text()
 	}
-	fmt.Println("interrupted")
+	fmt.Println("\nInterrupted.")
 	os.Exit(1)
 	return ""
 }
@@ -41,7 +41,7 @@ func ScanlineTrim() string {
 
 // ChooseIndex return valid index in [0, maxLen)
 func ChooseIndex(maxLen int) int {
-	color.Cyan("Please choose one(index): ")
+	color.Cyan("Please choose one (index): ")
 	for {
 		index := ScanlineTrim()
 		i, err := strconv.Atoi(index)

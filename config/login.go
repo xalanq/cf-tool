@@ -44,7 +44,7 @@ func encrypt(username, password string) (ret string, err error) {
 func decrypt(username, password string) (ret string, err error) {
 	data, err := hex.DecodeString(password)
 	if err != nil {
-		err = errors.New("Cannot decode password")
+		err = errors.New("Cannot decode the password")
 		return
 	}
 	block, err := aes.NewCipher(createHash("glhf" + username + "233"))
@@ -68,29 +68,42 @@ func decrypt(username, password string) (ret string, err error) {
 // DecryptPassword get real password
 func (c *Config) DecryptPassword() (string, error) {
 	if len(c.Password) == 0 || len(c.Username) == 0 {
-		return "", errors.New("You have to config your username and password by `cf config login`")
+		return "", errors.New("You have to configure your username and password by `cf config login`")
 	}
 	return decrypt(c.Username, c.Password)
 }
 
 // Login configure username and password
 func (c *Config) Login(path string) (err error) {
-	color.Cyan("Config username/email and password(encrypt)")
+	color.Cyan("Configure username/email and password")
+	color.Cyan("Note: The password is invisible, just type it correctly.")
 
 	fmt.Printf("username: ")
 	username := util.ScanlineTrim()
 
-	fmt.Printf("password: ")
-	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return err
+	password := ""
+	if terminal.IsTerminal(int(syscall.Stdin)) {
+		fmt.Printf("password: ")
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			fmt.Println()
+			if err.Error() == "EOF" {
+				fmt.Println("Interrupted.")
+				return nil
+			}
+			return err
+		}
+		password = string(bytePassword)
+		fmt.Println()
+	} else {
+		color.Red("Your terminal does not support the hidden password.")
+		fmt.Printf("password: ")
+		password = util.Scanline()
 	}
-	password := string(bytePassword)
-	fmt.Println()
 
 	err = client.New(path).Login(username, password)
 	if err != nil {
-		return errors.New("Invalid username and password")
+		return errors.New("Invalid username or password")
 	}
 	password, err = encrypt(username, password)
 	if err == nil {
