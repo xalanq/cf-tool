@@ -82,12 +82,12 @@ $ go build -ldflags "-s -w" cf.go
 用浏览器打开榜单，查看排名。
 
 ```plain
-首先你得用 "cf config login"、 "cf config add" 命令来配置一下
+首先你得用 "cf config" 命令来配置一下用户名、密码和代码模板
 
 如果你想用本工具打比赛，那么最好用 "cf race 1111" 命令，其中 "1111" 是比赛的 id
 
 支持的命令:
-  cf config (login | add | del | default)
+  cf config
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
   cf parse [<contest-id>] [<problem-id>]
@@ -103,10 +103,7 @@ $ go build -ldflags "-s -w" cf.go
   cf upgrade
 
 例子:
-  cf config login      配置你的用户名和密码。
-  cf config add        添加一份模板。
-  cf config del        删掉一份模板。
-  cf config default    设置默认的模板。
+  cf config            配置 cf-tool。
   cf submit            如果当前路径是 "<contest-id>/<problem-id>" 那 cf 会找到匹配某个模板的代码，
                        然后提交到 <contest-id> 这场比赛的 <problem-id> 题目。
   cf submit a.cpp

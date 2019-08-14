@@ -17,12 +17,12 @@ const version = "v0.7.2"
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
-You should run "cf config login" and "cf config add" at first.
+You should run "cf config" to configure your username, password and the code template at first.
 
 If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
 
 Usage:
-  cf config (login | add | del | default)
+  cf config
   cf submit [(<contest-id> <problem-id>)] [<filename>]
   cf list [<contest-id>]
   cf parse [<contest-id>] [<problem-id>]
@@ -38,10 +38,7 @@ Usage:
   cf upgrade
 
 Examples:
-  cf config login      Config your username and password.
-  cf config add        Add a template.
-  cf config del        Remove a template.
-  cf config default    Set default template.
+  cf config            Configure the cf-tool.
   cf submit            If current path is "<contest-id>/<problem-id>", cf will find the
                        code which can be submitted. Then submit to <contest-id> <problem-id>.
   cf submit a.cpp

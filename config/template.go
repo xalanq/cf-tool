@@ -16,6 +16,7 @@ import (
 
 // AddTemplate add template
 func (c *Config) AddTemplate() (err error) {
+	color.Cyan("Add a template")
 	color.Cyan("Language list:")
 	type kv struct {
 		K, V string
@@ -28,13 +29,29 @@ func (c *Config) AddTemplate() (err error) {
 	for _, t := range langs {
 		fmt.Printf("%5v: %v\n", t.K, t.V)
 	}
-	color.Cyan("Select a language (e.g. 42): ")
-	lang := util.ScanlineTrim()
+	color.Cyan(`Select a language (e.g. "42"): `)
+	lang := ""
+	for {
+		lang := util.ScanlineTrim()
+		if val, ok := client.Langs[lang]; ok {
+			color.Green(val)
+			break
+		}
+		color.Red("Invalid index. Please input again")
+	}
 
-	color.Cyan("Alias (e.g. cpp): ")
-	alias := util.ScanlineTrim()
+	ansi.Println(`Template:
+  You can insert some placeholders into your template code. When generate a code from the
+  template, cf will replace all placeholders by following rules:
 
-	color.Cyan(`Template absolute path(e.g. ~/template/io.cpp): `)
+  $%U%$   Username
+  $%Y%$   Year   (e.g. 2019)
+  $%M%$   Month  (e.g. 04)
+  $%D%$   Day    (e.g. 09)
+  $%h%$   Hour   (e.g. 08)
+  $%m%$   Minute (e.g. 05)
+  $%s%$   Second (e.g. 00)`)
+	color.Cyan(`Template absolute path(e.g. "~/template/io.cpp"): `)
 	path := ""
 	for {
 		path = util.ScanlineTrim()
@@ -47,7 +64,8 @@ func (c *Config) AddTemplate() (err error) {
 		color.Red("%v is invalid. Please input again: ", path)
 	}
 
-	color.Cyan("(The suffix of template above will be added by default) Other suffix? (e.g. cxx cc): ")
+	color.Cyan(`The suffix of template above will be added by default.`)
+	color.Cyan(`Other suffix? (e.g. "cxx cc"), empty is ok: `)
 	tmpSuffix := strings.Fields(util.ScanlineTrim())
 	tmpSuffix = append(tmpSuffix, strings.Replace(filepath.Ext(path), ".", "", 1))
 	suffixMap := map[string]bool{}
@@ -59,20 +77,46 @@ func (c *Config) AddTemplate() (err error) {
 		}
 	}
 
-	color.Cyan("Before script (e.g. g++ $%full%$ -o $%file%$.exe -std=c++11), empty is ok: ")
+	color.Cyan(`Template's alias (e.g. "cpp" "py"): `)
+	alias := ""
+	for {
+		alias = util.ScanlineTrim()
+		if len(alias) > 0 {
+			break
+		}
+		color.Red("Alias can not be empty. Please input again: ")
+	}
+
+	color.Green("Script in template:")
+	ansi.Println(`Template will run 3 scripts in sequence when you run "cf test":
+    - before_script   (execute once)
+    - script          (execute the number of samples times)
+    - after_script    (execute once)
+  You could set "before_script" or "after_script" to empty string, meaning not executing.
+  You have to run your program in "script" with standard input/output (no need to redirect).
+
+  You can insert some placeholders in your scripts. When execute a script,
+  cf will replace all placeholders by following rules:
+
+  $%path%$   Path to source file (Excluding $%full%$, e.g. "/home/xalanq/")
+  $%full%$   Full name of source file (e.g. "a.cpp")
+  $%file%$   Name of source file (Excluding suffix, e.g. "a")
+  $%rand%$   Random string with 8 character (including "a-z" "0-9")`)
+
+	color.Cyan(`Before script (e.g. "g++ $%full%$ -o $%file%$.exe -std=c++11"), empty is ok: `)
 	beforeScript := util.ScanlineTrim()
 
-	color.Cyan("Script (e.g. ./$%file%$.exe): ")
+	color.Cyan(`Script (e.g. "./$%file%$.exe" "python3 $%full%$"): `)
 	script := ""
 	for {
 		script = util.ScanlineTrim()
 		if len(script) > 0 {
 			break
 		}
-		color.Red("script can not be empty. Please input again: ")
+		color.Red("Script can not be empty. Please input again: ")
 	}
 
-	color.Cyan("After script (e.g. rm $%file%$.exe): ")
+	color.Cyan(`After script (e.g. "rm $%file%$.exe"), empty is ok: `)
 	afterScript := util.ScanlineTrim()
 
 	c.Template = append(c.Template, CodeTemplate{
@@ -83,12 +127,12 @@ func (c *Config) AddTemplate() (err error) {
 	if util.YesOrNo("Make it default (y/n)? ") {
 		c.Default = len(c.Template) - 1
 	}
-
 	return c.save()
 }
 
 // RemoveTemplate remove template
 func (c *Config) RemoveTemplate() (err error) {
+	color.Cyan("Remove a template")
 	if len(c.Template) == 0 {
 		color.Red("There is no template. Please add one")
 		return nil
@@ -113,6 +157,7 @@ func (c *Config) RemoveTemplate() (err error) {
 
 // SetDefaultTemplate set default template index
 func (c *Config) SetDefaultTemplate() error {
+	color.Cyan("Set default template")
 	if len(c.Template) == 0 {
 		color.Red("There is no template. Please add one")
 		return nil

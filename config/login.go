@@ -75,6 +75,9 @@ func (c *Config) DecryptPassword() (string, error) {
 
 // Login configure username and password
 func (c *Config) Login(path string) (err error) {
+	if c.Username != "" {
+		color.Green("Current user: %v", c.Username)
+	}
 	color.Cyan("Configure username/email and password")
 	color.Cyan("Note: The password is invisible, just type it correctly.")
 
