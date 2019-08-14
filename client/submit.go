@@ -79,7 +79,7 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 	}
 	color.Green("Submitted")
 
-	submissions, err := c.WatchSubmission(contestID, 1, true)
+	submissions, err := c.WatchSubmission(contestID, "", 1, true)
 	if err != nil {
 		return
 	}

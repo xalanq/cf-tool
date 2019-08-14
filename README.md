@@ -95,7 +95,7 @@ Usage:
   cf parse [<contest-id>] [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
-  cf watch [all] [<contest-id>]
+  cf watch [all] [<contest-id>] [<problem-id>]
   cf open [<contest-id>] [<problem-id>]
   cf stand [<contest-id>]
   cf sid [<submission-id>] [<contest-id>]

@@ -71,6 +71,15 @@ func (s *Submission) ParseTime() string {
 	return fmt.Sprintf("%v ms", s.time)
 }
 
+// ParseProblemIndex get problem's index
+func (s *Submission) ParseProblemIndex() string {
+	p := strings.Index(s.name, " ")
+	if p == -1 {
+		return ""
+	}
+	return strings.ToLower(s.name[:p])
+}
+
 func refreshLine(n int, maxWidth int) {
 	for i := 0; i < n; i++ {
 		ansi.Printf("%v\n", strings.Repeat(" ", maxWidth))
@@ -97,7 +106,7 @@ func (s *Submission) display(first bool, maxWidth *int) {
 	ansi.Printf(" memory: %v\n", s.ParseMemory())
 }
 
-func display(submissions []Submission, first bool, maxWidth *int, line bool) {
+func display(submissions []Submission, problemID string, first bool, maxWidth *int, line bool) {
 	if line {
 		submissions[0].display(first, maxWidth)
 		return
@@ -111,6 +120,9 @@ func display(submissions []Submission, first bool, maxWidth *int, line bool) {
 	table.SetCenterSeparator("|")
 	table.SetAutoWrapText(false)
 	for _, sub := range submissions {
+		if problemID != "" && sub.ParseProblemIndex() != problemID {
+			continue
+		}
 		table.Append([]string{
 			sub.ParseID(),
 			sub.when,
@@ -268,7 +280,7 @@ func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, 
 }
 
 // WatchSubmission n is the number of submissions
-func (c *Client) WatchSubmission(contestID string, n int, line bool) (submissions []Submission, err error) {
+func (c *Client) WatchSubmission(contestID, problemID string, n int, line bool) (submissions []Submission, err error) {
 	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), contestID)
 	maxWidth := 0
 	first := true
@@ -278,7 +290,7 @@ func (c *Client) WatchSubmission(contestID string, n int, line bool) (submission
 		if err != nil {
 			return
 		}
-		display(submissions, first, &maxWidth, line)
+		display(submissions, problemID, first, &maxWidth, line)
 		first = false
 		endCount := 0
 		for _, submission := range submissions {

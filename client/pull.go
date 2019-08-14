@@ -134,6 +134,6 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 
 	color.Cyan("These submissions' codes have been saved.")
 	maxline := 0
-	display(used, true, &maxline, false)
+	display(used, "", true, &maxline, false)
 	return nil
 }
