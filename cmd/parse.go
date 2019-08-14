@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,30 @@ func Parse(args map[string]interface{}) error {
 		return err
 	}
 	cfg := config.New(config.ConfigPath)
+	source := ""
+	ext := ""
+	if cfg.GenAfterParse {
+		if len(cfg.Template) == 0 {
+			return errors.New("You have to add at least one code template by `cf config add`")
+		}
+		path := cfg.Template[cfg.Default].Path
+		ext = filepath.Ext(path)
+		if source, err = readTemplateSource(path, cfg); err != nil {
+			return err
+		}
+	}
 	cln := client.New(config.SessionPath)
+	parseContest := func(contestID, rootPath string, race bool) error {
+		problems, err := cln.ParseContest(contestID, rootPath, race)
+		if err == nil && cfg.GenAfterParse {
+			for _, problem := range problems {
+				problemID := strings.ToLower(problem.ID)
+				path := filepath.Join(rootPath, problemID)
+				gen(source, path, ext)
+			}
+		}
+		return err
+	}
 	work := func() error {
 		contestID := ""
 		problemID := ""
@@ -25,7 +49,7 @@ func Parse(args map[string]interface{}) error {
 		var ok bool
 		if contestID, ok = args["<contest-id>"].(string); ok {
 			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return cln.ParseContest(contestID, filepath.Join(currentPath, contestID), args["race"].(bool))
+				return parseContest(contestID, filepath.Join(currentPath, contestID), args["race"].(bool))
 			}
 			problemID = strings.ToLower(problemID)
 			path = filepath.Join(currentPath, contestID, problemID)
@@ -39,7 +63,7 @@ func Parse(args map[string]interface{}) error {
 				return err
 			}
 			if problemID == contestID {
-				return cln.ParseContest(contestID, currentPath, args["race"].(bool))
+				return parseContest(contestID, currentPath, args["race"].(bool))
 			}
 		}
 		samples, err := cln.ParseContestProblem(contestID, problemID, path)
@@ -48,6 +72,9 @@ func Parse(args map[string]interface{}) error {
 			return err
 		}
 		color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
+		if cfg.GenAfterParse {
+			gen(source, path, ext)
+		}
 		return nil
 	}
 	if err = work(); err != nil {

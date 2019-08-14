@@ -21,11 +21,12 @@ type CodeTemplate struct {
 
 // Config load and save configuration
 type Config struct {
-	Username string         `json:"username"`
-	Password string         `json:"password"`
-	Template []CodeTemplate `json:"template"`
-	Default  int            `json:"default"`
-	path     string
+	Username      string         `json:"username"`
+	Password      string         `json:"password"`
+	Template      []CodeTemplate `json:"template"`
+	Default       int            `json:"default"`
+	GenAfterParse bool           `json:"gen_after_parse"`
+	path          string
 }
 
 // New an empty config

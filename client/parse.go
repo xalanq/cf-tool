@@ -97,8 +97,8 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 }
 
 // ParseContest parse for contest
-func (c *Client) ParseContest(contestID, rootPath string, race bool) (err error) {
-	problems, err := c.StatisContest(contestID)
+func (c *Client) ParseContest(contestID, rootPath string, race bool) (problems []StatisInfo, err error) {
+	problems, err = c.StatisContest(contestID)
 	if err != nil {
 		return
 	}

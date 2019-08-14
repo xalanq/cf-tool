@@ -11,11 +11,12 @@ import (
 func Config(args map[string]interface{}) error {
 	color.Cyan("Configure the tool")
 	cfg := config.New(config.ConfigPath)
-	ansi.Println("0) username and password")
-	ansi.Println("1) add a template")
-	ansi.Println("2) delete a template")
-	ansi.Println("3) set default template")
-	index := util.ChooseIndex(4)
+	ansi.Println(`0) username and password`)
+	ansi.Println(`1) add a template`)
+	ansi.Println(`2) delete a template`)
+	ansi.Println(`3) set default template`)
+	ansi.Println(`4) run "cf gen" after "cf parse"`)
+	index := util.ChooseIndex(5)
 	if index == 0 {
 		return cfg.Login(config.SessionPath)
 	} else if index == 1 {
@@ -24,6 +25,8 @@ func Config(args map[string]interface{}) error {
 		return cfg.RemoveTemplate()
 	} else if index == 3 {
 		return cfg.SetDefaultTemplate()
+	} else if index == 4 {
+		return cfg.SetGenAfterParse()
 	}
 	return nil
 }
