@@ -159,7 +159,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (name string, index int, err error) {
 	codes := getCode(args, templates)
 	if len(codes) < 1 {
-		return "", 0, errors.New("Cannot find any supported code\nYou can add some suffixes by `cf config add`")
+		return "", 0, errors.New("Cannot find any code.\nMaybe you should add a new template by `cf config`")
 	}
 	if len(codes) > 1 {
 		color.Cyan("There are multiple files can be selected.")

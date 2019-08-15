@@ -32,7 +32,7 @@ func (c *Config) AddTemplate() (err error) {
 	color.Cyan(`Select a language (e.g. "42"): `)
 	lang := ""
 	for {
-		lang := util.ScanlineTrim()
+		lang = util.ScanlineTrim()
 		if val, ok := client.Langs[lang]; ok {
 			color.Green(val)
 			break

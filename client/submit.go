@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -16,8 +17,8 @@ type SaveSubmission struct {
 	SubmissionID string `json:"submission_id"`
 }
 
-func findErrorSource(body []byte) ([]byte, error) {
-	reg := regexp.MustCompile(`"error\sfor__source">(.*?)</span>`)
+func findErrorMessage(body []byte) ([]byte, error) {
+	reg := regexp.MustCompile(`error[a-zA-Z_\-\ ]*">(.*?)</span>`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
 		return nil, errors.New("Cannot find error")
@@ -52,7 +53,7 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
-	resp, err = c.client.PostForm(fmt.Sprintf("%v?csrf=%v", URL, csrf), url.Values{
+	resp, err = c.client.PostForm(fmt.Sprintf("%v?csrf_token=%v", URL, csrf), url.Values{
 		"csrf_token":            {csrf},
 		"ftaa":                  {c.Ftaa},
 		"bfaa":                  {c.Bfaa},
@@ -73,9 +74,12 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 	if err != nil {
 		return
 	}
-	sourceError, err := findErrorSource(body)
+	errorMessage, err := findErrorMessage(body)
 	if err == nil {
-		return errors.New(string(sourceError))
+		return errors.New(string(errorMessage))
+	}
+	if !bytes.Contains(body, []byte("submitted successfully")) {
+		return errors.New("Submit failed")
 	}
 	color.Green("Submitted")
 
