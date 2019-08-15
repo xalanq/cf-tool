@@ -29,7 +29,7 @@ func findErrorSource(body []byte) ([]byte, error) {
 func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err error) {
 	color.Cyan("Submit %v %v %v", contestID, problemID, Langs[langID])
 
-	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/submit", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/submit", contestID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return

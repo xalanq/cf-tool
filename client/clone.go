@@ -26,7 +26,7 @@ func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
 
 	jar, _ := cookiejar.New(nil)
 	if username == c.Username {
-		resp, err := c.client.Get("https://codeforces.com")
+		resp, err := c.client.Get(c.Host)
 		if err != nil {
 			return err
 		}
@@ -42,7 +42,7 @@ func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
 		jar = c.Jar.Copy()
 	}
 
-	resp, err := c.client.Get(fmt.Sprintf("https://codeforces.com/api/user.status?handle=%v", username))
+	resp, err := c.client.Get(fmt.Sprintf(c.Host+"/api/user.status?handle=%v", username))
 	if err != nil {
 		return
 	}

@@ -40,7 +40,7 @@ func (c *Config) AddTemplate() (err error) {
 		color.Red("Invalid index. Please input again")
 	}
 
-	ansi.Println(`Template:
+	note := `Template:
   You can insert some placeholders into your template code. When generate a code from the
   template, cf will replace all placeholders by following rules:
 
@@ -50,7 +50,8 @@ func (c *Config) AddTemplate() (err error) {
   $%D%$   Day    (e.g. 09)
   $%h%$   Hour   (e.g. 08)
   $%m%$   Minute (e.g. 05)
-  $%s%$   Second (e.g. 00)`)
+  $%s%$   Second (e.g. 00)`
+	ansi.Println(note)
 	color.Cyan(`Template absolute path(e.g. "~/template/io.cpp"): `)
 	path := ""
 	for {
@@ -88,7 +89,7 @@ func (c *Config) AddTemplate() (err error) {
 	}
 
 	color.Green("Script in template:")
-	ansi.Println(`Template will run 3 scripts in sequence when you run "cf test":
+	note = `Template will run 3 scripts in sequence when you run "cf test":
     - before_script   (execute once)
     - script          (execute the number of samples times)
     - after_script    (execute once)
@@ -101,7 +102,8 @@ func (c *Config) AddTemplate() (err error) {
   $%path%$   Path to source file (Excluding $%full%$, e.g. "/home/xalanq/")
   $%full%$   Full name of source file (e.g. "a.cpp")
   $%file%$   Name of source file (Excluding suffix, e.g. "a")
-  $%rand%$   Random string with 8 character (including "a-z" "0-9")`)
+  $%rand%$   Random string with 8 character (including "a-z" "0-9")`
+	ansi.Println(note)
 
 	color.Cyan(`Before script (e.g. "g++ $%full%$ -o $%file%$.exe -std=c++11"), empty is ok: `)
 	beforeScript := util.ScanlineTrim()

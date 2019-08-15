@@ -29,7 +29,7 @@ func findCountdown(body []byte) (int, error) {
 func (c *Client) RaceContest(contestID string) (err error) {
 	color.Cyan(ToGym("Race for contest %v\n", contestID), contestID)
 
-	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/countdown", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/countdown", contestID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return

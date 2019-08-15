@@ -88,7 +88,7 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 	if err != nil {
 		return
 	}
-	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problemID), contestID)
+	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/problem/%v", contestID, problemID), contestID)
 	samples, err = c.ParseProblem(URL, path)
 	if err != nil {
 		return
@@ -104,7 +104,7 @@ func (c *Client) ParseContest(contestID, rootPath string, race bool) (problems [
 	}
 	if race {
 		for _, problem := range problems {
-			open.Run(ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/problem/%v", contestID, problem.ID), contestID))
+			open.Run(ToGym(fmt.Sprintf(c.Host+"/contest/%v/problem/%v", contestID, problem.ID), contestID))
 		}
 	}
 	wg := sync.WaitGroup{}

@@ -2,12 +2,15 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
+	"github.com/xalanq/cf-tool/util"
 )
 
 // Client codeforces client
@@ -17,8 +20,23 @@ type Client struct {
 	Ftaa           string          `json:"ftaa"`
 	Bfaa           string          `json:"bfaa"`
 	LastSubmission *SaveSubmission `json:"last_submission"`
+	Host           string          `json:"host"`
 	path           string
 	client         *http.Client
+}
+
+func formatHost(host string) (string, error) {
+	if len(host) == 0 {
+		return "https://codeforces.com", nil
+	}
+	reg := regexp.MustCompile(`https?://[a-zA-Z0-9\-]+(\.[a-zA-Z0-9\-]+)+/*`)
+	if !reg.MatchString(host) {
+		return "", fmt.Errorf(`Invalid host "%v"`, host)
+	}
+	for host[len(host)-1:] == "/" {
+		host = host[:len(host)-1]
+	}
+	return host, nil
 }
 
 // New client
@@ -29,6 +47,13 @@ func New(path string) *Client {
 		c.load()
 	}
 	c.client = &http.Client{Jar: c.Jar}
+	var err error
+	c.Host, err = formatHost(c.Host)
+	if err != nil {
+		color.Red(err.Error() + `. Use default host "https://codeforces.com"`)
+		color.Red(`Please use "cf config" to set a valid host later`)
+		c.Host = "https://codeforces.com"
+	}
 	return c
 }
 
@@ -59,4 +84,25 @@ func (c *Client) save() (err error) {
 		color.Red("Cannot save session to %v\n%v", c.path, err.Error())
 	}
 	return
+}
+
+// SetHost set host for Codeforces
+func (c *Client) SetHost() (err error) {
+	host, err := formatHost(c.Host)
+	if err != nil {
+		host = "https://codeforces.com"
+	}
+	color.Green("Current host domain is %v", host)
+	color.Cyan(`Set a new host domain (e.g. "https://codeforces.com"`)
+	color.Cyan(`Note: Don't forget the "http://" or "https://"`)
+	for {
+		host, err = formatHost(util.ScanlineTrim())
+		if err == nil {
+			break
+		}
+		color.Red(err.Error())
+	}
+	c.Host = host
+	color.Green("New host domain is %v", host)
+	return c.save()
 }

@@ -281,7 +281,7 @@ func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, 
 
 // WatchSubmission n is the number of submissions
 func (c *Client) WatchSubmission(contestID, problemID string, n int, line bool) (submissions []Submission, err error) {
-	URL := ToGym(fmt.Sprintf("https://codeforces.com/contest/%v/my", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/my", contestID), contestID)
 	maxWidth := 0
 	first := true
 	for {
