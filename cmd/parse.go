@@ -31,8 +31,8 @@ func Parse(args map[string]interface{}) error {
 		}
 	}
 	cln := client.New(config.SessionPath)
-	parseContest := func(contestID, rootPath string, race bool) error {
-		problems, err := cln.ParseContest(contestID, rootPath, race)
+	parseContest := func(contestID, rootPath string) error {
+		problems, err := cln.ParseContest(contestID, rootPath)
 		if err == nil && cfg.GenAfterParse {
 			for _, problem := range problems {
 				problemID := strings.ToLower(problem.ID)
@@ -49,7 +49,7 @@ func Parse(args map[string]interface{}) error {
 		var ok bool
 		if contestID, ok = args["<contest-id>"].(string); ok {
 			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return parseContest(contestID, filepath.Join(currentPath, contestID), args["race"].(bool))
+				return parseContest(contestID, filepath.Join(currentPath, contestID))
 			}
 			problemID = strings.ToLower(problemID)
 			path = filepath.Join(currentPath, contestID, problemID)
@@ -63,7 +63,7 @@ func Parse(args map[string]interface{}) error {
 				return err
 			}
 			if problemID == contestID {
-				return parseContest(contestID, currentPath, args["race"].(bool))
+				return parseContest(contestID, currentPath)
 			}
 		}
 		samples, err := cln.ParseContestProblem(contestID, problemID, path)
