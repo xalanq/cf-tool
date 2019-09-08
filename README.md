@@ -53,7 +53,7 @@ To start competing the contest 1136! The id 1136 can be found in the contest URL
 
 e.g. <https://codeforces.com/contest/1136>
 
-If the contest has not started yet, `cf` will count down. If the contest have started or the countdown ends, `cf` will use the default browser to open all problems' page and fetch all samples to the local.
+If the contest has not started yet, `cf` will count down. If the contest have started or the countdown ends, `cf` will use the default browser to open dashboard's page and problems' page, and fetch all samples to the local.
 
  `cd 1136/a` 
 
@@ -129,7 +129,7 @@ Examples:
   cf sid 52531875      Use default web browser to open the submission 52531875's page.
   cf sid               Open the last submission's page.
   cf race 1136         If the contest 1136 has not started yet, it will countdown. When the
-                       countdown ends, it will open all problems' pages and parse samples.
+                       countdown ends, it will open dashboard and problems' pages, and parse samples.
   cf pull 100          Pull all problems' latest codes of contest 100 into "./100/<problem-id>".
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
