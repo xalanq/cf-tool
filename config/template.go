@@ -118,7 +118,7 @@ func (c *Config) AddTemplate() (err error) {
 		color.Red("Script can not be empty. Please input again: ")
 	}
 
-	color.Cyan(`After script (e.g. "rm $%file%$.exe"), empty is ok: `)
+	color.Cyan(`After script (e.g. "rm $%file%$.exe" or "cmd.exe /C del $%file%$.exe" in windows), empty is ok: `)
 	afterScript := util.ScanlineTrim()
 
 	c.Template = append(c.Template, CodeTemplate{
