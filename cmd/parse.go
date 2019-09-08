@@ -22,7 +22,7 @@ func Parse(args map[string]interface{}) error {
 	ext := ""
 	if cfg.GenAfterParse {
 		if len(cfg.Template) == 0 {
-			return errors.New("You have to add at least one code template by `cf config add`")
+			return errors.New("You have to add at least one code template by `cf config`")
 		}
 		path := cfg.Template[cfg.Default].Path
 		ext = filepath.Ext(path)

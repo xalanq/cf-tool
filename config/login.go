@@ -68,7 +68,7 @@ func decrypt(username, password string) (ret string, err error) {
 // DecryptPassword get real password
 func (c *Config) DecryptPassword() (string, error) {
 	if len(c.Password) == 0 || len(c.Username) == 0 {
-		return "", errors.New("You have to configure your username and password by `cf config login`")
+		return "", errors.New("You have to configure your username and password by `cf config`")
 	}
 	return decrypt(c.Username, c.Password)
 }

@@ -58,7 +58,7 @@ func gen(source, currentPath, ext string) error {
 func Gen(args map[string]interface{}) error {
 	cfg := config.New(config.ConfigPath)
 	if len(cfg.Template) == 0 {
-		return errors.New("You have to add at least one code template by `cf config add`")
+		return errors.New("You have to add at least one code template by `cf config`")
 	}
 
 	var path string
