@@ -30,6 +30,10 @@ var ErrorNotLogged = "Not logged in"
 func checkLogin(username string, body []byte) error {
 	match, err := regexp.Match(fmt.Sprintf(`handle = "%v"`, username), body)
 	if err != nil || !match {
+		err = util.CheckHtml(username,body)
+		if(err == nil) {
+			return nil
+		}
 		return errors.New(ErrorNotLogged)
 	}
 	return nil
@@ -90,6 +94,11 @@ func (c *Client) Login(username, password string) (err error) {
 	err = checkLogin(username, body)
 	if err != nil {
 		return
+	}
+
+	match, err := regexp.Match(fmt.Sprintf(`handle = "%v"`, username), body)
+	if err != nil || !match {
+		username = util.FetchUsername(body)
 	}
 
 	c.Jar = jar
