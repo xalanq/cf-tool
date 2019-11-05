@@ -11,11 +11,15 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net/url"
+	"encoding/json"
 
+	"github.com/gorilla/websocket"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
 	"github.com/olekukonko/tablewriter"
+	"github.com/xalanq/cf-tool/util"
 )
 
 // Submission submit state
@@ -181,6 +185,11 @@ func parseWhen(raw, cfOffset string) string {
 	return tm.In(time.Local).Format("2006-01-02 15:04")
 }
 
+var numReg = regexp.MustCompile(`\d+`)
+var fmtReg = regexp.MustCompile(`<span\sclass=["']?verdict-format-([\S^>]+?)["']?>`)
+var colReg = regexp.MustCompile(`<span\sclass=["']?verdict-([\S^>]+?)["']?>`)
+var tagReg = regexp.MustCompile(`<[\s\S]*?>`)
+
 func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 	data := fmt.Sprintf("<table><tr %v</table>", string(body))
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(data))
@@ -204,10 +213,6 @@ func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 		end = true
 	}
 	status, _ := sub.Html()
-	numReg := regexp.MustCompile(`\d+`)
-	fmtReg := regexp.MustCompile(`<span\sclass=["']?verdict-format-([\S^>]+?)["']?>`)
-	colReg := regexp.MustCompile(`<span\sclass=["']?verdict-([\S^>]+?)["']?>`)
-	tagReg := regexp.MustCompile(`<[\s\S]*?>`)
 	status = fmtReg.ReplaceAllString(status, "")
 	status = colReg.ReplaceAllString(status, `${c-$1}`)
 	status = tagReg.ReplaceAllString(status, "")
@@ -241,17 +246,7 @@ func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 	}, nil
 }
 
-func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, err error) {
-	resp, err := c.client.Get(myURL)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
+func (c *Client) getSubmissionsFromBody(body []byte, n int) (submissions []Submission, err error) {
 	if err = checkLogin(c.Username, body); err != nil {
 		return
 	}
@@ -279,33 +274,142 @@ func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, 
 	return
 }
 
+func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, err error) {
+	resp, err := c.client.Get(myURL)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	return c.getSubmissionsFromBody(body, n)
+}
+
+func findMeta(body []byte, name string) (string, error) {
+	// name must not contain any regex meta-character
+	reg := regexp.MustCompile(`<meta name="`+name+`" content="(.*?)"\s*/>`)
+	tmp := reg.FindSubmatch(body)
+	if len(tmp) < 2 {
+		return "", errors.New("Cannot find meta property")
+	}
+	return string(tmp[1]), nil
+}
+
 // WatchSubmission n is the number of submissions
 func (c *Client) WatchSubmission(contestID, problemID string, n int, line bool) (submissions []Submission, err error) {
 	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/my", contestID), contestID)
+	if contestID == "0" {
+		URL = c.Host+"/problemset/status" // DEBUG
+	}
+
 	maxWidth := 0
 	first := true
-	for {
-		st := time.Now()
-		submissions, err = c.getSubmissions(URL, n)
-		if err != nil {
-			return
-		}
-		display(submissions, problemID, first, &maxWidth, line)
-		first = false
+
+	resp, err := c.client.Get(URL)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	submissions, err = c.getSubmissionsFromBody(body, n)
+	if err != nil {
+		return
+	}
+	display(submissions, problemID, first, &maxWidth, line)
+	first = false
+
+	ended := func() bool {
 		endCount := 0
 		for _, submission := range submissions {
 			if submission.end {
 				endCount++
 			}
 		}
-		if endCount == len(submissions) {
-			return
-		}
-		sub := time.Now().Sub(st)
-		if sub < time.Second {
-			time.Sleep(time.Duration(time.Second - sub))
+		return endCount == len(submissions)
+	}
+	if ended() {
+		return
+	}
+
+	wssrawurl := "wss://pubsub.codeforces.com/ws/"
+	for _, x := range []string{"pc","cc","gc"} { // TODO is it necessary to include all of those channels?
+		data, err := findMeta(body, x) // data: pushstream/websocket channel
+		if err == nil {
+			wssrawurl += `s_` + data + `/`
 		}
 	}
+	wssurl, _ := url.Parse(wssrawurl)
+
+	conn, _, err := websocket.DefaultDialer.Dial(wssurl.String(), nil)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+
+	lastA := make([]float64, len(submissions))
+	for {
+		var bytes []byte
+		_, bytes, err = conn.ReadMessage()
+		if err != nil {
+			return
+		}
+
+		var data struct {
+			Id int
+			Channel string
+			Text string
+		}
+		json.Unmarshal(bytes, &data)
+
+		//fmt.Println(data.Text)
+
+		var submission struct { // the structure is described in Codeforces JavaScript code
+			T string
+			D []interface{}
+		}
+
+		json.Unmarshal([]byte(data.Text), &submission)
+		if submission.T != "s" {
+			continue
+		}
+
+		var a = submission.D[0].(float64);
+		var id = uint64(submission.D[1].(float64));
+
+		for i := range submissions {
+			sub := &submissions[i]
+			if sub.id == id && a > lastA[i] {
+				lastA[i] = a
+				sub.passed = uint64(submission.D[7].(float64))
+				sub.judged = uint64(submission.D[8].(float64))
+				verdictString := submission.D[6].(string);
+				if !isWait(verdictString) {
+					sub.end = true
+				}
+				sub.status = util.PreparedVerdictFormats[submission.D[12].(string)];
+				sub.points = 0
+				if submission.D[5] != nil {
+					sub.points = uint64(submission.D[5].(float64))
+				}
+				sub.time = uint64(submission.D[9].(float64))
+				sub.memory = uint64(submission.D[10].(float64))
+			}
+		}
+
+		display(submissions, problemID, first, &maxWidth, line)
+		if ended() {
+			return
+		}
+	}
+
+	return
 }
 
 var colorMap = map[string]color.Attribute{

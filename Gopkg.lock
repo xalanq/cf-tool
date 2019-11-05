@@ -53,6 +53,14 @@
   version = "v1.2.4"
 
 [[projects]]
+  digest = "1:e62657cca9badaa308d86e7716083e4c5933bb78e30a17743fc67f50be26f6f4"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c3e18be99d19e6b3e8f1559eea2c161a665c4b6b"
+  version = "v1.4.1"
+
+[[projects]]
   branch = "master"
   digest = "1:1e4cb4abdbdd847cdfb21747190939e4e3813806f15b82804750defff0e98392"
   name = "github.com/k0kubun/go-ansi"
@@ -175,6 +183,7 @@
     "github.com/PuerkitoBio/goquery",
     "github.com/docopt/docopt-go",
     "github.com/fatih/color",
+    "github.com/gorilla/websocket",
     "github.com/k0kubun/go-ansi",
     "github.com/mitchellh/go-homedir",
     "github.com/olekukonko/tablewriter",
