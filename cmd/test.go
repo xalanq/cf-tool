@@ -160,8 +160,8 @@ func Test(args map[string]interface{}) error {
 		color.Red("There is no sample data")
 		return nil
 	}
-
-	filename, index, err := getOneCode(args, cfg.Template)
+	parsedArgs, _ := parseArgs(args, map[string]bool{"<filename>": false})
+	filename, index, err := getOneCode(parsedArgs["<filename>"], cfg.Template)
 	if err != nil {
 		return err
 	}
