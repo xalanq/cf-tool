@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -86,4 +87,12 @@ func DebugSave(data interface{}) {
 	if err := f.Close(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Returns true if a given string is an url
+func IsUrl(str string) bool {
+	if _, err := url.ParseRequestURI(str); err == nil {
+		return true
+	}
+	return false
 }
