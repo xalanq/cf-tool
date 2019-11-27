@@ -28,17 +28,17 @@ If you want to compete, the best command is "cf race 1111" where "1111" is the c
 
 Usage:
   cf config
-  cf submit [(<contest-id> <problem-id>)] [<filename>]
-  cf list [<contest-id>]
-  cf parse [<contest-id>] [<problem-id>]
+  cf submit [<url|contest-id>] [<problem-id>] [<filename>]
+  cf list [<url|contest-id>]
+  cf parse [<url|contest-id>] [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
-  cf watch [all] [<contest-id>] [<problem-id>]
-  cf open [<contest-id>] [<problem-id>]
-  cf stand [<contest-id>]
-  cf sid [<submission-id>] [<contest-id>]
-  cf race <contest-id>
-  cf pull [ac] [<contest-id>] [<problem-id>]
+  cf watch [all] [<url|contest-id>] [<problem-id>]
+  cf open [<url|contest-id>] [<problem-id>]
+  cf stand [<url|contest-id>]
+  cf sid [<submission-id>] [<url|contest-id>]
+  cf race [<url|contest-id>]
+  cf pull [ac] [<url|contest-id>] [<problem-id>]
   cf clone [ac] <handle>
   cf upgrade
 
