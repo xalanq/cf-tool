@@ -50,39 +50,106 @@ func Eval(args map[string]interface{}) error {
 	return nil
 }
 
-func getContestID(args map[string]interface{}) (string, error) {
-	if c, ok := args["<contest-id>"].(string); ok {
-		if _, err := strconv.Atoi(c); err == nil {
-			return c, nil
-		}
-		return "", fmt.Errorf(`Contest should be a number instead of "%v"`, c)
-	}
+func parseArgs(args map[string]interface{}, required map[string]bool) (map[string]string, error) {
+	result := make(map[string]string)
+	contestID, problemID, lastDir := "", "", ""
 	path, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	result["contestRootPath"] = path
 	for {
 		c := filepath.Base(path)
 		if _, err := strconv.Atoi(c); err == nil {
-			return c, nil
+			contestID, problemID = c, strings.ToLower(lastDir)
+			if _, ok := args["<url | contest-id>"].(string); !ok {
+				result["contestRootPath"] = filepath.Dir(path)
+			}
+			break
 		}
 		if filepath.Dir(path) == path {
 			break
 		}
-		path = filepath.Dir(path)
+		path, lastDir = filepath.Dir(path), c
 	}
-	return "", errors.New("Cannot find any valid contest id")
+	if p, ok := args["<problem-id>"].(string); ok {
+		problemID = strings.ToLower(p)
+	}
+	if c, ok := args["<url | contest-id>"].(string); ok {
+		if util.IsUrl(c) {
+			parsed, err := parseUrl(c)
+			if err != nil {
+				return nil, err
+			}
+			if value, ok := parsed["contestID"]; ok {
+				contestID = value
+			}
+			if value, ok := parsed["problemID"]; ok {
+				problemID = strings.ToLower(value)
+			}
+		} else if _, err := strconv.Atoi(c); err == nil {
+			contestID = c
+		}
+	}
+	if req, ok := required["<contest-id>"]; ok {
+		result["<contest-id>"] = contestID
+		if contestID == "" && req {
+			return nil, errors.New("Unable to find <contest-id>")
+		}
+	}
+	if req, ok := required["<problem-id>"]; ok {
+		result["<problem-id>"] = problemID
+		if problemID == "" && req {
+			return nil, errors.New("Unable to find <problem-id>")
+		}
+	}
+	for key, req := range required {
+		if _, ok := result[key]; ok {
+			continue
+		}
+		value, ok := args[key].(string)
+		if req && !ok {
+			return nil, errors.New("Unable to find " + key)
+		}
+		result[key] = value
+	}
+	return result, nil
 }
 
-func getProblemID(args map[string]interface{}) (string, error) {
-	if p, ok := args["<problem-id>"].(string); ok {
-		return strings.ToLower(p), nil
+func parseUrl(url string) (map[string]string, error) {
+	reg := regexp.MustCompile(`(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/(?P<type>problemset|gym|contest|group)`)
+	url_type := ""
+	for i, val := range reg.FindStringSubmatch(url) {
+		if reg.SubexpNames()[i] == "type" {
+			url_type = val
+			break
+		}
 	}
-	path, err := os.Getwd()
-	if err != nil {
-		return "", err
+
+	reg_str := ""
+	switch url_type {
+	case "contest":
+		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/contest\/(?P<contestID>\d+)(\/problem\/(?P<problemID>[\w\d]+))?`
+	case "gym":
+		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/gym\/(?P<contestID>\d+)(\/problem\/(?P<problemID>[\w\d]+))?`
+	case "problemset":
+		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/problemset\/problem\/(?P<contestID>\d+)\/(?P<problemID>[\w\d]+)?`
+	case "group":
+		return nil, errors.New("Groups are not supported")
+	default:
+		return nil, errors.New("Invalid url")
 	}
-	return strings.ToLower(filepath.Base(path)), nil
+
+	output := make(map[string]string)
+	reg = regexp.MustCompile(reg_str)
+	names := reg.SubexpNames()
+	for i, val := range reg.FindStringSubmatch(url) {
+		if names[i] != "" && val != "" {
+			output[names[i]] = val
+		}
+	}
+	output["type"] = url_type
+	return output, nil
 }
 
 func getSampleID() (samples []string) {
@@ -115,7 +182,7 @@ type CodeList struct {
 	Index []int
 }
 
-func getCode(args map[string]interface{}, templates []config.CodeTemplate) (codes []CodeList) {
+func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList) {
 	mp := make(map[string][]int)
 	for i, temp := range templates {
 		suffixMap := map[string]bool{}
@@ -128,7 +195,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 		}
 	}
 
-	if filename, ok := args["<filename>"].(string); ok {
+	if filename != "" {
 		ext := filepath.Ext(filename)
 		if idx, ok := mp[ext]; ok {
 			return []CodeList{CodeList{filename, idx}}
@@ -156,8 +223,8 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 	return codes
 }
 
-func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (name string, index int, err error) {
-	codes := getCode(args, templates)
+func getOneCode(filename string, templates []config.CodeTemplate) (name string, index int, err error) {
+	codes := getCode(filename, templates)
 	if len(codes) < 1 {
 		return "", 0, errors.New("Cannot find any code.\nMaybe you should add a new template by `cf config`")
 	}
