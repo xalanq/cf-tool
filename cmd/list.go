@@ -15,10 +15,11 @@ import (
 
 // List command
 func List(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
+	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true})
 	if err != nil {
 		return err
 	}
+	contestID := parsedArgs["<contest-id>"]
 	cfg := config.Instance
 	cln := client.Instance
 	problems, err := cln.StatisContest(contestID)
