@@ -11,15 +11,12 @@ import (
 
 // Open command
 func Open(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
+	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
 	if err != nil {
 		return err
 	}
-	problemID, err := getProblemID(args)
-	if err != nil {
-		return err
-	}
-	if problemID == contestID {
+	contestID, problemID := parsedArgs["<contest-id>"], parsedArgs["<problem-id>"]
+	if problemID == "" {
 		return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v", contestID), contestID))
 	}
 	return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v/problem/%v", contestID, problemID), contestID))
@@ -27,20 +24,21 @@ func Open(args map[string]interface{}) error {
 
 // Stand command
 func Stand(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
+	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true})
 	if err != nil {
 		return err
 	}
+	contestID := parsedArgs["<contest-id>"]
 	return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v/standings", contestID), contestID))
 }
 
 // Sid command
 func Sid(args map[string]interface{}) error {
-	contestID := ""
-	submissionID := ""
+	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": false, "<submission-id>": false})
+	contestID, submissionID := parsedArgs["<contest-id>"], parsedArgs["<submission-id>"]
 	cfg := config.Instance
 	cln := client.Instance
-	if args["<submission-id>"] == nil {
+	if submissionID == "" {
 		if cln.LastSubmission != nil {
 			contestID = cln.LastSubmission.ContestID
 			submissionID = cln.LastSubmission.SubmissionID
@@ -48,12 +46,9 @@ func Sid(args map[string]interface{}) error {
 			return fmt.Errorf(`You have not submitted any problem yet`)
 		}
 	} else {
-		var err error
-		contestID, err = getContestID(args)
 		if err != nil {
 			return err
 		}
-		submissionID, _ = args["<submission-id>"].(string)
 		if _, err = strconv.Atoi(submissionID); err != nil {
 			return err
 		}
