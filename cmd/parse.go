@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,16 +11,12 @@ import (
 	"github.com/xalanq/cf-tool/config"
 )
 
-// Parse command
-func Parse(args map[string]interface{}) error {
-	currentPath, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+func _Parse(contestID string, problemID string, contestRootPath string) error {
 	cfg := config.Instance
 	cln := client.Instance
 	source := ""
 	ext := ""
+	var err error
 	if cfg.GenAfterParse {
 		if len(cfg.Template) == 0 {
 			return errors.New("You have to add at least one code template by `cf config`")
@@ -44,29 +39,10 @@ func Parse(args map[string]interface{}) error {
 		return err
 	}
 	work := func() error {
-		contestID := ""
-		problemID := ""
-		path := currentPath
-		var ok bool
-		if contestID, ok = args["<contest-id>"].(string); ok {
-			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return parseContest(contestID, filepath.Join(currentPath, contestID))
-			}
-			problemID = strings.ToLower(problemID)
-			path = filepath.Join(currentPath, contestID, problemID)
-		} else {
-			contestID, err = getContestID(args)
-			if err != nil {
-				return err
-			}
-			problemID, err = getProblemID(args)
-			if err != nil {
-				return err
-			}
-			if problemID == contestID {
-				return parseContest(contestID, currentPath)
-			}
+		if problemID == "" {
+			return parseContest(contestID, filepath.Join(contestRootPath, contestID))
 		}
+		path := filepath.Join(contestRootPath, contestID, problemID)
 		samples, standardIO, err := cln.ParseContestProblem(contestID, problemID, path)
 		if err != nil {
 			color.Red("Failed %v %v", contestID, problemID)
@@ -89,4 +65,13 @@ func Parse(args map[string]interface{}) error {
 		}
 	}
 	return err
+}
+
+// Parse command
+func Parse(args map[string]interface{}) error {
+	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
+	if err != nil {
+		return err
+	}
+	return _Parse(parsedArgs["<contest-id>"], parsedArgs["<problem-id>"], parsedArgs["contestRootPath"])
 }
