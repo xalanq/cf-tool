@@ -47,7 +47,8 @@ Examples:
   cf submit            If current path is "<contest-id>/<problem-id>", cf will find the
                        code which can be submitted. Then submit to <contest-id> <problem-id>.
   cf submit a.cpp
-  cf submit 100 a
+  cf submit https://codeforces.com/contest/100 a
+  cf submit https://codeforces.com/problemset/problem/100/A a.cpp
   cf submit 100 a a.cpp
   cf list              List all problems' stats of a contest.
   cf list 1119
@@ -77,8 +78,8 @@ Examples:
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.
-  <contest-id>         A number. You can find it in codeforces contest url. E.g. "1119" in
-                       "https://codeforces.com/contest/1119".
+  <url|contest-id>     An url or a number. The url may contain additional information,
+                       such as <problem-id>. E. g. "https://codeforces.com/contest/1116" or "1116."
   <alias>              Template's alias.
 
 File:
