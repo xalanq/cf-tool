@@ -117,7 +117,7 @@ func parseArgs(args map[string]interface{}, required map[string]bool) (map[strin
 }
 
 func parseUrl(url string) (map[string]string, error) {
-	reg := regexp.MustCompile(`(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/(?P<type>problemset|gym|contest|group)`)
+	reg := regexp.MustCompile(`/(?P<type>problemset|gym|contest|group)`)
 	url_type := ""
 	for i, val := range reg.FindStringSubmatch(url) {
 		if reg.SubexpNames()[i] == "type" {
@@ -129,11 +129,11 @@ func parseUrl(url string) (map[string]string, error) {
 	reg_str := ""
 	switch url_type {
 	case "contest":
-		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/contest\/(?P<contestID>\d+)(\/problem\/(?P<problemID>[\w\d]+))?`
+		reg_str = `/contest/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
 	case "gym":
-		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/gym\/(?P<contestID>\d+)(\/problem\/(?P<problemID>[\w\d]+))?`
+		reg_str = `/gym/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
 	case "problemset":
-		reg_str = `(https?:\/\/)?(www\.)?([a-zA-Z\d\-\.]+)\/problemset\/problem\/(?P<contestID>\d+)\/(?P<problemID>[\w\d]+)?`
+		reg_str = `/problemset/problem/(?P<contestID>\d+)/(?P<problemID>[\w\d]+)?`
 	case "group":
 		return nil, errors.New("Groups are not supported")
 	default:
