@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+	"github.com/docopt/docopt-go"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -11,7 +13,7 @@ import (
 )
 
 // Submit command
-func Submit(args map[string]interface{}) error {
+func Submit(args interface{}) error {
 	contestID, problemID, userFile, err := parseSubmitArgs(args)
 	if err != nil {
 		return err
@@ -48,7 +50,11 @@ func Submit(args map[string]interface{}) error {
 	return err
 }
 
-func parseSubmitArgs(args map[string]interface{}) (string, string, string, error) {
+func parseSubmitArgs(args interface{}) (string, string, string, error) {
+	opts, ok := args.(docopt.Opts)
+	if !ok {
+		return "", "", "", errors.New("args must be docopt.Opts type")
+	}
 	isFilename := func(str string) bool {
 		if str == "" || util.IsUrl(str) {
 			return false
@@ -58,26 +64,25 @@ func parseSubmitArgs(args map[string]interface{}) (string, string, string, error
 		}
 		return false
 	}
-	var newArgs = make(map[string]interface{})
-	for key, value := range args {
-		newArgs[key] = value
-	}
-	if _, ok := args["<filename>"].(string); !ok {
-		if p, ok := args["<problem-id>"].(string); ok {
+	if _, ok := opts["<filename>"].(string); !ok {
+		if p, ok := opts["<problem-id>"].(string); ok {
 			if isFilename(p) {
-				newArgs["<filename>"] = p
-				newArgs["<problem-id>"] = nil
+				opts["<filename>"] = p
+				opts["<problem-id>"] = nil
 			}
-		} else if c, ok := args["<url | contest-id>"].(string); ok {
+		} else if c, ok := opts["<url | contest-id>"].(string); ok {
 			if isFilename(c) {
-				newArgs["<filename>"] = c
-				newArgs["<url | contest-id>"] = nil
+				opts["<filename>"] = c
+				opts["<url | contest-id>"] = nil
 			}
 		}
 	}
-	parsedArgs, err := parseArgs(newArgs, map[string]bool{"<contest-id>": true, "<problem-id>": true, "<filename>": false})
+	parsedArgs, err := parseArgs(opts, ParseRequirement{
+		ContestID: true,
+		ProblemID: true,
+	})
 	if err != nil {
 		return "", "", "", err
 	}
-	return parsedArgs["<contest-id>"], parsedArgs["<problem-id>"], parsedArgs["<filename>"], nil
+	return parsedArgs.ContestID, parsedArgs.ProblemID, parsedArgs.Filename, nil
 }

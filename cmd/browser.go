@@ -10,12 +10,12 @@ import (
 )
 
 // Open command
-func Open(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
+func Open(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
-	contestID, problemID := parsedArgs["<contest-id>"], parsedArgs["<problem-id>"]
+	contestID, problemID := parsedArgs.ProblemID, parsedArgs.ProblemID
 	if problemID == "" {
 		return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v", contestID), contestID))
 	}
@@ -23,19 +23,19 @@ func Open(args map[string]interface{}) error {
 }
 
 // Stand command
-func Stand(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true})
+func Stand(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
-	contestID := parsedArgs["<contest-id>"]
+	contestID := parsedArgs.ContestID
 	return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v/standings", contestID), contestID))
 }
 
 // Sid command
-func Sid(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": false, "<submission-id>": false})
-	contestID, submissionID := parsedArgs["<contest-id>"], parsedArgs["<submission-id>"]
+func Sid(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{})
+	contestID, submissionID := parsedArgs.ContestID, parsedArgs.SubmissionID
 	cfg := config.Instance
 	cln := client.Instance
 	if submissionID == "" {

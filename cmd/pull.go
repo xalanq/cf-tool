@@ -8,19 +8,18 @@ import (
 )
 
 // Pull command
-func Pull(args map[string]interface{}) error {
+func Pull(args interface{}) error {
 	cfg := config.Instance
 	cln := client.Instance
-	ac := args["ac"].(bool)
 	var err error
 	work := func() error {
-		parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
+		parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 		if err != nil {
 			return err
 		}
-		contestID, problemID := parsedArgs["<contest-id>"], parsedArgs["<problem-id>"]
-		path := filepath.Join(parsedArgs["contestRootPath"], contestID, problemID)
-		return cln.PullContest(contestID, problemID, path, ac)
+		contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
+		path := filepath.Join(parsedArgs.ContestRootPath, contestID, problemID)
+		return cln.PullContest(contestID, problemID, path, parsedArgs.Accepted)
 	}
 	if err = work(); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {

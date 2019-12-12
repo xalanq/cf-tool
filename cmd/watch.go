@@ -6,16 +6,16 @@ import (
 )
 
 // Watch command
-func Watch(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
+func Watch(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
-	contestID, problemID := parsedArgs["<contest-id>"], parsedArgs["<problem-id>"]
+	contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
 	cfg := config.Instance
 	cln := client.Instance
 	n := 10
-	if args["all"].(bool) {
+	if parsedArgs.All {
 		n = -1
 	}
 	_, err = cln.WatchSubmission(contestID, problemID, n, false)

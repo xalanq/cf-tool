@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -122,8 +123,7 @@ Options:
   -h --help
   --version`
 	usage = strings.Replace(usage, `$%version%$`, version, 1)
-
-	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("Codeforces Tool (cf) %v", version), false)
+	args, _ := docopt.ParseArgs(usage, os.Args[1:], fmt.Sprintf("Codeforces Tool (cf) %v", version))
 	args[`{version}`] = version
 	color.Output = ansi.NewAnsiStdout()
 	configPath, _ = homedir.Expand(configPath)

@@ -10,12 +10,12 @@ import (
 )
 
 // Race command
-func Race(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true})
+func Race(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
-	contestID := parsedArgs["<contest-id>"]
+	contestID := parsedArgs.ContestID
 	cfg := config.Instance
 	cln := client.Instance
 	if err = cln.RaceContest(contestID); err != nil {
@@ -29,5 +29,5 @@ func Race(args map[string]interface{}) error {
 	time.Sleep(1)
 	open.Run(client.ToGym(fmt.Sprintf(cfg.Host+"/contest/%v", contestID), contestID))
 	open.Run(client.ToGym(fmt.Sprintf(cfg.Host+"/contest/%v/problems", contestID), contestID))
-	return _Parse(contestID, "", parsedArgs["contestRootPath"])
+	return _parse(contestID, "", parsedArgs.ContestRootPath)
 }

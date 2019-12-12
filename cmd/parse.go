@@ -11,7 +11,7 @@ import (
 	"github.com/xalanq/cf-tool/config"
 )
 
-func _Parse(contestID string, problemID string, contestRootPath string) error {
+func _parse(contestID string, problemID string, contestRootPath string) error {
 	cfg := config.Instance
 	cln := client.Instance
 	source := ""
@@ -68,10 +68,10 @@ func _Parse(contestID string, problemID string, contestRootPath string) error {
 }
 
 // Parse command
-func Parse(args map[string]interface{}) error {
-	parsedArgs, err := parseArgs(args, map[string]bool{"<contest-id>": true, "<problem-id>": false})
+func Parse(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true, ProblemID: false})
 	if err != nil {
 		return err
 	}
-	return _Parse(parsedArgs["<contest-id>"], parsedArgs["<problem-id>"], parsedArgs["contestRootPath"])
+	return _parse(parsedArgs.ContestID, parsedArgs.ProblemID, parsedArgs.Filename)
 }

@@ -149,7 +149,7 @@ func judge(sampleID, command string) error {
 }
 
 // Test command
-func Test(args map[string]interface{}) error {
+func Test(args interface{}) error {
 	cfg := config.Instance
 	if len(cfg.Template) == 0 {
 		return errors.New("You have to add at least one code template by `cf config`")
@@ -160,8 +160,8 @@ func Test(args map[string]interface{}) error {
 		color.Red("There is no sample data")
 		return nil
 	}
-	parsedArgs, _ := parseArgs(args, map[string]bool{"<filename>": false})
-	filename, index, err := getOneCode(parsedArgs["<filename>"], cfg.Template)
+	parsedArgs, _ := parseArgs(args, ParseRequirement{})
+	filename, index, err := getOneCode(parsedArgs.Filename, cfg.Template)
 	if err != nil {
 		return err
 	}
