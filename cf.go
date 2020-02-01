@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"cf-tool/cmd"
+	"cf-tool/config"
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
-	"github.com/xalanq/cf-tool/cmd"
-	"github.com/xalanq/cf-tool/config"
 
 	docopt "github.com/docopt/docopt-go"
 )
@@ -36,6 +36,7 @@ Usage:
   cf pull [ac] [<contest-id>] [<problem-id>]
   cf clone [ac] <username>
   cf upgrade
+  cf status <username>
 
 Examples:
   cf config            Configure the cf-tool.
@@ -69,6 +70,7 @@ Examples:
   cf pull              Pull the latest code of current problem into current path.
   cf clone xalanq      Clone all codes of xalanq.
   cf upgrade           Upgrade the "cf" to the latest version from GitHub.
+  cf status chrome     Save problem statuses of chrome.
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.

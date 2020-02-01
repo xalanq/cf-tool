@@ -46,6 +46,8 @@ func Eval(args map[string]interface{}) error {
 		return Clone(args)
 	} else if args["upgrade"].(bool) {
 		return Upgrade(args["{version}"].(string))
+	} else if args["status"].(bool) {
+		return Status(args)
 	}
 	return nil
 }
@@ -131,7 +133,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 	if filename, ok := args["<filename>"].(string); ok {
 		ext := filepath.Ext(filename)
 		if idx, ok := mp[ext]; ok {
-			return []CodeList{CodeList{filename, idx}}
+			return []CodeList{{filename, idx}}
 		}
 		return
 	}
