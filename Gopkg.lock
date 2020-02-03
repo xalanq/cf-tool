@@ -139,6 +139,18 @@
   revision = "79abb63cd66e41cb1473e26d11ebdcd68b04c8e5"
 
 [[projects]]
+  digest = "1:26835473d5da0df7fa0801c0917ed21c7de7ff43bb992fe5e800b3b1d689c052"
+  name = "github.com/xalanq/cf-tool"
+  packages = [
+    "client",
+    "cookiejar",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "e6fd02238cf37e75ac863d6e86b8455659121e6a"
+  version = "v0.8.2"
+
+[[projects]]
   branch = "master"
   digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
@@ -181,6 +193,8 @@
     "github.com/sergi/go-diff/diffmatchpatch",
     "github.com/shirou/gopsutil/process",
     "github.com/skratchdot/open-golang/open",
+    "github.com/xalanq/cf-tool/client",
+    "github.com/xalanq/cf-tool/util",
     "golang.org/x/crypto/ssh/terminal",
   ]
   solver-name = "gps-cdcl"

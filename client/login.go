@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"regexp"
 
+	"cf-tool/cookiejar"
+	"cf-tool/util"
 	"github.com/fatih/color"
-	"github.com/xalanq/cf-tool/cookiejar"
-	"github.com/xalanq/cf-tool/util"
 )
 
 // genFtaa generate a random one
