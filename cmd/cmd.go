@@ -48,6 +48,8 @@ func Eval(args map[string]interface{}) error {
 		return Upgrade(args["{version}"].(string))
 	} else if args["status"].(bool) {
 		return Status(args)
+	} else if args["handles"].(bool) {
+		return Handles(args)
 	}
 	return nil
 }

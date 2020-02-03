@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func main() {
+func gg() {
 	cln := client.New(config.ConfigPath)
 	handles, err := cln.ParseHandles()
 	if err != nil {

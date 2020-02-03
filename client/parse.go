@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"io/ioutil"
@@ -182,7 +183,7 @@ func (c *Client) ParseHandles() (result []Handle, err error) {
 
 	count := 0
 	//total := 1945
-	total := 50
+	total := 10
 
 	go func() {
 		for {
@@ -240,4 +241,21 @@ func (c *Client) ParseHandles() (result []Handle, err error) {
 	close(again)
 	wg.Wait()
 	return
+}
+
+func (c *Client) SaveHandles(path string) error {
+	handles, err := c.ParseHandles()
+	if err != nil {
+		return err
+	}
+	finalPath := filepath.Join(path, "data")
+	if err := os.MkdirAll(finalPath, os.ModePerm); err != nil {
+		return err
+	}
+	finalPath = filepath.Join(finalPath, "handles.json")
+	b, err := json.Marshal(handles)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(finalPath, b, 0644)
 }
