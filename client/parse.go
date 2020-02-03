@@ -135,14 +135,23 @@ func (c *Client) ParseContest(contestID, rootPath string) (problems []StatisInfo
 
 func (c *Client) findHandles(body []byte) (handles []Handle, err error) {
 	handleRegex := regexp.MustCompile(`class="rated-user ([\s\S]*?)">([\s\S]*?)</a>`)
+	legendaryRegex := regexp.MustCompile(`<span class="legendary-user-first-letter">([\s\S]*?)</span>([\s\S]*?)$`)
 
 	handlesMatch := handleRegex.FindAllSubmatch(body, -1)
 	if handlesMatch == nil {
-		return nil, fmt.Errorf("cannot handles")
+		return nil, fmt.Errorf("cannot find handles")
 	}
 
 	for i := 0; i < len(handlesMatch); i += 1 {
-		handles = append(handles, Handle{Handle: string(handlesMatch[i][2]), Color: string(handlesMatch[i][1])[5:]})
+		handle := Handle{Handle: string(handlesMatch[i][2]), Color: string(handlesMatch[i][1])[5:]}
+		if handle.Color == "legendary" {
+			legendaryMatch := legendaryRegex.FindAllSubmatch([]byte(handle.Handle), -1)
+			if legendaryMatch == nil {
+				return nil, fmt.Errorf("cannot find handle of legendary: %v", handle.Handle)
+			}
+			handle.Handle = string(legendaryMatch[0][1]) + string(legendaryMatch[0][2])
+		}
+		handles = append(handles, handle)
 	}
 
 	return
@@ -202,6 +211,7 @@ func (c *Client) ParseHandles() (result []Handle, err error) {
 					result = append(result, handles...)
 					mu.Unlock()
 				} else {
+					color.Red("%v", err.Error())
 					err = fmt.Errorf("Too many requests")
 
 					if err.Error() == "Too many requests" {
