@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"cf-tool/client"
+	"cf-tool/config"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/xalanq/cf-tool/client"
-	"github.com/xalanq/cf-tool/config"
 )
 
 // Open command

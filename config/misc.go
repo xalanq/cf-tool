@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/xalanq/cf-tool/util"
+	"cf-tool/util"
 )
 
 // SetGenAfterParse set it yes or no

@@ -10,9 +10,15 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/fatih/color"
 )
+
+type Handle struct {
+	Handle string
+	Color  string
+}
 
 // ToGym if length of contestID >= 6, replace contest to gym
 func ToGym(URL, contestID string) string {
@@ -123,6 +129,105 @@ func (c *Client) ParseContest(contestID, rootPath string) (problems []StatisInfo
 			mu.Unlock()
 		}()
 	}
+	wg.Wait()
+	return
+}
+
+func (c *Client) findHandles(body []byte) (handles []Handle, err error) {
+	handleRegex := regexp.MustCompile(`class="rated-user ([\s\S]*?)">([\s\S]*?)</a>`)
+
+	handlesMatch := handleRegex.FindAllSubmatch(body, -1)
+	if handlesMatch == nil {
+		return nil, fmt.Errorf("cannot handles")
+	}
+
+	for i := 0; i < len(handlesMatch); i += 1 {
+		handles = append(handles, Handle{Handle: string(handlesMatch[i][2]), Color: string(handlesMatch[i][1])[5:]})
+	}
+
+	return
+}
+
+func (c *Client) ParseHandlesPage(page int) (handles []Handle, err error) {
+	resp, err := c.client.Get(fmt.Sprintf("%s/problemset/standings/page/%d", c.Host, page))
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	return c.findHandles(body)
+}
+
+func (c *Client) ParseHandles() (result []Handle, err error) {
+	threadNumber := 16
+
+	ch := make(chan int, threadNumber)
+	again := make(chan int, threadNumber)
+
+	wg := sync.WaitGroup{}
+	wg.Add(threadNumber + 1)
+	mu := sync.Mutex{}
+
+	count := 0
+	//total := 1945
+	total := 50
+
+	go func() {
+		for {
+			s, ok := <-again
+			if !ok {
+				wg.Done()
+				return
+			}
+			ch <- s
+		}
+	}()
+
+	for gid := 0; gid < threadNumber; gid++ {
+		go func() {
+			for {
+				page, ok := <-ch
+				if !ok {
+					wg.Done()
+					return
+				}
+				handles, err := c.ParseHandlesPage(page)
+				if err == nil {
+					mu.Lock()
+					count++
+					color.Green(fmt.Sprintf(`%v/%v Saved`, count, total))
+					result = append(result, handles...)
+					mu.Unlock()
+				} else {
+					err = fmt.Errorf("Too many requests")
+
+					if err.Error() == "Too many requests" {
+						mu.Lock()
+						count++
+						const WAIT int = 120
+						color.Red(fmt.Sprintf(`%v/%v Error in %v: %v. Waiting for %v seconds to continue.`,
+							count, total, page, err.Error(), WAIT))
+						mu.Unlock()
+						time.Sleep(time.Duration(WAIT) * time.Second)
+						mu.Lock()
+						count--
+						mu.Unlock()
+						again <- page
+					}
+				}
+			}
+		}()
+	}
+
+	for page := 1; page <= total; page++ {
+		ch <- page
+	}
+
+	close(ch)
+	close(again)
 	wg.Wait()
 	return
 }

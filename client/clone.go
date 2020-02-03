@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"cf-tool/cookiejar"
 	"github.com/fatih/color"
-	"github.com/xalanq/cf-tool/cookiejar"
 )
 
 type cloneData struct {

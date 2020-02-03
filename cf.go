@@ -14,7 +14,7 @@ import (
 
 const version = "v0.8.2"
 
-func main() {
+func cf() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
 You should run "cf config" to configure your username, password and the code template at first.
