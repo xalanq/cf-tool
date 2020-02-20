@@ -35,6 +35,8 @@ func Eval(opts docopt.Opts) error {
 		return Gen()
 	} else if Args.Test {
 		return Test()
+	} else if Args.CustomTest {
+		return CustomTest()
 	} else if Args.Watch {
 		return Watch()
 	} else if Args.Open {

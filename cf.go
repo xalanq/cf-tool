@@ -34,6 +34,7 @@ Usage:
   cf parse [<specifier>...]
   cf gen [<alias>]
   cf test [<file>]
+  cf customtest <file> <language-id> [<input-file>]
   cf watch [all] [<specifier>...]
   cf open [<specifier>...]
   cf stand [<specifier>...]
@@ -85,6 +86,8 @@ Examples:
                        test all samples. If you want to add a new testcase,
                        create two files "inK.txt" and "ansK.txt" where K is
                        a string with 0~9.
+  cf customtest a.py 31
+  cf customtest a.py 31 input.txt
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136a        Use default web browser to open the page of contest
