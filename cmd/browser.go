@@ -15,7 +15,7 @@ func Open(args interface{}) error {
 	if err != nil {
 		return err
 	}
-	contestID, problemID := parsedArgs.ProblemID, parsedArgs.ProblemID
+	contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
 	if problemID == "" {
 		return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v", contestID), contestID))
 	}
