@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"regexp"
 
@@ -49,7 +48,7 @@ func (c *Client) Login(username, password string) (err error) {
 	jar, _ := cookiejar.New(nil)
 	color.Cyan("Login %v...\n", username)
 
-	c.client = &http.Client{Jar: jar}
+	c.client.Jar = jar
 
 	resp, err := c.client.Get(c.Host + "/enter")
 	if err != nil {

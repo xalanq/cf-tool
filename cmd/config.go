@@ -17,7 +17,8 @@ func Config(args map[string]interface{}) error {
 	ansi.Println(`3) set default template`)
 	ansi.Println(`4) run "cf gen" after "cf parse"`)
 	ansi.Println(`5) set host domain`)
-	index := util.ChooseIndex(6)
+	ansi.Println(`6) set proxy`)
+	index := util.ChooseIndex(7)
 	if index == 0 {
 		return config.New(config.ConfigPath).Login(config.SessionPath)
 	} else if index == 1 {
@@ -30,6 +31,8 @@ func Config(args map[string]interface{}) error {
 		return config.New(config.ConfigPath).SetGenAfterParse()
 	} else if index == 5 {
 		return client.New(config.SessionPath).SetHost()
+	} else if index == 6 {
+		return client.New(config.SessionPath).SetProxy()
 	}
 	return nil
 }

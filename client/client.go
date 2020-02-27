@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 
@@ -21,6 +22,7 @@ type Client struct {
 	Bfaa           string          `json:"bfaa"`
 	LastSubmission *SaveSubmission `json:"last_submission"`
 	Host           string          `json:"host"`
+	Proxy          string          `json:"proxy"`
 	path           string
 	client         *http.Client
 }
@@ -39,6 +41,20 @@ func formatHost(host string) (string, error) {
 	return host, nil
 }
 
+func formatProxy(proxy string) (string, error) {
+	if len(proxy) == 0 {
+		return "", nil
+	}
+	reg := regexp.MustCompile(`(https?|socks5)://[\w\-\.]+:\d+`)
+	if !reg.MatchString(proxy) {
+		return "", fmt.Errorf(`Invalid proxy "%v"`, proxy)
+	}
+	for proxy[len(proxy)-1:] == "/" {
+		proxy = proxy[:len(proxy)-1]
+	}
+	return proxy, nil
+}
+
 // New client
 func New(path string) *Client {
 	jar, _ := cookiejar.New(nil)
@@ -46,8 +62,18 @@ func New(path string) *Client {
 	if path != "" {
 		c.load()
 	}
-	c.client = &http.Client{Jar: c.Jar}
-	var err error
+	proxyURL, err := formatProxy(c.Proxy)
+	proxy := http.ProxyFromEnvironment
+	if err != nil {
+		color.Red(err.Error() + `. Use default proxy from environment`)
+		color.Red(`Please use "cf config" to set a valid proxy later`)
+	} else if proxyURL != "" {
+		proxyURL, err := url.Parse(c.Proxy)
+		if err == nil {
+			proxy = http.ProxyURL(proxyURL)
+		}
+	}
+	c.client = &http.Client{Jar: c.Jar, Transport: &http.Transport{Proxy: proxy}}
 	c.Host, err = formatHost(c.Host)
 	if err != nil {
 		color.Red(err.Error() + `. Use default host "https://codeforces.com"`)
@@ -104,5 +130,35 @@ func (c *Client) SetHost() (err error) {
 	}
 	c.Host = host
 	color.Green("New host domain is %v", host)
+	return c.save()
+}
+
+// SetProxy set proxy for client
+func (c *Client) SetProxy() (err error) {
+	proxy, err := formatProxy(c.Proxy)
+	if err != nil {
+		proxy = ""
+	}
+	if len(proxy) == 0 {
+		color.Green("Current proxy is based on environment")
+	} else {
+		color.Green("Current proxy is %v", proxy)
+	}
+	color.Cyan(`Set a new proxy (e.g. "http://127.0.0.1:80", "socks5://127.0.0.1:1080"`)
+	color.Cyan(`Enter empty line if you want to use default proxy from environment`)
+	color.Cyan(`Note: Proxy URL should match "proxyProtocol://proxyIp:proxyPort"`)
+	for {
+		proxy, err = formatProxy(util.ScanlineTrim())
+		if err == nil {
+			break
+		}
+		color.Red(err.Error())
+	}
+	c.Proxy = proxy
+	if len(proxy) == 0 {
+		color.Green("Current proxy is based on environment")
+	} else {
+		color.Green("Current proxy is %v", proxy)
+	}
 	return c.save()
 }
