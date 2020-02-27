@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
 	"html"
 	"io/ioutil"
@@ -9,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/k0kubun/go-ansi"
 
 	"github.com/fatih/color"
 )
@@ -43,7 +46,7 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 }
 
 // ParseProblem parse problem to path
-func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
+func (c *Client) ParseProblem(URL, path string) (samples int, standardIO bool, err error) {
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
@@ -64,6 +67,11 @@ func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
 		return
 	}
 
+	standardIO = true
+	if !bytes.Contains(body, []byte(`<div class="input-file"><div class="property-title">input</div>standard input</div><div class="output-file"><div class="property-title">output</div>standard output</div>`)) {
+		standardIO = false
+	}
+
 	for i := 0; i < len(input); i++ {
 		fileIn := filepath.Join(path, fmt.Sprintf("in%v.txt", i+1))
 		fileOut := filepath.Join(path, fmt.Sprintf("ans%v.txt", i+1))
@@ -76,17 +84,17 @@ func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
 			color.Red(e.Error())
 		}
 	}
-	return len(input), nil
+	return len(input), standardIO, nil
 }
 
 // ParseContestProblem parse contest problem
-func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples int, err error) {
+func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples int, standardIO bool, err error) {
 	err = os.MkdirAll(path, os.ModePerm)
 	if err != nil {
 		return
 	}
 	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/problem/%v", contestID, problemID), contestID)
-	samples, err = c.ParseProblem(URL, path)
+	samples, standardIO, err = c.ParseProblem(URL, path)
 	if err != nil {
 		return
 	}
@@ -111,12 +119,16 @@ func (c *Client) ParseContest(contestID, rootPath string) (problems []StatisInfo
 			mu.Unlock()
 			problemID := strings.ToLower(problem.ID)
 			path := filepath.Join(rootPath, problemID)
-			samples, err := c.ParseContestProblem(contestID, problem.ID, path)
+			samples, standardIO, err := c.ParseContestProblem(contestID, problem.ID, path)
+			warns := ""
+			if !standardIO {
+				warns = color.YellowString("Non standard input output format.")
+			}
 			mu.Lock()
 			if err != nil {
 				color.Red("Failed %v %v. Error: %v", contestID, problem.ID, err.Error())
 			} else {
-				color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
+				ansi.Printf("%v %v\n", color.GreenString("Parsed %v %v with %v samples.", contestID, problemID, samples), warns)
 			}
 			mu.Unlock()
 		}()

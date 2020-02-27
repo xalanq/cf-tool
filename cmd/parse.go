@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	ansi "github.com/k0kubun/go-ansi"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
@@ -66,12 +67,17 @@ func Parse(args map[string]interface{}) error {
 				return parseContest(contestID, currentPath)
 			}
 		}
-		samples, err := cln.ParseContestProblem(contestID, problemID, path)
+		samples, standardIO, err := cln.ParseContestProblem(contestID, problemID, path)
 		if err != nil {
 			color.Red("Failed %v %v", contestID, problemID)
 			return err
+
 		}
-		color.Green("Parsed %v %v with %v samples", contestID, problemID, samples)
+		warns := ""
+		if !standardIO {
+			warns = color.YellowString("Non standard input output format.")
+		}
+		ansi.Printf("%v %v\n", color.GreenString("Parsed %v %v with %v samples.", contestID, problemID, samples), warns)
 		if cfg.GenAfterParse {
 			gen(source, path, ext)
 		}
