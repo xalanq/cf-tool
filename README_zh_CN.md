@@ -25,6 +25,7 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 * 从指定模板生成代码（包括时间戳，作者等信息）
 * 列出某场比赛的所有题目的整体信息
 * 用默认的网页浏览器打开题目页面、榜单、提交页面等
+* 设置网络代理
 * 丰富多彩的命令行
 
 欢迎大家一起完善这个工具呀，欢迎Pull requests。
@@ -38,10 +39,12 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 或者你可以把整个 repo 给 clone 下来，然后自己编译 (go >= 1.12)：
 
 ```plain
-$ git clone https://github.com/xalanq/cf-tool
-$ cd cf-tool
+$ go get github.com/xalanq/cf-tool
+$ cd $GOPATH/src/github.com/xalanq/cf-tool
 $ go build -ldflags "-s -w" cf.go
 ```
+
+如果你不知道 `$GOPATH` 是什么，请看一下这篇文章 <https://github.com/golang/go/wiki/GOPATH>.
 
 ## 使用方法
 
@@ -99,7 +102,7 @@ $ go build -ldflags "-s -w" cf.go
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
-  cf clone [ac] <username>
+  cf clone [ac] <handle>
   cf upgrade
 
 例子:
@@ -143,21 +146,21 @@ $ go build -ldflags "-s -w" cf.go
 储存的文件:
   cf 会保存数据到以下文件：
 
-  "~/.cfconfig"        这是配置文件，包括用户名、加密后的密码等。
-  "~/.cfsession"       这是会话文件，包括 cookies、用户名等。
+  "~/.cf/config"        这是配置文件。
+  "~/.cf/session"       这是会话文件，包括 cookies、用户名、密码等。
 
   "~" 这个符号是系统当前用户的主文件夹。
 
 模板:
   你可以在你的代码里插入一些标识符，当用 cf 生成代码的时候，标识符会按照以下规则替换：
 
-  $%U%$   用户名
-  $%Y%$   年  (e.g. 2019)
-  $%M%$   月  (e.g. 04)
-  $%D%$   日  (e.g. 09)
-  $%h%$   时  (e.g. 08)
-  $%m%$   分  (e.g. 05)
-  $%s%$   秒  (e.g. 00)
+  $%U%$   用户名 (例如 xalanq)
+  $%Y%$   年  (例如 2019)
+  $%M%$   月  (例如 04)
+  $%D%$   日  (例如 09)
+  $%h%$   时  (例如 08)
+  $%m%$   分  (例如 05)
+  $%s%$   秒  (例如 00)
 
 模板内的脚本:
   模板支持三个脚本命令，当使用 "cf test" 时会依次执行：
@@ -184,13 +187,13 @@ Options:
 当这份模板被 `cf gen` 生成时，模板内部的占位符会替换成相应的内容。
 
 ```
-$%U%$   用户名
-$%Y%$   年  (e.g. 2019)
-$%M%$   月  (e.g. 04)
-$%D%$   日  (e.g. 09)
-$%h%$   时  (e.g. 08)
-$%m%$   分  (e.g. 05)
-$%s%$   秒  (e.g. 00)
+$%U%$   用户名 (例如 xalanq)
+$%Y%$   年  (例如 2019)
+$%M%$   月  (例如 04)
+$%D%$   日  (例如 09)
+$%h%$   时  (例如 08)
+$%m%$   分  (例如 05)
+$%s%$   秒  (例如 00)
 ```
 
 ```cpp

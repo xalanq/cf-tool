@@ -23,7 +23,7 @@ func Submit(args map[string]interface{}) error {
 	if problemID == contestID {
 		return fmt.Errorf("contestID: %v, problemID: %v is not valid", contestID, problemID)
 	}
-	cfg := config.New(config.ConfigPath)
+	cfg := config.Instance
 	filename, index, err := getOneCode(args, cfg.Template)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func Submit(args map[string]interface{}) error {
 	source := string(bytes)
 	problemID = strings.ToUpper(problemID)
 	lang := template.Lang
-	cln := client.New(config.SessionPath)
+	cln := client.Instance
 	if err = cln.SubmitContest(contestID, problemID, lang, source); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {
 			err = cln.SubmitContest(contestID, problemID, lang, source)

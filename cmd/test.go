@@ -150,7 +150,7 @@ func judge(sampleID, command string) error {
 
 // Test command
 func Test(args map[string]interface{}) error {
-	cfg := config.New(config.ConfigPath)
+	cfg := config.Instance
 	if len(cfg.Template) == 0 {
 		return errors.New("You have to add at least one code template by `cf config`")
 	}

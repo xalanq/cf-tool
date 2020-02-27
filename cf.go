@@ -6,6 +6,8 @@ import (
 
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
+	"github.com/mitchellh/go-homedir"
+	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/cmd"
 	"github.com/xalanq/cf-tool/config"
 
@@ -14,10 +16,13 @@ import (
 
 const version = "v0.9.0"
 
+var configPath = "~/.cf/config"
+var sessionPath = "~/.cf/session"
+
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
-You should run "cf config" to configure your username, password and the code template at first.
+You should run "cf config" to configure your handle, password and the code template at first.
 
 If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
 
@@ -34,7 +39,7 @@ Usage:
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
-  cf clone [ac] <username>
+  cf clone [ac] <handle>
   cf upgrade
 
 Examples:
@@ -79,8 +84,8 @@ Notes:
 File:
   cf will save some data in some files:
 
-  "~/.cfconfig"        Configuration file, including username, encrypted password, etc.
-  "~/.cfsession"       Session file, including cookies, username, etc.
+  "~/.cf/config"        Configuration file, including templates, etc.
+  "~/.cf/session"       Session file, including cookies, handle, password, etc.
 
   "~" is the home directory of current user in your system.
 
@@ -88,7 +93,7 @@ Template:
   You can insert some placeholders into your template code. When generate a code from the
   template, cf will replace all placeholders by following rules:
 
-  $%U%$   Username
+  $%U%$   Handle (e.g. xalanq)
   $%Y%$   Year   (e.g. 2019)
   $%M%$   Month  (e.g. 04)
   $%D%$   Day    (e.g. 09)
@@ -120,7 +125,10 @@ Options:
 	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("Codeforces Tool (cf) %v", version), false)
 	args[`{version}`] = version
 	color.Output = ansi.NewAnsiStdout()
-	config.Init()
+	configPath, _ = homedir.Expand(configPath)
+	sessionPath, _ = homedir.Expand(sessionPath)
+	config.Init(configPath)
+	client.Init(sessionPath, config.Instance.Host, config.Instance.Proxy)
 	err := cmd.Eval(args)
 	if err != nil {
 		color.Red(err.Error())

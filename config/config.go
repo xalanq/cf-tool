@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/fatih/color"
 )
@@ -21,24 +22,29 @@ type CodeTemplate struct {
 
 // Config load and save configuration
 type Config struct {
-	Username      string         `json:"username"`
-	Password      string         `json:"password"`
 	Template      []CodeTemplate `json:"template"`
 	Default       int            `json:"default"`
 	GenAfterParse bool           `json:"gen_after_parse"`
+	Host          string         `json:"host"`
+	Proxy         string         `json:"proxy"`
 	path          string
 }
 
-// New an empty config
-func New(path string) *Config {
-	c := &Config{path: path}
+// Instance global configuration
+var Instance *Config
+
+// Init initialize
+func Init(path string) {
+	c := &Config{path: path, Host: "https://codeforces.com", Proxy: ""}
 	if err := c.load(); err != nil {
-		return &Config{path: path}
+		color.Red(err.Error())
+		color.Green("Create a new configuration in %v", path)
 	}
 	if c.Default < 0 || c.Default >= len(c.Template) {
 		c.Default = 0
 	}
-	return c
+	c.save()
+	Instance = c
 }
 
 // load from path
@@ -62,6 +68,7 @@ func (c *Config) load() (err error) {
 func (c *Config) save() (err error) {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err == nil {
+		os.MkdirAll(filepath.Dir(c.path), os.ModePerm)
 		err = ioutil.WriteFile(c.path, data, 0644)
 	}
 	if err != nil {

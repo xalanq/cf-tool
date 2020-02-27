@@ -25,6 +25,7 @@ It's fast, small, cross-platform and powerful.
 * Generate codes from the specified template (including timestamp, author, etc.)
 * List problems' stats of one contest/gym.
 * Use default web browser to open problems' pages, standings' page, etc.
+* Setup a network proxy.
 * Colorful CLI.
 
 Pull requests are always welcome.
@@ -35,13 +36,15 @@ Pull requests are always welcome.
 
 You can download the pre-compiled binary file in [here](https://github.com/xalanq/cf-tool/releases).
 
-Or you can compile it from the source (go >= 1.12):
+Or you can compile it from the source **(go >= 1.12)**:
 
 ```plain
-$ git clone https://github.com/xalanq/cf-tool
-$ cd cf-tool
+$ go get github.com/xalanq/cf-tool
+$ cd $GOPATH/src/github.com/xalanq/cf-tool
 $ go build -ldflags "-s -w" cf.go
 ```
+
+If you don't know what's the `$GOPATH`, please see here <https://github.com/golang/go/wiki/GOPATH>.
 
 ## Usage
 
@@ -84,7 +87,7 @@ List problems' stats of the contest.
 Open the standings' page of the contest.
 
 ```plain
-You should run "cf config" to configure your username, password and the code template at first.
+You should run "cf config" to configure your handle, password and the code template at first.
 
 If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
 
@@ -101,7 +104,7 @@ Usage:
   cf sid [<submission-id>] [<contest-id>]
   cf race <contest-id>
   cf pull [ac] [<contest-id>] [<problem-id>]
-  cf clone [ac] <username>
+  cf clone [ac] <handle>
   cf upgrade
 
 Examples:
@@ -129,7 +132,7 @@ Examples:
   cf sid 52531875      Use default web browser to open the submission 52531875's page.
   cf sid               Open the last submission's page.
   cf race 1136         If the contest 1136 has not started yet, it will countdown. When the
-                       countdown ends, it will open dashboard and problems' pages, and parse samples.
+                       countdown ends, it will open all problems' pages and parse samples.
   cf pull 100          Pull all problems' latest codes of contest 100 into "./100/<problem-id>".
   cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
   cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
@@ -146,8 +149,8 @@ Notes:
 File:
   cf will save some data in some files:
 
-  "~/.cfconfig"        Configuration file, including username, encrypted password, etc.
-  "~/.cfsession"       Session file, including cookies, username, etc.
+  "~/.cf/config"        Configuration file, including templates, etc.
+  "~/.cf/session"       Session file, including cookies, handle, password, etc.
 
   "~" is the home directory of current user in your system.
 
@@ -155,7 +158,7 @@ Template:
   You can insert some placeholders into your template code. When generate a code from the
   template, cf will replace all placeholders by following rules:
 
-  $%U%$   Username
+  $%U%$   Handle (e.g. xalanq)
   $%Y%$   Year   (e.g. 2019)
   $%M%$   Month  (e.g. 04)
   $%D%$   Day    (e.g. 09)
@@ -189,7 +192,7 @@ Options:
 The placeholders inside the template will be replaced with the corresponding content when you run `cf gen`.
 
 ```
-$%U%$   Username
+$%U%$   Handle (e.g. xalanq)
 $%Y%$   Year   (e.g. 2019)
 $%M%$   Month  (e.g. 04)
 $%D%$   Day    (e.g. 09)

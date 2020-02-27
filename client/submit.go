@@ -30,7 +30,7 @@ func findErrorMessage(body []byte) ([]byte, error) {
 func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err error) {
 	color.Cyan("Submit %v %v %v", contestID, problemID, Langs[langID])
 
-	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/submit", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/submit", contestID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
@@ -41,12 +41,12 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
-	err = checkLogin(c.Username, body)
+	handle, err := findHandle(body)
 	if err != nil {
 		return
 	}
 
-	fmt.Printf("Current user: %v\n", c.Username)
+	fmt.Printf("Current user: %v\n", handle)
 
 	csrf, err := findCsrf(body)
 	if err != nil {
@@ -88,11 +88,10 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
+	c.Handle = handle
 	c.LastSubmission = &SaveSubmission{
 		ContestID:    contestID,
 		SubmissionID: submissions[0].ParseID(),
 	}
-	c.save()
-
-	return
+	return c.save()
 }

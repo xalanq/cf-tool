@@ -21,12 +21,12 @@ type cloneData struct {
 }
 
 // Clone all ac codes of all contests
-func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
-	color.Cyan("Clone codes of %v, ac: %v", username, ac)
+func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
+	color.Cyan("Clone codes of %v, ac: %v", handle, ac)
 
 	jar, _ := cookiejar.New(nil)
-	if username == c.Username {
-		resp, err := c.client.Get(c.Host)
+	if handle == c.Handle {
+		resp, err := c.client.Get(c.host)
 		if err != nil {
 			return err
 		}
@@ -36,13 +36,13 @@ func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
 			return err
 		}
 
-		if err = checkLogin(c.Username, body); err != nil {
+		if _, err = findHandle(body); err != nil {
 			return err
 		}
 		jar = c.Jar.Copy()
 	}
 
-	resp, err := c.client.Get(fmt.Sprintf(c.Host+"/api/user.status?handle=%v", username))
+	resp, err := c.client.Get(fmt.Sprintf(c.host+"/api/user.status?handle=%v", handle))
 	if err != nil {
 		return
 	}
@@ -102,7 +102,7 @@ func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
 					color.Green(fmt.Sprintf(`%v/%v Saved %v`, count, total, filename))
 					mu.Unlock()
 				} else {
-					if username == c.Username {
+					if handle == c.Handle {
 						err = fmt.Errorf("Too many requests")
 					}
 					if err.Error() == "Too many requests" {
@@ -128,39 +128,47 @@ func (c *Client) Clone(username, rootPath string, ac bool) (err error) {
 		}()
 	}
 	for _, _submission := range submissions {
-		submission := _submission.(map[string]interface{})
-		verdict := submission["verdict"].(string)
-		contestID := fmt.Sprintf("%v", int64(submission["contestId"].(float64)))
-		submissionID := fmt.Sprintf("%v", int64(submission["id"].(float64)))
-		if ac && verdict != "OK" {
-			mu.Lock()
-			count++
-			color.Green(fmt.Sprintf(`%v/%v Skip %v|%v: Not an accepted code`, count, total, contestID, submissionID))
-			mu.Unlock()
-			continue
-		}
-		lang := submission["programmingLanguage"].(string)
-		ext, ok := LangsExt[lang]
-		if !ok {
-			mu.Lock()
-			count++
-			color.Red(fmt.Sprintf(`%v/%v Error in %v|%v: Language "%v" is not supported`, count, total, contestID, submissionID, lang))
-			mu.Unlock()
-			continue
-		}
-		problemID := strings.ToLower(submission["problem"].(map[string]interface{})["index"].(string))
-		filename := submissionID
-		if verdict != "OK" {
-			testCount := int64(submission["passedTestCount"].(float64))
-			filename = fmt.Sprintf("%v_%v_%v", submissionID, strings.ToLower(verdict), testCount)
-		}
-		which := "contest"
-		if len(contestID) >= 6 {
-			which = "gym"
-		}
-		path := filepath.Join(rootPath, username, which, contestID, problemID, filename)
-		data := cloneData{contestID, submissionID, path, "." + ext}
-		ch <- data
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					color.Red("Error: %v", r)
+					color.Red("%v", _submission)
+				}
+			}()
+			submission := _submission.(map[string]interface{})
+			verdict := submission["verdict"].(string)
+			contestID := fmt.Sprintf("%v", int64(submission["contestId"].(float64)))
+			submissionID := fmt.Sprintf("%v", int64(submission["id"].(float64)))
+			if ac && verdict != "OK" {
+				mu.Lock()
+				count++
+				color.Green(fmt.Sprintf(`%v/%v Skip %v|%v: Not an accepted code`, count, total, contestID, submissionID))
+				mu.Unlock()
+				return
+			}
+			lang := submission["programmingLanguage"].(string)
+			ext, ok := LangsExt[lang]
+			if !ok {
+				mu.Lock()
+				count++
+				color.Red(fmt.Sprintf(`%v/%v Error in %v|%v: Language "%v" is not supported`, count, total, contestID, submissionID, lang))
+				mu.Unlock()
+				return
+			}
+			problemID := strings.ToLower(submission["problem"].(map[string]interface{})["index"].(string))
+			filename := submissionID
+			if verdict != "OK" {
+				testCount := int64(submission["passedTestCount"].(float64))
+				filename = fmt.Sprintf("%v_%v_%v", submissionID, strings.ToLower(verdict), testCount)
+			}
+			which := "contest"
+			if len(contestID) >= 6 {
+				which = "gym"
+			}
+			path := filepath.Join(rootPath, handle, which, contestID, problemID, filename)
+			data := cloneData{contestID, submissionID, path, "." + ext}
+			ch <- data
+		}()
 	}
 	close(ch)
 	close(again)

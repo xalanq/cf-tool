@@ -10,8 +10,10 @@ import (
 
 // Config command
 func Config(args map[string]interface{}) error {
+	cfg := config.Instance
+	cln := client.Instance
 	color.Cyan("Configure the tool")
-	ansi.Println(`0) username and password`)
+	ansi.Println(`0) login`)
 	ansi.Println(`1) add a template`)
 	ansi.Println(`2) delete a template`)
 	ansi.Println(`3) set default template`)
@@ -20,19 +22,19 @@ func Config(args map[string]interface{}) error {
 	ansi.Println(`6) set proxy`)
 	index := util.ChooseIndex(7)
 	if index == 0 {
-		return config.New(config.ConfigPath).Login(config.SessionPath)
+		return cln.ConfigLogin()
 	} else if index == 1 {
-		return config.New(config.ConfigPath).AddTemplate()
+		return cfg.AddTemplate()
 	} else if index == 2 {
-		return config.New(config.ConfigPath).RemoveTemplate()
+		return cfg.RemoveTemplate()
 	} else if index == 3 {
-		return config.New(config.ConfigPath).SetDefaultTemplate()
+		return cfg.SetDefaultTemplate()
 	} else if index == 4 {
-		return config.New(config.ConfigPath).SetGenAfterParse()
+		return cfg.SetGenAfterParse()
 	} else if index == 5 {
-		return client.New(config.SessionPath).SetHost()
+		return cfg.SetHost()
 	} else if index == 6 {
-		return client.New(config.SessionPath).SetProxy()
+		return cfg.SetProxy()
 	}
 	return nil
 }

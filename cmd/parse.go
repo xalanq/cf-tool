@@ -17,7 +17,8 @@ func Parse(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	cfg := config.New(config.ConfigPath)
+	cfg := config.Instance
+	cln := client.Instance
 	source := ""
 	ext := ""
 	if cfg.GenAfterParse {
@@ -26,11 +27,10 @@ func Parse(args map[string]interface{}) error {
 		}
 		path := cfg.Template[cfg.Default].Path
 		ext = filepath.Ext(path)
-		if source, err = readTemplateSource(path, cfg); err != nil {
+		if source, err = readTemplateSource(path, cln); err != nil {
 			return err
 		}
 	}
-	cln := client.New(config.SessionPath)
 	parseContest := func(contestID, rootPath string) error {
 		problems, err := cln.ParseContest(contestID, rootPath)
 		if err == nil && cfg.GenAfterParse {

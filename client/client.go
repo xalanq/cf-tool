@@ -2,85 +2,57 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
+	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
-	"github.com/xalanq/cf-tool/util"
 )
 
 // Client codeforces client
 type Client struct {
 	Jar            *cookiejar.Jar  `json:"cookies"`
-	Username       string          `json:"username"`
+	Handle         string          `json:"handle"`
+	HandleOrEmail  string          `json:"handle_or_email"`
+	Password       string          `json:"password"`
 	Ftaa           string          `json:"ftaa"`
 	Bfaa           string          `json:"bfaa"`
 	LastSubmission *SaveSubmission `json:"last_submission"`
-	Host           string          `json:"host"`
-	Proxy          string          `json:"proxy"`
+	host           string
+	proxy          string
 	path           string
 	client         *http.Client
 }
 
-func formatHost(host string) (string, error) {
-	if len(host) == 0 {
-		return "https://codeforces.com", nil
-	}
-	reg := regexp.MustCompile(`https?://[a-zA-Z0-9\-]+(\.[a-zA-Z0-9\-]+)+/*`)
-	if !reg.MatchString(host) {
-		return "", fmt.Errorf(`Invalid host "%v"`, host)
-	}
-	for host[len(host)-1:] == "/" {
-		host = host[:len(host)-1]
-	}
-	return host, nil
-}
+// Instance global client
+var Instance *Client
 
-func formatProxy(proxy string) (string, error) {
-	if len(proxy) == 0 {
-		return "", nil
-	}
-	reg := regexp.MustCompile(`(https?|socks5)://[\w\-\.]+:\d+`)
-	if !reg.MatchString(proxy) {
-		return "", fmt.Errorf(`Invalid proxy "%v"`, proxy)
-	}
-	for proxy[len(proxy)-1:] == "/" {
-		proxy = proxy[:len(proxy)-1]
-	}
-	return proxy, nil
-}
-
-// New client
-func New(path string) *Client {
+// Init initialize
+func Init(path, host, proxy string) {
 	jar, _ := cookiejar.New(nil)
-	c := &Client{Jar: jar, LastSubmission: nil, path: path, client: nil}
-	if path != "" {
-		c.load()
+	c := &Client{Jar: jar, LastSubmission: nil, path: path, host: host, proxy: proxy, client: nil}
+	if err := c.load(); err != nil {
+		color.Red(err.Error())
+		color.Green("Create a new session in %v", path)
 	}
-	proxyURL, err := formatProxy(c.Proxy)
-	proxy := http.ProxyFromEnvironment
-	if err != nil {
-		color.Red(err.Error() + `. Use default proxy from environment`)
-		color.Red(`Please use "cf config" to set a valid proxy later`)
-	} else if proxyURL != "" {
-		proxyURL, err := url.Parse(c.Proxy)
-		if err == nil {
-			proxy = http.ProxyURL(proxyURL)
+	Proxy := http.ProxyFromEnvironment
+	if len(proxy) > 0 {
+		proxyURL, err := url.Parse(proxy)
+		if err != nil {
+			color.Red(err.Error())
+			color.Green("Use default proxy from environment")
+		} else {
+			Proxy = http.ProxyURL(proxyURL)
 		}
 	}
-	c.client = &http.Client{Jar: c.Jar, Transport: &http.Transport{Proxy: proxy}}
-	c.Host, err = formatHost(c.Host)
-	if err != nil {
-		color.Red(err.Error() + `. Use default host "https://codeforces.com"`)
-		color.Red(`Please use "cf config" to set a valid host later`)
-		c.Host = "https://codeforces.com"
+	c.client = &http.Client{Jar: c.Jar, Transport: &http.Transport{Proxy: Proxy}}
+	if err := c.save(); err != nil {
+		color.Red(err.Error())
 	}
-	return c
+	Instance = c
 }
 
 // load from path
@@ -104,61 +76,11 @@ func (c *Client) load() (err error) {
 func (c *Client) save() (err error) {
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err == nil {
+		os.MkdirAll(filepath.Dir(c.path), os.ModePerm)
 		err = ioutil.WriteFile(c.path, data, 0644)
 	}
 	if err != nil {
 		color.Red("Cannot save session to %v\n%v", c.path, err.Error())
 	}
 	return
-}
-
-// SetHost set host for Codeforces
-func (c *Client) SetHost() (err error) {
-	host, err := formatHost(c.Host)
-	if err != nil {
-		host = "https://codeforces.com"
-	}
-	color.Green("Current host domain is %v", host)
-	color.Cyan(`Set a new host domain (e.g. "https://codeforces.com"`)
-	color.Cyan(`Note: Don't forget the "http://" or "https://"`)
-	for {
-		host, err = formatHost(util.ScanlineTrim())
-		if err == nil {
-			break
-		}
-		color.Red(err.Error())
-	}
-	c.Host = host
-	color.Green("New host domain is %v", host)
-	return c.save()
-}
-
-// SetProxy set proxy for client
-func (c *Client) SetProxy() (err error) {
-	proxy, err := formatProxy(c.Proxy)
-	if err != nil {
-		proxy = ""
-	}
-	if len(proxy) == 0 {
-		color.Green("Current proxy is based on environment")
-	} else {
-		color.Green("Current proxy is %v", proxy)
-	}
-	color.Cyan(`Set a new proxy (e.g. "http://127.0.0.1:80", "socks5://127.0.0.1:1080"`)
-	color.Cyan(`Enter empty line if you want to use default proxy from environment`)
-	color.Cyan(`Note: Proxy URL should match "proxyProtocol://proxyIp:proxyPort"`)
-	for {
-		proxy, err = formatProxy(util.ScanlineTrim())
-		if err == nil {
-			break
-		}
-		color.Red(err.Error())
-	}
-	c.Proxy = proxy
-	if len(proxy) == 0 {
-		color.Green("Current proxy is based on environment")
-	} else {
-		color.Green("Current proxy is %v", proxy)
-	}
-	return c.save()
 }

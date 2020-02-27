@@ -54,7 +54,7 @@ func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
 		return
 	}
 
-	err = checkLogin(c.Username, body)
+	_, err = findHandle(body)
 	if err != nil {
 		return
 	}
@@ -85,7 +85,7 @@ func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples
 	if err != nil {
 		return
 	}
-	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/problem/%v", contestID, problemID), contestID)
+	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/problem/%v", contestID, problemID), contestID)
 	samples, err = c.ParseProblem(URL, path)
 	if err != nil {
 		return

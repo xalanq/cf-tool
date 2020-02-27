@@ -15,9 +15,9 @@ func Race(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	cln := client.New(config.SessionPath)
+	cfg := config.Instance
+	cln := client.Instance
 	if err = cln.RaceContest(contestID); err != nil {
-		cfg := config.New(config.ConfigPath)
 		if err = loginAgain(cfg, cln, err); err == nil {
 			err = cln.RaceContest(contestID)
 		}
@@ -26,7 +26,7 @@ func Race(args map[string]interface{}) error {
 		}
 	}
 	time.Sleep(1)
-	open.Run(client.ToGym(fmt.Sprintf(cln.Host+"/contest/%v", contestID), contestID))
-	open.Run(client.ToGym(fmt.Sprintf(cln.Host+"/contest/%v/problems", contestID), contestID))
+	open.Run(client.ToGym(fmt.Sprintf(cfg.Host+"/contest/%v", contestID), contestID))
+	open.Run(client.ToGym(fmt.Sprintf(cfg.Host+"/contest/%v/problems", contestID), contestID))
 	return Parse(args)
 }

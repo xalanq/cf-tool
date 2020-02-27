@@ -10,13 +10,14 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 	"github.com/xalanq/cf-tool/util"
 )
 
-func parseTemplate(source string, cfg *config.Config) string {
+func parseTemplate(source string, cln *client.Client) string {
 	now := time.Now()
-	source = strings.ReplaceAll(source, "$%U%$", cfg.Username)
+	source = strings.ReplaceAll(source, "$%U%$", cln.Handle)
 	source = strings.ReplaceAll(source, "$%Y%$", fmt.Sprintf("%v", now.Year()))
 	source = strings.ReplaceAll(source, "$%M%$", fmt.Sprintf("%02v", int(now.Month())))
 	source = strings.ReplaceAll(source, "$%D%$", fmt.Sprintf("%02v", now.Day()))
@@ -26,12 +27,12 @@ func parseTemplate(source string, cfg *config.Config) string {
 	return source
 }
 
-func readTemplateSource(path string, cfg *config.Config) (source string, err error) {
+func readTemplateSource(path string, cln *client.Client) (source string, err error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
-	source = parseTemplate(string(b), cfg)
+	source = parseTemplate(string(b), cln)
 	return
 }
 
@@ -56,7 +57,8 @@ func gen(source, currentPath, ext string) error {
 
 // Gen command
 func Gen(args map[string]interface{}) error {
-	cfg := config.New(config.ConfigPath)
+	cfg := config.Instance
+	cln := client.Instance
 	if len(cfg.Template) == 0 {
 		return errors.New("You have to add at least one code template by `cf config`")
 	}
@@ -82,7 +84,7 @@ func Gen(args map[string]interface{}) error {
 		path = cfg.Template[cfg.Default].Path
 	}
 
-	source, err := readTemplateSource(path, cfg)
+	source, err := readTemplateSource(path, cln)
 	if err != nil {
 		return err
 	}

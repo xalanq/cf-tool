@@ -50,7 +50,7 @@ func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool
 		return "", fmt.Errorf("Exists, skip")
 	}
 
-	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/submission/%v", contestID, submissionID), contestID)
+	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/submission/%v", contestID, submissionID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
@@ -84,7 +84,7 @@ func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool
 func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (err error) {
 	color.Cyan("Pull code from %v%v, ac: %v", contestID, problemID, ac)
 
-	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/my", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/my", contestID), contestID)
 	submissions, err := c.getSubmissions(URL, -1)
 	if err != nil {
 		return

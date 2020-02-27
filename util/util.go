@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"strconv"
@@ -64,5 +65,25 @@ func YesOrNo(note string) bool {
 			return false
 		}
 		color.Red("Invalid input. Please input again: ")
+	}
+}
+
+// DebugSave write data to temperory file
+func DebugSave(data interface{}) {
+	f, err := os.OpenFile("./tmp/body", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if data, ok := data.([]byte); ok {
+		if _, err := f.Write(data); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if _, err := f.Write([]byte(fmt.Sprintf("%v\n\n", data))); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
 	}
 }

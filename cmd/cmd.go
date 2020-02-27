@@ -183,11 +183,7 @@ func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (n
 func loginAgain(cfg *config.Config, cln *client.Client, err error) error {
 	if err != nil && err.Error() == client.ErrorNotLogged {
 		color.Red("Not logged. Try to login\n")
-		password, e := cfg.DecryptPassword()
-		if e != nil {
-			return e
-		}
-		err = cln.Login(cfg.Username, password)
+		err = cln.Login()
 	}
 	return err
 }

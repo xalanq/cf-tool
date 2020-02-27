@@ -44,7 +44,7 @@ func (c *Config) AddTemplate() (err error) {
   You can insert some placeholders into your template code. When generate a code from the
   template, cf will replace all placeholders by following rules:
 
-  $%U%$   Username
+  $%U%$   Handle (e.g. xalanq)
   $%Y%$   Year   (e.g. 2019)
   $%M%$   Month  (e.g. 04)
   $%D%$   Day    (e.g. 09)

@@ -1,14 +1,23 @@
 package client
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/md5"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"regexp"
+	"syscall"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/cookiejar"
 	"github.com/xalanq/cf-tool/util"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // genFtaa generate a random one
@@ -24,13 +33,14 @@ func genBfaa() string {
 // ErrorNotLogged not logged in
 var ErrorNotLogged = "Not logged in"
 
-// checkLogin if login return nil
-func checkLogin(username string, body []byte) error {
-	match, err := regexp.Match(`handle = "[\s\S]+?"`, body)
-	if err != nil || !match {
-		return errors.New(ErrorNotLogged)
+// findHandle if logged return (handle, nil), else return ("", ErrorNotLogged)
+func findHandle(body []byte) (string, error) {
+	reg := regexp.MustCompile(`handle = "([\s\S]+?)"`)
+	tmp := reg.FindSubmatch(body)
+	if len(tmp) < 2 {
+		return "", errors.New(ErrorNotLogged)
 	}
-	return nil
+	return string(tmp[1]), nil
 }
 
 func findCsrf(body []byte) (string, error) {
@@ -42,14 +52,18 @@ func findCsrf(body []byte) (string, error) {
 	return string(tmp[1]), nil
 }
 
-// Login codeforces with username(handler) and password
-func (c *Client) Login(username, password string) (err error) {
+// Login codeforces with handler and password
+func (c *Client) Login() (err error) {
+	color.Cyan("Login %v...\n", c.HandleOrEmail)
+
+	password, err := c.DecryptPassword()
+	if err != nil {
+		return
+	}
+
 	jar, _ := cookiejar.New(nil)
-	color.Cyan("Login %v...\n", username)
-
 	c.client.Jar = jar
-
-	resp, err := c.client.Get(c.Host + "/enter")
+	resp, err := c.client.Get(c.host + "/enter")
 	if err != nil {
 		return
 	}
@@ -67,12 +81,12 @@ func (c *Client) Login(username, password string) (err error) {
 	ftaa := genFtaa()
 	bfaa := genBfaa()
 
-	resp, err = c.client.PostForm(c.Host+"/enter", url.Values{
+	resp, err = c.client.PostForm(c.host+"/enter", url.Values{
 		"csrf_token":    {csrf},
 		"action":        {"enter"},
 		"ftaa":          {ftaa},
 		"bfaa":          {bfaa},
-		"handleOrEmail": {username},
+		"handleOrEmail": {c.HandleOrEmail},
 		"password":      {password},
 		"_tta":          {"176"},
 		"remember":      {"on"},
@@ -85,15 +99,111 @@ func (c *Client) Login(username, password string) (err error) {
 	if err != nil {
 		return
 	}
-	err = checkLogin(username, body)
+	handle, err := findHandle(body)
 	if err != nil {
 		return
 	}
 
-	c.Jar = jar
 	c.Ftaa = ftaa
 	c.Bfaa = bfaa
-	c.Username = username
+	c.Handle = handle
+	c.Jar = jar
 	color.Green("Succeed!!")
+	color.Green("Welcome %v", handle)
 	return c.save()
+}
+
+func createHash(key string) []byte {
+	hasher := md5.New()
+	hasher.Write([]byte(key))
+	return hasher.Sum(nil)
+}
+
+func encrypt(handle, password string) (ret string, err error) {
+	block, err := aes.NewCipher(createHash("glhf" + handle + "233"))
+	if err != nil {
+		return
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return
+	}
+	text := gcm.Seal(nonce, nonce, []byte(password), nil)
+	ret = hex.EncodeToString(text)
+	return
+}
+
+func decrypt(handle, password string) (ret string, err error) {
+	data, err := hex.DecodeString(password)
+	if err != nil {
+		err = errors.New("Cannot decode the password")
+		return
+	}
+	block, err := aes.NewCipher(createHash("glhf" + handle + "233"))
+	if err != nil {
+		return
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return
+	}
+	nonceSize := gcm.NonceSize()
+	nonce, text := data[:nonceSize], data[nonceSize:]
+	plain, err := gcm.Open(nil, nonce, text, nil)
+	if err != nil {
+		return
+	}
+	ret = string(plain)
+	return
+}
+
+// DecryptPassword get real password
+func (c *Client) DecryptPassword() (string, error) {
+	if len(c.Password) == 0 || len(c.HandleOrEmail) == 0 {
+		return "", errors.New("You have to configure your handle and password by `cf config`")
+	}
+	return decrypt(c.HandleOrEmail, c.Password)
+}
+
+// ConfigLogin configure handle and password
+func (c *Client) ConfigLogin() (err error) {
+	if c.Handle != "" {
+		color.Green("Current user: %v", c.Handle)
+	}
+	color.Cyan("Configure handle/email and password")
+	color.Cyan("Note: The password is invisible, just type it correctly.")
+
+	fmt.Printf("handle/email: ")
+	handleOrEmail := util.ScanlineTrim()
+
+	password := ""
+	if terminal.IsTerminal(int(syscall.Stdin)) {
+		fmt.Printf("password: ")
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			fmt.Println()
+			if err.Error() == "EOF" {
+				fmt.Println("Interrupted.")
+				return nil
+			}
+			return err
+		}
+		password = string(bytePassword)
+		fmt.Println()
+	} else {
+		color.Red("Your terminal does not support the hidden password.")
+		fmt.Printf("password: ")
+		password = util.Scanline()
+	}
+
+	c.HandleOrEmail = handleOrEmail
+	c.Password, err = encrypt(handleOrEmail, password)
+	if err != nil {
+		return
+	}
+	return c.Login()
 }

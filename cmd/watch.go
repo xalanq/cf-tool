@@ -15,8 +15,8 @@ func Watch(args map[string]interface{}) error {
 	}
 	problemID, _ := args["<problem-id>"].(string)
 	problemID = strings.ToLower(problemID)
-	cfg := config.New(config.ConfigPath)
-	cln := client.New(config.SessionPath)
+	cfg := config.Instance
+	cln := client.Instance
 	n := 10
 	if args["all"].(bool) {
 		n = -1

@@ -78,7 +78,7 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 func (c *Client) StatisContest(contestID string) (problems []StatisInfo, err error) {
 	color.Cyan(ToGym("Get statis in contest %v\n", contestID), contestID)
 
-	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v", contestID), contestID)
+	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v", contestID), contestID)
 	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
@@ -89,7 +89,7 @@ func (c *Client) StatisContest(contestID string) (problems []StatisInfo, err err
 		return
 	}
 
-	err = checkLogin(c.Username, body)
+	_, err = findHandle(body)
 	if err != nil {
 		return
 	}

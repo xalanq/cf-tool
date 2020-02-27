@@ -41,7 +41,7 @@ func getLatest() (version, note, ptime, url string, size uint, err error) {
 	goos := ""
 	switch runtime.GOOS {
 	case "darwin":
-		goos = "osx"
+		goos = "darwin"
 	case "linux":
 		goos = "linux"
 	case "windows":

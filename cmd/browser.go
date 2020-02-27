@@ -20,9 +20,9 @@ func Open(args map[string]interface{}) error {
 		return err
 	}
 	if problemID == contestID {
-		return open.Run(client.ToGym(fmt.Sprintf(client.New(config.SessionPath).Host+"/contest/%v", contestID), contestID))
+		return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v", contestID), contestID))
 	}
-	return open.Run(client.ToGym(fmt.Sprintf(client.New(config.SessionPath).Host+"/contest/%v/problem/%v", contestID, problemID), contestID))
+	return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v/problem/%v", contestID, problemID), contestID))
 }
 
 // Stand command
@@ -31,14 +31,15 @@ func Stand(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	return open.Run(client.ToGym(fmt.Sprintf(client.New(config.SessionPath).Host+"/contest/%v/standings", contestID), contestID))
+	return open.Run(client.ToGym(fmt.Sprintf(config.Instance.Host+"/contest/%v/standings", contestID), contestID))
 }
 
 // Sid command
 func Sid(args map[string]interface{}) error {
 	contestID := ""
 	submissionID := ""
-	cln := client.New(config.SessionPath)
+	cfg := config.Instance
+	cln := client.Instance
 	if args["<submission-id>"] == nil {
 		if cln.LastSubmission != nil {
 			contestID = cln.LastSubmission.ContestID
@@ -57,5 +58,5 @@ func Sid(args map[string]interface{}) error {
 			return err
 		}
 	}
-	return open.Run(client.ToGym(fmt.Sprintf(cln.Host+"/contest/%v/submission/%v", contestID, submissionID), contestID))
+	return open.Run(client.ToGym(fmt.Sprintf(cfg.Host+"/contest/%v/submission/%v", contestID, submissionID), contestID))
 }

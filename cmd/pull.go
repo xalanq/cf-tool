@@ -15,8 +15,8 @@ func Pull(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	cfg := config.New(config.ConfigPath)
-	cln := client.New(config.SessionPath)
+	cfg := config.Instance
+	cln := client.Instance
 	ac := args["ac"].(bool)
 	work := func() error {
 		contestID := ""

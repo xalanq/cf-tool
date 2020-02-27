@@ -13,14 +13,14 @@ func Clone(args map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
-	cfg := config.New(config.ConfigPath)
-	cln := client.New(config.SessionPath)
+	cfg := config.Instance
+	cln := client.Instance
 	ac := args["ac"].(bool)
-	username := args["<username>"].(string)
+	handle := args["<handle>"].(string)
 
-	if err = cln.Clone(username, currentPath, ac); err != nil {
+	if err = cln.Clone(handle, currentPath, ac); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {
-			err = cln.Clone(username, currentPath, ac)
+			err = cln.Clone(handle, currentPath, ac)
 		}
 	}
 	return err
