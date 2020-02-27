@@ -49,6 +49,12 @@ func Eval(opts docopt.Opts) error {
 		return Pull()
 	} else if Args.Clone {
 		return Clone()
+	} else if Args.Contests {
+		return Contests()
+	} else if Args.Register {
+		return Register()
+	} else if Args.Unregister {
+		return Unregister()
 	} else if Args.Upgrade {
 		return Upgrade()
 	}
