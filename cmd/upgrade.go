@@ -45,7 +45,7 @@ func getLatest() (version, note, ptime, url string, size uint, err error) {
 	case "linux":
 		goos = "linux"
 	case "windows":
-		goos = "win"
+		goos = "windows"
 	default:
 		err = fmt.Errorf("Not support %v", runtime.GOOS)
 		return
