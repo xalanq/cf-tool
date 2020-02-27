@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 	"regexp"
@@ -27,7 +26,7 @@ var ErrorNotLogged = "Not logged in"
 
 // checkLogin if login return nil
 func checkLogin(username string, body []byte) error {
-	match, err := regexp.Match(fmt.Sprintf(`handle = "%v"`, username), body)
+	match, err := regexp.Match(`handle = "[\s\S]+?"`, body)
 	if err != nil || !match {
 		return errors.New(ErrorNotLogged)
 	}

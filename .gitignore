@@ -1,4 +1,6 @@
 /tmp
+.DS_Store
+cf
 
 # Binaries for programs and plugins
 *.exe
