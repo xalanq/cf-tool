@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -45,8 +44,7 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 
 // ParseProblem parse problem to path
 func (c *Client) ParseProblem(URL, path string) (samples int, err error) {
-	client := &http.Client{Jar: c.Jar.Copy()}
-	resp, err := client.Get(URL)
+	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
 	}

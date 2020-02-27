@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -52,8 +51,7 @@ func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool
 	}
 
 	URL := ToGym(fmt.Sprintf(c.Host+"/contest/%v/submission/%v", contestID, submissionID), contestID)
-	client := &http.Client{Jar: c.Jar.Copy()}
-	resp, err := client.Get(URL)
+	resp, err := c.client.Get(URL)
 	if err != nil {
 		return
 	}
