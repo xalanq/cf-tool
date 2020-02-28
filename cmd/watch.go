@@ -1,24 +1,21 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 
 // Watch command
-func Watch(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
+func Watch(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
-	problemID, _ := args["<problem-id>"].(string)
-	problemID = strings.ToLower(problemID)
+	contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
 	cfg := config.Instance
 	cln := client.Instance
 	n := 10
-	if args["all"].(bool) {
+	if parsedArgs.All {
 		n = -1
 	}
 	_, err = cln.WatchSubmission(contestID, problemID, n, false)

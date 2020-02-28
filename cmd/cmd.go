@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/docopt/docopt-go"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,72 +18,171 @@ import (
 )
 
 // Eval args
-func Eval(args map[string]interface{}) error {
-	if args["config"].(bool) {
-		return Config(args)
-	} else if args["submit"].(bool) {
+func Eval(args docopt.Opts) error {
+	parsed := ParsedArgs{}
+	args.Bind(&parsed)
+	if parsed.Config {
+		return Config()
+	} else if parsed.Submit {
 		return Submit(args)
-	} else if args["list"].(bool) {
+	} else if parsed.List {
 		return List(args)
-	} else if args["parse"].(bool) {
+	} else if parsed.Parse {
 		return Parse(args)
-	} else if args["gen"].(bool) {
+	} else if parsed.Generate {
 		return Gen(args)
-	} else if args["test"].(bool) {
+	} else if parsed.Test {
 		return Test(args)
-	} else if args["watch"].(bool) {
+	} else if parsed.Watch {
 		return Watch(args)
-	} else if args["open"].(bool) {
+	} else if parsed.Open {
 		return Open(args)
-	} else if args["stand"].(bool) {
+	} else if parsed.Standings {
 		return Stand(args)
-	} else if args["sid"].(bool) {
+	} else if parsed.Sid {
 		return Sid(args)
-	} else if args["race"].(bool) {
+	} else if parsed.Race {
 		return Race(args)
-	} else if args["pull"].(bool) {
+	} else if parsed.Pull {
 		return Pull(args)
-	} else if args["clone"].(bool) {
+	} else if parsed.Clone {
 		return Clone(args)
-	} else if args["upgrade"].(bool) {
-		return Upgrade(args["{version}"].(string))
+	} else if parsed.Upgrade {
+		return Upgrade(parsed.Version)
 	}
 	return nil
 }
 
-func getContestID(args map[string]interface{}) (string, error) {
-	if c, ok := args["<contest-id>"].(string); ok {
-		if _, err := strconv.Atoi(c); err == nil {
-			return c, nil
-		}
-		return "", fmt.Errorf(`Contest should be a number instead of "%v"`, c)
+type ParseRequirement struct {
+	ContestID, ProblemID, SubmissionID, Filename, Alias, Username bool
+}
+
+type ParsedArgs struct {
+	ContestID       string `docopt:"<url | contest-id>"`
+	ProblemID       string `docopt:"<problem-id>"`
+	SubmissionID    string `docopt:"<submission-id>"`
+	Filename        string `docopt:"<filename>"`
+	Alias           string `docopt:"<alias>"`
+	Accepted        bool   `docopt:"ac"`
+	All             bool   `docopt:"all"`
+	Handle          string `docopt:"<handle>"`
+	Version         string `docopt:"{version}"`
+	Config          bool   `docopt:"config"`
+	Submit          bool   `docopt:"submit"`
+	List            bool   `docopt:"list"`
+	Parse           bool   `docopt:"parse"`
+	Generate        bool   `docopt:"gen"`
+	Test            bool   `docopt:"test"`
+	Watch           bool   `docopt:"watch"`
+	Open            bool   `docopt:"open"`
+	Standings       bool   `docopt:"stand"`
+	Sid             bool   `docopt:"sid"`
+	Race            bool   `docopt:"race"`
+	Pull            bool   `docopt:"pull"`
+	Clone           bool   `docopt:"clone"`
+	Upgrade         bool   `docopt:"upgrade"`
+	ContestRootPath string
+}
+
+func parseArgs(args interface{}, required ParseRequirement) (ParsedArgs, error) {
+	opts, ok := args.(docopt.Opts)
+	result := ParsedArgs{}
+	if !ok {
+		return result, errors.New("args must be docopt.Opts type")
 	}
+	opts.Bind(&result)
+	contestID, problemID, lastDir := "", "", ""
 	path, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return result, err
 	}
+	result.ContestRootPath = path
 	for {
 		c := filepath.Base(path)
 		if _, err := strconv.Atoi(c); err == nil {
-			return c, nil
+			contestID, problemID = c, strings.ToLower(lastDir)
+			if result.ContestID == "" {
+				result.ContestRootPath = filepath.Dir(path)
+			}
+			break
 		}
 		if filepath.Dir(path) == path {
 			break
 		}
-		path = filepath.Dir(path)
+		path, lastDir = filepath.Dir(path), c
 	}
-	return "", errors.New("Cannot find any valid contest id")
+	if result.ProblemID != "" {
+		problemID = strings.ToLower(result.ProblemID)
+	}
+	if util.IsUrl(result.ContestID) {
+		parsed, err := parseUrl(result.ContestID)
+		if err != nil {
+			return result, err
+		}
+		if value, ok := parsed["contestID"]; ok {
+			contestID = value
+		}
+		if value, ok := parsed["problemID"]; ok {
+			problemID = strings.ToLower(value)
+		}
+	} else if _, err := strconv.Atoi(result.ContestID); err == nil {
+		contestID = result.ContestID
+	}
+	result.ContestID = contestID
+	result.ProblemID = problemID
+	if required.ContestID && contestID == "" {
+		return result, errors.New("Unable to find <contest-id>")
+	}
+	if required.ProblemID && problemID == "" {
+		return result, errors.New("Unable to find <problem-id>")
+	}
+	if required.SubmissionID && result.SubmissionID == "" {
+		return result, errors.New("Unable to find <submission-id>")
+	}
+	if required.Alias && result.Alias == "" {
+		return result, errors.New("Unable to find <alias>")
+	}
+	if required.Filename && result.Filename == "" {
+		return result, errors.New("Unable to find <filename>")
+	}
+
+	return result, nil
 }
 
-func getProblemID(args map[string]interface{}) (string, error) {
-	if p, ok := args["<problem-id>"].(string); ok {
-		return strings.ToLower(p), nil
+func parseUrl(url string) (map[string]string, error) {
+	reg := regexp.MustCompile(`/(?P<type>problemset|gym|contest|group)`)
+	url_type := ""
+	for i, val := range reg.FindStringSubmatch(url) {
+		if reg.SubexpNames()[i] == "type" {
+			url_type = val
+			break
+		}
 	}
-	path, err := os.Getwd()
-	if err != nil {
-		return "", err
+
+	reg_str := ""
+	switch url_type {
+	case "contest":
+		reg_str = `/contest/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
+	case "gym":
+		reg_str = `/gym/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
+	case "problemset":
+		reg_str = `/problemset/problem/(?P<contestID>\d+)/(?P<problemID>[\w\d]+)?`
+	case "group":
+		return nil, errors.New("Groups are not supported")
+	default:
+		return nil, errors.New("Invalid url")
 	}
-	return strings.ToLower(filepath.Base(path)), nil
+
+	output := make(map[string]string)
+	reg = regexp.MustCompile(reg_str)
+	names := reg.SubexpNames()
+	for i, val := range reg.FindStringSubmatch(url) {
+		if names[i] != "" && val != "" {
+			output[names[i]] = val
+		}
+	}
+	output["type"] = url_type
+	return output, nil
 }
 
 func getSampleID() (samples []string) {
@@ -115,7 +215,7 @@ type CodeList struct {
 	Index []int
 }
 
-func getCode(args map[string]interface{}, templates []config.CodeTemplate) (codes []CodeList) {
+func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList) {
 	mp := make(map[string][]int)
 	for i, temp := range templates {
 		suffixMap := map[string]bool{}
@@ -128,7 +228,7 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 		}
 	}
 
-	if filename, ok := args["<filename>"].(string); ok {
+	if filename != "" {
 		ext := filepath.Ext(filename)
 		if idx, ok := mp[ext]; ok {
 			return []CodeList{CodeList{filename, idx}}
@@ -156,8 +256,8 @@ func getCode(args map[string]interface{}, templates []config.CodeTemplate) (code
 	return codes
 }
 
-func getOneCode(args map[string]interface{}, templates []config.CodeTemplate) (name string, index int, err error) {
-	codes := getCode(args, templates)
+func getOneCode(filename string, templates []config.CodeTemplate) (name string, index int, err error) {
+	codes := getCode(filename, templates)
 	if len(codes) < 1 {
 		return "", 0, errors.New("Cannot find any code.\nMaybe you should add a new template by `cf config`")
 	}

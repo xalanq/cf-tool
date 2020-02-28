@@ -26,12 +26,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:abaaa7489a2f0f3afb2adc8ea1a282a5bd52350b87b26da220c94fc778d6d63b"
+  branch = "master"
+  digest = "1:289fa52f4d9e9c817a003324bc14e9339b996dbe02b9f6cfc57a9383e5365287"
   name = "github.com/docopt/docopt-go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "784ddc588536785e7299f7272f39101f7faccc3f"
-  version = "0.6.2"
+  revision = "ee0de3bc6815ee19d4a46c7eb90f829db0e014b1"
 
 [[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"

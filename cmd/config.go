@@ -9,7 +9,7 @@ import (
 )
 
 // Config command
-func Config(args map[string]interface{}) error {
+func Config() error {
 	cfg := config.Instance
 	cln := client.Instance
 	color.Cyan("Configure the tool")

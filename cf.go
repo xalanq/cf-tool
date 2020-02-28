@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -28,17 +29,17 @@ If you want to compete, the best command is "cf race 1111" where "1111" is the c
 
 Usage:
   cf config
-  cf submit [(<contest-id> <problem-id>)] [<filename>]
-  cf list [<contest-id>]
-  cf parse [<contest-id>] [<problem-id>]
+  cf submit [<url|contest-id>] [<problem-id>] [<filename>]
+  cf list [<url|contest-id>]
+  cf parse [<url|contest-id>] [<problem-id>]
   cf gen [<alias>]
   cf test [<filename>]
-  cf watch [all] [<contest-id>] [<problem-id>]
-  cf open [<contest-id>] [<problem-id>]
-  cf stand [<contest-id>]
-  cf sid [<submission-id>] [<contest-id>]
-  cf race <contest-id>
-  cf pull [ac] [<contest-id>] [<problem-id>]
+  cf watch [all] [<url|contest-id>] [<problem-id>]
+  cf open [<url|contest-id>] [<problem-id>]
+  cf stand [<url|contest-id>]
+  cf sid [<submission-id>] [<url|contest-id>]
+  cf race [<url|contest-id>]
+  cf pull [ac] [<url|contest-id>] [<problem-id>]
   cf clone [ac] <handle>
   cf upgrade
 
@@ -47,7 +48,8 @@ Examples:
   cf submit            If current path is "<contest-id>/<problem-id>", cf will find the
                        code which can be submitted. Then submit to <contest-id> <problem-id>.
   cf submit a.cpp
-  cf submit 100 a
+  cf submit https://codeforces.com/contest/100 a
+  cf submit https://codeforces.com/problemset/problem/100/A a.cpp
   cf submit 100 a a.cpp
   cf list              List all problems' stats of a contest.
   cf list 1119
@@ -77,8 +79,8 @@ Examples:
 
 Notes:
   <problem-id>         "a" or "A", case-insensitive.
-  <contest-id>         A number. You can find it in codeforces contest url. E.g. "1119" in
-                       "https://codeforces.com/contest/1119".
+  <url|contest-id>     An url or a number. The url may contain additional information,
+                       such as <problem-id>. E. g. "https://codeforces.com/contest/1116" or "1116."
   <alias>              Template's alias.
 
 File:
@@ -121,8 +123,7 @@ Options:
   -h --help
   --version`
 	usage = strings.Replace(usage, `$%version%$`, version, 1)
-
-	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("Codeforces Tool (cf) %v", version), false)
+	args, _ := docopt.ParseArgs(usage, os.Args[1:], fmt.Sprintf("Codeforces Tool (cf) %v", version))
 	args[`{version}`] = version
 	color.Output = ansi.NewAnsiStdout()
 	configPath, _ = homedir.Expand(configPath)

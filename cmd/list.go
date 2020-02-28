@@ -14,11 +14,12 @@ import (
 )
 
 // List command
-func List(args map[string]interface{}) error {
-	contestID, err := getContestID(args)
+func List(args interface{}) error {
+	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
 	if err != nil {
 		return err
 	}
+	contestID := parsedArgs.ContestID
 	cfg := config.Instance
 	cln := client.Instance
 	problems, err := cln.StatisContest(contestID)

@@ -8,15 +8,16 @@ import (
 )
 
 // Clone command
-func Clone(args map[string]interface{}) error {
+func Clone(args interface{}) error {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 	cfg := config.Instance
 	cln := client.Instance
-	ac := args["ac"].(bool)
-	handle := args["<handle>"].(string)
+	parsedArgs, _ := parseArgs(args, ParseRequirement{})
+	ac := parsedArgs.Accepted
+	handle := parsedArgs.Handle
 
 	if err = cln.Clone(handle, currentPath, ac); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {

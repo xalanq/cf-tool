@@ -1,48 +1,25 @@
 package cmd
 
 import (
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 
 // Pull command
-func Pull(args map[string]interface{}) error {
-	currentPath, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+func Pull(args interface{}) error {
 	cfg := config.Instance
 	cln := client.Instance
-	ac := args["ac"].(bool)
+	var err error
 	work := func() error {
-		contestID := ""
-		problemID := ""
-		path := currentPath
-		var ok bool
-		if contestID, ok = args["<contest-id>"].(string); ok {
-			if problemID, ok = args["<problem-id>"].(string); !ok {
-				return cln.PullContest(contestID, "", filepath.Join(currentPath, contestID), ac)
-			}
-			problemID = strings.ToLower(problemID)
-			path = filepath.Join(currentPath, contestID, problemID)
-		} else {
-			contestID, err = getContestID(args)
-			if err != nil {
-				return err
-			}
-			problemID, err = getProblemID(args)
-			if err != nil {
-				return err
-			}
-			if problemID == contestID {
-				return cln.PullContest(contestID, "", currentPath, ac)
-			}
+		parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
+		if err != nil {
+			return err
 		}
-		return cln.PullContest(contestID, problemID, path, ac)
+		contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
+		path := filepath.Join(parsedArgs.ContestRootPath, contestID, problemID)
+		return cln.PullContest(contestID, problemID, path, parsedArgs.Accepted)
 	}
 	if err = work(); err != nil {
 		if err = loginAgain(cfg, cln, err); err == nil {
