@@ -25,7 +25,7 @@ It's fast, small, cross-platform and powerful.
 * Generate codes from the specified template (including timestamp, author, etc.)
 * List problems' stats of one contest.
 * Use default web browser to open problems' pages, standings' page, etc.
-* Setup a network proxy.
+* Setup a network proxy. Setup a mirror host.
 * Colorful CLI.
 
 Pull requests are always welcome.
