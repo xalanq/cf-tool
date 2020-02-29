@@ -16,16 +16,11 @@ import (
 	"github.com/xalanq/cf-tool/util"
 )
 
-// Eval args
-func Eval(args docopt.Opts) error {
-	Args = &ParsedArgs{Args: &args}
-	args.Bind(Args)
-	if file, ok := args["--file"].(string); ok {
-		Args.File = file
-	} else if file, ok := args["<file>"].(string); ok {
-		Args.File = file
-	}
-	if err := parseArgs(); err != nil {
+// Eval opts
+func Eval(opts docopt.Opts) error {
+	Args = &ParsedArgs{}
+	opts.Bind(Args)
+	if err := parseArgs(opts); err != nil {
 		return err
 	}
 	if Args.Config {

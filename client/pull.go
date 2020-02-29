@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"html"
@@ -26,17 +25,19 @@ func findCode(body []byte) (string, error) {
 }
 
 func findMessage(body []byte) (string, error) {
-	reg := regexp.MustCompile(`Codeforces.showMessage\("([\s\S]*?)"\)`)
-	tmp := reg.FindAllSubmatch(body, -1)
+	reg := regexp.MustCompile(`Codeforces.showMessage\("([^"]*)"\);\s*?Codeforces\.reformatTimes\(\);`)
+	tmp := reg.FindSubmatch(body)
 	if tmp != nil {
-		for _, s := range tmp {
-			if !bytes.Contains(s[1], []byte("The source code has been copied into the clipboard")) {
-				return string(s[1]), nil
-			}
-		}
+		return string(tmp[1]), nil
 	}
 	return "", errors.New("Cannot find any message")
 }
+
+// ErrorSkip error
+const ErrorSkip = "Exists, skip"
+
+// ErrorTooManyRequest error
+const ErrorTooManyRequest = "Too many requests"
 
 // PullCode pull problem's code to path
 func (c *Client) PullCode(URL, path, ext string, rename bool) (filename string, err error) {
@@ -49,7 +50,7 @@ func (c *Client) PullCode(URL, path, ext string, rename bool) (filename string, 
 			i++
 		}
 	} else if _, err := os.Stat(filename); err == nil {
-		return "", fmt.Errorf("Exists, skip")
+		return "", errors.New(ErrorSkip)
 	}
 
 	body, err := util.GetBody(c.client, URL)
@@ -59,7 +60,7 @@ func (c *Client) PullCode(URL, path, ext string, rename bool) (filename string, 
 
 	message, err := findMessage(body)
 	if err == nil {
-		return "", fmt.Errorf("%v", message)
+		return "", errors.New(message)
 	}
 
 	code, err := findCode(body)

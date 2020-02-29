@@ -7,10 +7,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/docopt/docopt-go"
 	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
-
-	"github.com/docopt/docopt-go"
 )
 
 // ParsedArgs parsed arguments
@@ -37,16 +36,25 @@ type ParsedArgs struct {
 	Pull      bool     `docopt:"pull"`
 	Clone     bool     `docopt:"clone"`
 	Upgrade   bool     `docopt:"upgrade"`
-	Args      *docopt.Opts
 }
 
 // Args global variable
 var Args *ParsedArgs
 
-func parseArgs() error {
+func parseArgs(opts docopt.Opts) error {
+	cfg := config.Instance
+	cln := client.Instance
 	path, err := os.Getwd()
 	if err != nil {
 		return err
+	}
+	if file, ok := opts["--file"].(string); ok {
+		Args.File = file
+	} else if file, ok := opts["<file>"].(string); ok {
+		Args.File = file
+	}
+	if Args.Handle == "" {
+		Args.Handle = cln.Handle
 	}
 	info := client.Info{}
 	for _, arg := range Args.Specifier {
@@ -108,7 +116,6 @@ func parseArgs() error {
 	if info.ProblemType == "acmsguru" && info.ContestID == "" {
 		info.ContestID = "99999"
 	}
-	cfg := config.Instance
 	root := cfg.FolderName["root"]
 	info.RootPath = filepath.Join(path, root)
 	for {

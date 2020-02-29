@@ -83,14 +83,16 @@ func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
 					color.Green(fmt.Sprintf(`%v/%v Saved %v`, count, total, filename))
 					mu.Unlock()
 				} else {
-					if handle == c.Handle {
-						err = fmt.Errorf("Too many requests")
-					}
-					if err.Error() == "Too many requests" {
+					if err.Error() == ErrorSkip {
+						mu.Lock()
+						count++
+						color.Yellow(fmt.Sprintf(`%v/%v Exist %v: Skip.`, count, total, s.url))
+						mu.Unlock()
+					} else if err.Error() == ErrorTooManyRequest {
 						mu.Lock()
 						count++
 						const WAIT int = 500
-						color.Red(fmt.Sprintf(`%v/%v Error in %v: %v. Waiting for %v seconds to continue.`,
+						color.Red(fmt.Sprintf(`%v/%v Error %v: %v. Waiting for %v seconds to continue.`,
 							count, total, s.url, err.Error(), WAIT))
 						mu.Unlock()
 						time.Sleep(time.Duration(WAIT) * time.Second)
@@ -101,7 +103,7 @@ func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
 					} else {
 						mu.Lock()
 						count++
-						color.Red(fmt.Sprintf(`%v/%v Error in %v: %v`, count, total, s.url, err.Error()))
+						color.Red(fmt.Sprintf(`%v/%v Error %v: %v`, count, total, s.url, err.Error()))
 						mu.Unlock()
 					}
 				}
@@ -120,7 +122,7 @@ func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
 			verdict := submission["verdict"].(string)
 			lang := submission["programmingLanguage"].(string)
 			contestID := ""
-			if v, ok := submission["contestID"].(float64); ok {
+			if v, ok := submission["contestId"].(float64); ok {
 				contestID = fmt.Sprintf("%v", int64(v))
 			} else {
 				contestID = "99999"

@@ -127,6 +127,12 @@ func DebugSave(data interface{}) {
 	}
 }
 
+// DebugJSON debug
+func DebugJSON(data interface{}) {
+	text, _ := json.MarshalIndent(data, "", "  ")
+	fmt.Println(string(text))
+}
+
 // IsURL returns true if a given string is an url
 func IsURL(str string) bool {
 	if _, err := url.ParseRequestURI(str); err == nil {

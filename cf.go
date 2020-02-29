@@ -41,7 +41,7 @@ Usage:
   cf sid [<specifier>...]
   cf race [<specifier>...]
   cf pull [ac] [<specifier>...]
-  cf clone [ac] [<specifier>...]
+  cf clone [ac] [<handle>]
   cf upgrade
 
 Options:
@@ -146,15 +146,15 @@ Script in template:
 	color.Output = ansi.NewAnsiStdout()
 
 	usage = strings.Replace(usage, `$%version%$`, version, 1)
-	args, _ := docopt.ParseArgs(usage, os.Args[1:], fmt.Sprintf("Codeforces Tool (cf) %v", version))
-	args[`{version}`] = version
+	opts, _ := docopt.ParseArgs(usage, os.Args[1:], fmt.Sprintf("Codeforces Tool (cf) %v", version))
+	opts[`{version}`] = version
 
 	cfgPath, _ := homedir.Expand(configPath)
 	clnPath, _ := homedir.Expand(sessionPath)
 	config.Init(cfgPath)
 	client.Init(clnPath, config.Instance.Host, config.Instance.Proxy)
 
-	err := cmd.Eval(args)
+	err := cmd.Eval(opts)
 	if err != nil {
 		color.Red(err.Error())
 	}

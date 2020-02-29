@@ -20,8 +20,8 @@ func Config() (err error) {
 	ansi.Println(`4) run "cf gen" after "cf parse"`)
 	ansi.Println(`5) set host domain`)
 	ansi.Println(`6) set proxy`)
-	ansi.Println(`7) set folder name`)
-	index := util.ChooseIndex(7)
+	ansi.Println(`7) set folders' name`)
+	index := util.ChooseIndex(8)
 	if index == 0 {
 		return cln.ConfigLogin()
 	} else if index == 1 {
