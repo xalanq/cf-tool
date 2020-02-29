@@ -15,73 +15,96 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v0.9.0"
-
-var configPath = "~/.cf/config"
-var sessionPath = "~/.cf/session"
+const version = "v1.0.0"
+const configPath = "~/.cf/config"
+const sessionPath = "~/.cf/session"
 
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
-You should run "cf config" to configure your handle, password and the code template at first.
+You should run "cf config" to configure your handle, password and the code
+template at first.
 
-If you want to compete, the best command is "cf race 1111" where "1111" is the contest id.
+If you want to compete, the best command is "cf race 1111" where "1111" is
+the contest id.
 
 Usage:
   cf config
-  cf submit [<url|contest-id>] [<problem-id>] [<filename>]
-  cf list [<url|contest-id>]
-  cf parse [<url|contest-id>] [<problem-id>]
+  cf submit [-f <file>] [<specifier>...]
+  cf list [<specifier>...]
+  cf parse [<specifier>...]
   cf gen [<alias>]
-  cf test [<filename>]
-  cf watch [all] [<url|contest-id>] [<problem-id>]
-  cf open [<url|contest-id>] [<problem-id>]
-  cf stand [<url|contest-id>]
-  cf sid [<submission-id>] [<url|contest-id>]
-  cf race [<url|contest-id>]
-  cf pull [ac] [<url|contest-id>] [<problem-id>]
-  cf clone [ac] <handle>
+  cf test [<file>]
+  cf watch [all] [<specifier>...]
+  cf open [<specifier>...]
+  cf stand [<specifier>...]
+  cf sid [<specifier>...]
+  cf race [<specifier>...]
+  cf pull [ac] [<specifier>...]
+  cf clone [ac] [<specifier>...]
   cf upgrade
+
+Options:
+  -h --help            Show this screen.
+  --version            Show version.
+  -f <file>, --file <file>, <file>
+                       Path to file. E.g. "a.cpp", "./temp/a.cpp"
+  <specifier>          Any useful format. E.g.
+                       "https://codeforces.com/contest/100",
+                       "https://codeforces.com/contest/180/problem/A",
+                       "https://codeforces.com/group/Cw4JRyRGXR/contest/269760"
+                       "1111A", "1111", "a", "Cw4JRyRGXR"
+                       You can combine multiple specifiers to specify what you
+                       want.
+  <alias>              Template's alias. E.g. "cpp"
+  ac                   The status of the submission is Accepted.
 
 Examples:
   cf config            Configure the cf-tool.
-  cf submit            If current path is "<contest-id>/<problem-id>", cf will find the
-                       code which can be submitted. Then submit to <contest-id> <problem-id>.
-  cf submit a.cpp
+  cf submit            If current path is "<contest-id>/<problem-id>", cf will
+                       find the code which can be submitted. Then submit to
+                       <contest-id> <problem-id>.
+  cf submit -f a.cpp
   cf submit https://codeforces.com/contest/100 a
-  cf submit https://codeforces.com/problemset/problem/100/A a.cpp
-  cf submit 100 a a.cpp
+  cf submit -f a.cpp https://codeforces.com/problemset/problem/100/A 
+  cf submit -f a.cpp 100 a
   cf list              List all problems' stats of a contest.
   cf list 1119
-  cf parse 100         Fetch all problems' samples of contest 100 into "./100/<problem-id>".
-  cf parse 100 a       Fetch samples of problem "a" of contest 100 into "./100/a".
+  cf parse 100         Fetch all problems' samples of contest 100 into
+                       "./100/<problem-id>".
+  cf parse 100 a       Fetch samples of problem "a" of contest 100 into
+                       "./100/a".
   cf parse             Fetch samples of current problem into current path.
   cf gen               Generate a code from default template.
-  cf gen cpp           Generate a code from the template whose alias is "cpp" into current path.
-  cf test              Run the commands of a template in current path. Then test all samples.
-                       If you want to add a new testcase, create two files "inK.txt" and "ansK.txt"
-                       where K is a string with 0~9.
+  cf gen cpp           Generate a code from the template whose alias is "cpp"
+                       into current path.
+  cf test              Run the commands of a template in current path. Then
+                       test all samples. If you want to add a new testcase,
+                       create two files "inK.txt" and "ansK.txt" where K is
+                       a string with 0~9.
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
-  cf open 1136 a       Use default web browser to open the page of contest 1136, problem a.
-  cf open 1136         Use default web browser to open the page of contest 1136.
+  cf open 1136 a       Use default web browser to open the page of contest
+                       1136, problem a.
+  cf open 1136         Use default web browser to open the page of contest
+                       1136.
   cf stand             Use default web browser to open the standing page.
-  cf sid 52531875      Use default web browser to open the submission 52531875's page.
+  cf sid 52531875      Use default web browser to open the submission
+                       52531875's page.
   cf sid               Open the last submission's page.
-  cf race 1136         If the contest 1136 has not started yet, it will countdown. When the
-                       countdown ends, it will open all problems' pages and parse samples.
-  cf pull 100          Pull all problems' latest codes of contest 100 into "./100/<problem-id>".
-  cf pull 100 a        Pull the latest code of problem "a" of contest 100 into "./100/<problem-id>".
-  cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem "a" of contest 100.
-  cf pull              Pull the latest code of current problem into current path.
+  cf race 1136         If the contest 1136 has not started yet, it will
+                       countdown. When the countdown ends, it will open all
+                       problems' pages and parse samples.
+  cf pull 100          Pull all problems' latest codes of contest 100 into
+                       "./100/<problem-id>".
+  cf pull 100 a        Pull the latest code of problem "a" of contest 100 into
+                       "./100/<problem-id>".
+  cf pull ac 100 a     Pull the "Accepted" or "Pretests passed" code of problem
+                       "a" of contest 100.
+  cf pull              Pull the latest codes of current problem into current
+                       path.
   cf clone xalanq      Clone all codes of xalanq.
   cf upgrade           Upgrade the "cf" to the latest version from GitHub.
-
-Notes:
-  <problem-id>         "a" or "A", case-insensitive.
-  <url|contest-id>     An url or a number. The url may contain additional information,
-                       such as <problem-id>. E. g. "https://codeforces.com/contest/1116" or "1116."
-  <alias>              Template's alias.
 
 File:
   cf will save some data in some files:
@@ -92,8 +115,8 @@ File:
   "~" is the home directory of current user in your system.
 
 Template:
-  You can insert some placeholders into your template code. When generate a code from the
-  template, cf will replace all placeholders by following rules:
+  You can insert some placeholders into your template code. When generate a code
+  from the template, cf will replace all placeholders by following rules:
 
   $%U%$   Handle (e.g. xalanq)
   $%Y%$   Year   (e.g. 2019)
@@ -108,8 +131,10 @@ Script in template:
     - before_script   (execute once)
     - script          (execute the number of samples times)
     - after_script    (execute once)
-  You could set "before_script" or "after_script" to empty string, meaning not executing.
-  You have to run your program in "script" with standard input/output (no need to redirect).
+  You could set "before_script" or "after_script" to empty string, meaning
+  not executing.
+  You have to run your program in "script" with standard input/output (no
+  need to redirect).
 
   You can insert some placeholders in your scripts. When execute a script,
   cf will replace all placeholders by following rules:
@@ -117,19 +142,18 @@ Script in template:
   $%path%$   Path to source file (Excluding $%full%$, e.g. "/home/xalanq/")
   $%full%$   Full name of source file (e.g. "a.cpp")
   $%file%$   Name of source file (Excluding suffix, e.g. "a")
-  $%rand%$   Random string with 8 character (including "a-z" "0-9")
+  $%rand%$   Random string with 8 character (including "a-z" "0-9")`
+	color.Output = ansi.NewAnsiStdout()
 
-Options:
-  -h --help
-  --version`
 	usage = strings.Replace(usage, `$%version%$`, version, 1)
 	args, _ := docopt.ParseArgs(usage, os.Args[1:], fmt.Sprintf("Codeforces Tool (cf) %v", version))
 	args[`{version}`] = version
-	color.Output = ansi.NewAnsiStdout()
-	configPath, _ = homedir.Expand(configPath)
-	sessionPath, _ = homedir.Expand(sessionPath)
-	config.Init(configPath)
-	client.Init(sessionPath, config.Instance.Host, config.Instance.Proxy)
+
+	cfgPath, _ := homedir.Expand(configPath)
+	clnPath, _ := homedir.Expand(sessionPath)
+	config.Init(cfgPath)
+	client.Init(clnPath, config.Instance.Host, config.Instance.Proxy)
+
 	err := cmd.Eval(args)
 	if err != nil {
 		color.Red(err.Error())

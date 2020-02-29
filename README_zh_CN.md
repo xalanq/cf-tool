@@ -16,7 +16,7 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 ## 特点
 
 * 支持 Codeforces 中的所有编程语言
-* 支持 contests 和 gym
+* 支持 contests、gym 和 groups
 * 提交代码
 * 动态刷新提交后的情况
 * 拉取问题的样例

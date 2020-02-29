@@ -186,15 +186,16 @@ func upgrade(url, exePath string, size uint) (err error) {
 }
 
 // Upgrade itself
-func Upgrade(version string) error {
+func Upgrade() (err error) {
 	color.Cyan("Checking version")
 	latest, note, ptime, url, size, err := getLatest()
 	if err != nil {
-		return err
+		return
 	}
+	version := Args.Version
 	if !less(version, latest) {
 		color.Green("Current version %v is the latest", version)
-		return nil
+		return
 	}
 
 	color.Red("Current version is %v", version)
@@ -202,22 +203,22 @@ func Upgrade(version string) error {
 	fmt.Println(note)
 
 	if !util.YesOrNo("Do you want to upgrade (y/n)? ") {
-		return nil
+		return
 	}
 
 	exePath, err := os.Executable()
 	if err != nil {
-		return err
+		return
 	}
 
 	if exePath, err = filepath.EvalSymlinks(exePath); err != nil {
-		return err
+		return
 	}
 
 	if err = upgrade(url, exePath, size); err != nil {
-		return err
+		return
 	}
 
 	color.Green("Successfully updated to version %v", latest)
-	return nil
+	return
 }

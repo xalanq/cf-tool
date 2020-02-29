@@ -1,30 +1,24 @@
 package cmd
 
 import (
-	"path/filepath"
+	"os"
 
 	"github.com/xalanq/cf-tool/client"
-	"github.com/xalanq/cf-tool/config"
 )
 
 // Pull command
-func Pull(args interface{}) error {
-	cfg := config.Instance
+func Pull() (err error) {
 	cln := client.Instance
-	var err error
-	work := func() error {
-		parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
-		if err != nil {
-			return err
-		}
-		contestID, problemID := parsedArgs.ContestID, parsedArgs.ProblemID
-		path := filepath.Join(parsedArgs.ContestRootPath, contestID, problemID)
-		return cln.PullContest(contestID, problemID, path, parsedArgs.Accepted)
+	info := Args.Info
+	ac := Args.Accepted
+	rootPath, err := os.Getwd()
+	if err != nil {
+		return
 	}
-	if err = work(); err != nil {
-		if err = loginAgain(cfg, cln, err); err == nil {
-			err = work()
+	if err = cln.Pull(info, rootPath, ac); err != nil {
+		if err = loginAgain(cln, err); err == nil {
+			err = cln.Pull(info, rootPath, ac)
 		}
 	}
-	return err
+	return
 }

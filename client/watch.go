@@ -6,11 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/xalanq/cf-tool/util"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/fatih/color"
@@ -241,13 +242,8 @@ func parseSubmission(body []byte, cfOffset string) (ret Submission, err error) {
 	}, nil
 }
 
-func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, err error) {
-	resp, err := c.client.Get(myURL)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+func (c *Client) getSubmissions(URL string, n int) (submissions []Submission, err error) {
+	body, err := util.GetBody(c.client, URL)
 	if err != nil {
 		return
 	}
@@ -280,8 +276,12 @@ func (c *Client) getSubmissions(myURL string, n int) (submissions []Submission, 
 }
 
 // WatchSubmission n is the number of submissions
-func (c *Client) WatchSubmission(contestID, problemID string, n int, line bool) (submissions []Submission, err error) {
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/my", contestID), contestID)
+func (c *Client) WatchSubmission(info Info, n int, line bool) (submissions []Submission, err error) {
+	URL, err := info.MySubmissionURL(c.host)
+	if err != nil {
+		return
+	}
+
 	maxWidth := 0
 	first := true
 	for {
@@ -290,7 +290,7 @@ func (c *Client) WatchSubmission(contestID, problemID string, n int, line bool) 
 		if err != nil {
 			return
 		}
-		display(submissions, problemID, first, &maxWidth, line)
+		display(submissions, info.ProblemID, first, &maxWidth, line)
 		first = false
 		endCount := 0
 		for _, submission := range submissions {

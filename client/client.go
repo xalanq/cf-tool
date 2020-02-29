@@ -14,13 +14,13 @@ import (
 
 // Client codeforces client
 type Client struct {
-	Jar            *cookiejar.Jar  `json:"cookies"`
-	Handle         string          `json:"handle"`
-	HandleOrEmail  string          `json:"handle_or_email"`
-	Password       string          `json:"password"`
-	Ftaa           string          `json:"ftaa"`
-	Bfaa           string          `json:"bfaa"`
-	LastSubmission *SaveSubmission `json:"last_submission"`
+	Jar            *cookiejar.Jar `json:"cookies"`
+	Handle         string         `json:"handle"`
+	HandleOrEmail  string         `json:"handle_or_email"`
+	Password       string         `json:"password"`
+	Ftaa           string         `json:"ftaa"`
+	Bfaa           string         `json:"bfaa"`
+	LastSubmission *Info          `json:"last_submission"`
 	host           string
 	proxy          string
 	path           string

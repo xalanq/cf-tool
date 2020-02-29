@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/xalanq/cf-tool/util"
 
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
@@ -26,16 +27,20 @@ func findCountdown(body []byte) (int, error) {
 }
 
 // RaceContest wait for contest starting
-func (c *Client) RaceContest(contestID string) (err error) {
-	color.Cyan(ToGym("Race for contest %v\n", contestID), contestID)
+func (c *Client) RaceContest(info Info) (err error) {
+	color.Cyan("Race " + info.Hint())
 
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/countdown", contestID), contestID)
-	resp, err := c.client.Get(URL)
+	URL, err := info.ProblemSetURL(c.host)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	if info.ProblemType == "acmsguru" {
+		return errors.New(ErrorNotSupportAcmsguru)
+	}
+
+	URL = URL + "/countdown"
+
+	body, err := util.GetBody(c.client, URL)
 	if err != nil {
 		return
 	}

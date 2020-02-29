@@ -10,26 +10,20 @@ import (
 	ansi "github.com/k0kubun/go-ansi"
 	"github.com/olekukonko/tablewriter"
 	"github.com/xalanq/cf-tool/client"
-	"github.com/xalanq/cf-tool/config"
 )
 
 // List command
-func List(args interface{}) error {
-	parsedArgs, err := parseArgs(args, ParseRequirement{ContestID: true})
-	if err != nil {
-		return err
-	}
-	contestID := parsedArgs.ContestID
-	cfg := config.Instance
+func List() (err error) {
 	cln := client.Instance
-	problems, err := cln.StatisContest(contestID)
+	info := Args.Info
+	problems, err := cln.Statis(info)
 	if err != nil {
-		if err = loginAgain(cfg, cln, err); err == nil {
-			problems, err = cln.StatisContest(contestID)
+		if err = loginAgain(cln, err); err == nil {
+			problems, err = cln.Statis(info)
 		}
 	}
 	if err != nil {
-		return err
+		return
 	}
 	var buf bytes.Buffer
 	output := io.Writer(&buf)
@@ -62,6 +56,5 @@ func List(args interface{}) error {
 		}
 		ansi.Println(line)
 	}
-
-	return nil
+	return
 }

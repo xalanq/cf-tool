@@ -4,18 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"regexp"
 
+	"github.com/xalanq/cf-tool/util"
+
 	"github.com/fatih/color"
 )
-
-// SaveSubmission save it in session
-type SaveSubmission struct {
-	ContestID    string `json:"contest_id"`
-	SubmissionID string `json:"submission_id"`
-}
 
 func findErrorMessage(body []byte) ([]byte, error) {
 	reg := regexp.MustCompile(`error[a-zA-Z_\-\ ]*">(.*?)</span>`)
@@ -26,17 +21,16 @@ func findErrorMessage(body []byte) ([]byte, error) {
 	return tmp[1], nil
 }
 
-// SubmitContest submit problem in contest (and block util pending)
-func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err error) {
-	color.Cyan("Submit %v %v %v", contestID, problemID, Langs[langID])
+// Submit submit (block while pending)
+func (c *Client) Submit(info Info, langID, source string) (err error) {
+	color.Cyan("Submit " + info.Hint())
 
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/submit", contestID), contestID)
-	resp, err := c.client.Get(URL)
+	URL, err := info.SubmitURL(c.host)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+
+	body, err := util.GetBody(c.client, URL)
 	if err != nil {
 		return
 	}
@@ -53,12 +47,12 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
-	resp, err = c.client.PostForm(fmt.Sprintf("%v?csrf_token=%v", URL, csrf), url.Values{
+	body, err = util.PostBody(c.client, fmt.Sprintf("%v?csrf_token=%v", URL, csrf), url.Values{
 		"csrf_token":            {csrf},
 		"ftaa":                  {c.Ftaa},
 		"bfaa":                  {c.Bfaa},
 		"action":                {"submitSolutionFormSubmitted"},
-		"submittedProblemIndex": {problemID},
+		"submittedProblemIndex": {info.ProblemID},
 		"programTypeId":         {langID},
 		"source":                {source},
 		"tabSize":               {"4"},
@@ -69,11 +63,6 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 		return
 	}
 
-	defer resp.Body.Close()
-	body, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
 	errorMessage, err := findErrorMessage(body)
 	if err == nil {
 		return errors.New(string(errorMessage))
@@ -83,15 +72,13 @@ func (c *Client) SubmitContest(contestID, problemID, langID, source string) (err
 	}
 	color.Green("Submitted")
 
-	submissions, err := c.WatchSubmission(contestID, "", 1, true)
+	submissions, err := c.WatchSubmission(info, 1, true)
 	if err != nil {
 		return
 	}
 
+	info.SubmissionID = submissions[0].ParseID()
 	c.Handle = handle
-	c.LastSubmission = &SaveSubmission{
-		ContestID:    contestID,
-		SubmissionID: submissions[0].ParseID(),
-	}
+	c.LastSubmission = &info
 	return c.save()
 }

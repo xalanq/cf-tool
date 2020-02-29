@@ -11,18 +11,12 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/xalanq/cf-tool/util"
+
 	"github.com/k0kubun/go-ansi"
 
 	"github.com/fatih/color"
 )
-
-// ToGym if length of contestID >= 6, replace contest to gym
-func ToGym(URL, contestID string) string {
-	if len(contestID) >= 6 {
-		URL = strings.Replace(URL, "contest", "gym", -1)
-	}
-	return URL
-}
 
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	irg := regexp.MustCompile(`class="input"[\s\S]*?<pre>([\s\S]*?)</pre>`)
@@ -45,14 +39,9 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	return
 }
 
-// ParseProblem parse problem to path
-func (c *Client) ParseProblem(URL, path string) (samples int, standardIO bool, err error) {
-	resp, err := c.client.Get(URL)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+// ParseProblem parse problem to path. mu can be nil
+func (c *Client) ParseProblem(URL, path string, mu *sync.Mutex) (samples int, standardIO bool, err error) {
+	body, err := util.GetBody(c.client, URL)
 	if err != nil {
 		return
 	}
@@ -77,61 +66,89 @@ func (c *Client) ParseProblem(URL, path string) (samples int, standardIO bool, e
 		fileOut := filepath.Join(path, fmt.Sprintf("ans%v.txt", i+1))
 		e := ioutil.WriteFile(fileIn, input[i], 0644)
 		if e != nil {
+			if mu != nil {
+				mu.Lock()
+			}
 			color.Red(e.Error())
+			if mu != nil {
+				mu.Unlock()
+			}
 		}
 		e = ioutil.WriteFile(fileOut, output[i], 0644)
 		if e != nil {
+			if mu != nil {
+				mu.Lock()
+			}
 			color.Red(e.Error())
+			if mu != nil {
+				mu.Unlock()
+			}
 		}
 	}
 	return len(input), standardIO, nil
 }
 
-// ParseContestProblem parse contest problem
-func (c *Client) ParseContestProblem(contestID, problemID, path string) (samples int, standardIO bool, err error) {
-	err = os.MkdirAll(path, os.ModePerm)
-	if err != nil {
-		return
-	}
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/problem/%v", contestID, problemID), contestID)
-	samples, standardIO, err = c.ParseProblem(URL, path)
-	if err != nil {
-		return
-	}
-	return
-}
+// Parse parse
+func (c *Client) Parse(info Info) (problems []string, paths []string, err error) {
+	color.Cyan("Parse " + info.Hint())
 
-// ParseContest parse for contest
-func (c *Client) ParseContest(contestID, rootPath string) (problems []StatisInfo, err error) {
-	problems, err = c.StatisContest(contestID)
+	problemID := info.ProblemID
+	info.ProblemID = "%v"
+	urlFormatter, err := info.ProblemURL(c.host)
 	if err != nil {
 		return
 	}
+	if problemID == "" {
+		statics, err := c.Statis(info)
+		if err != nil {
+			return nil, nil, err
+		}
+		problems = make([]string, len(statics))
+		for i, problem := range statics {
+			problems[i] = problem.ID
+		}
+	} else {
+		problems = []string{problemID}
+	}
+	info.ProblemID = ""
+	contestPath := info.Path()
+	color.Green("The problem(s) will be saved to %v", contestPath)
+
 	wg := sync.WaitGroup{}
 	wg.Add(len(problems))
 	mu := sync.Mutex{}
-	for t := range problems {
-		problem := problems[t]
-		go func() {
+	paths = make([]string, len(problems))
+	for i, problemID := range problems {
+		paths[i] = filepath.Join(contestPath, strings.ToLower(problemID))
+		go func(problemID, path string) {
 			defer wg.Done()
 			mu.Lock()
-			fmt.Printf("Parsing %v %v\n", contestID, problem.ID)
+			fmt.Printf("Parsing %v\n", problemID)
 			mu.Unlock()
-			problemID := strings.ToLower(problem.ID)
-			path := filepath.Join(rootPath, problemID)
-			samples, standardIO, err := c.ParseContestProblem(contestID, problem.ID, path)
+
+			err = os.MkdirAll(path, os.ModePerm)
+			if err != nil {
+				return
+			}
+			URL := fmt.Sprintf(urlFormatter, problemID)
+
+			samples, standardIO, err := c.ParseProblem(URL, path, &mu)
+			if err != nil {
+				return
+			}
+
 			warns := ""
 			if !standardIO {
 				warns = color.YellowString("Non standard input output format.")
 			}
 			mu.Lock()
 			if err != nil {
-				color.Red("Failed %v %v. Error: %v", contestID, problem.ID, err.Error())
+				color.Red("Failed %v. Error: %v", problemID, err.Error())
 			} else {
-				ansi.Printf("%v %v\n", color.GreenString("Parsed %v %v with %v samples.", contestID, problemID, samples), warns)
+				ansi.Printf("%v %v\n", color.GreenString("Parsed %v with %v samples.", problemID, samples), warns)
 			}
 			mu.Unlock()
-		}()
+		}(problemID, paths[i])
 	}
 	wg.Wait()
 	return

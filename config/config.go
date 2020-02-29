@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
+	"github.com/xalanq/cf-tool/client"
 )
 
 // CodeTemplate config parse code template
@@ -22,11 +23,12 @@ type CodeTemplate struct {
 
 // Config load and save configuration
 type Config struct {
-	Template      []CodeTemplate `json:"template"`
-	Default       int            `json:"default"`
-	GenAfterParse bool           `json:"gen_after_parse"`
-	Host          string         `json:"host"`
-	Proxy         string         `json:"proxy"`
+	Template      []CodeTemplate    `json:"template"`
+	Default       int               `json:"default"`
+	GenAfterParse bool              `json:"gen_after_parse"`
+	Host          string            `json:"host"`
+	Proxy         string            `json:"proxy"`
+	FolderName    map[string]string `json:"folder_name"`
 	path          string
 }
 
@@ -42,6 +44,17 @@ func Init(path string) {
 	}
 	if c.Default < 0 || c.Default >= len(c.Template) {
 		c.Default = 0
+	}
+	if c.FolderName == nil {
+		c.FolderName = map[string]string{}
+	}
+	if _, ok := c.FolderName["root"]; !ok {
+		c.FolderName["root"] = "cf"
+	}
+	for _, problemType := range client.ProblemTypes {
+		if _, ok := c.FolderName[problemType]; !ok {
+			c.FolderName[problemType] = problemType
+		}
 	}
 	c.save()
 	Instance = c

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"regexp"
 	"syscall"
@@ -63,12 +62,7 @@ func (c *Client) Login() (err error) {
 
 	jar, _ := cookiejar.New(nil)
 	c.client.Jar = jar
-	resp, err := c.client.Get(c.host + "/enter")
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := util.GetBody(c.client, c.host+"/enter")
 	if err != nil {
 		return
 	}
@@ -81,7 +75,7 @@ func (c *Client) Login() (err error) {
 	ftaa := genFtaa()
 	bfaa := genBfaa()
 
-	resp, err = c.client.PostForm(c.host+"/enter", url.Values{
+	body, err = util.PostBody(c.client, c.host+"/enter", url.Values{
 		"csrf_token":    {csrf},
 		"action":        {"enter"},
 		"ftaa":          {ftaa},
@@ -94,11 +88,7 @@ func (c *Client) Login() (err error) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
-	body, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
+
 	handle, err := findHandle(body)
 	if err != nil {
 		return
@@ -109,7 +99,7 @@ func (c *Client) Login() (err error) {
 	c.Handle = handle
 	c.Jar = jar
 	color.Green("Succeed!!")
-	color.Green("Welcome %v", handle)
+	color.Green("Welcome %v~", handle)
 	return c.save()
 }
 

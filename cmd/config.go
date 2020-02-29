@@ -9,7 +9,7 @@ import (
 )
 
 // Config command
-func Config() error {
+func Config() (err error) {
 	cfg := config.Instance
 	cln := client.Instance
 	color.Cyan("Configure the tool")
@@ -20,6 +20,7 @@ func Config() error {
 	ansi.Println(`4) run "cf gen" after "cf parse"`)
 	ansi.Println(`5) set host domain`)
 	ansi.Println(`6) set proxy`)
+	ansi.Println(`7) set folder name`)
 	index := util.ChooseIndex(7)
 	if index == 0 {
 		return cln.ConfigLogin()
@@ -35,6 +36,8 @@ func Config() error {
 		return cfg.SetHost()
 	} else if index == 6 {
 		return cfg.SetProxy()
+	} else if index == 7 {
+		return cfg.SetFolderName()
 	}
-	return nil
+	return
 }

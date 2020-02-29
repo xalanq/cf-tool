@@ -3,13 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/docopt/docopt-go"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
-	"strings"
+
+	"github.com/docopt/docopt-go"
 
 	"github.com/fatih/color"
 	"github.com/xalanq/cf-tool/client"
@@ -19,170 +18,46 @@ import (
 
 // Eval args
 func Eval(args docopt.Opts) error {
-	parsed := ParsedArgs{}
-	args.Bind(&parsed)
-	if parsed.Config {
+	Args = &ParsedArgs{Args: &args}
+	args.Bind(Args)
+	if file, ok := args["--file"].(string); ok {
+		Args.File = file
+	} else if file, ok := args["<file>"].(string); ok {
+		Args.File = file
+	}
+	if err := parseArgs(); err != nil {
+		return err
+	}
+	if Args.Config {
 		return Config()
-	} else if parsed.Submit {
-		return Submit(args)
-	} else if parsed.List {
-		return List(args)
-	} else if parsed.Parse {
-		return Parse(args)
-	} else if parsed.Generate {
-		return Gen(args)
-	} else if parsed.Test {
-		return Test(args)
-	} else if parsed.Watch {
-		return Watch(args)
-	} else if parsed.Open {
-		return Open(args)
-	} else if parsed.Standings {
-		return Stand(args)
-	} else if parsed.Sid {
-		return Sid(args)
-	} else if parsed.Race {
-		return Race(args)
-	} else if parsed.Pull {
-		return Pull(args)
-	} else if parsed.Clone {
-		return Clone(args)
-	} else if parsed.Upgrade {
-		return Upgrade(parsed.Version)
+	} else if Args.Submit {
+		return Submit()
+	} else if Args.List {
+		return List()
+	} else if Args.Parse {
+		return Parse()
+	} else if Args.Gen {
+		return Gen()
+	} else if Args.Test {
+		return Test()
+	} else if Args.Watch {
+		return Watch()
+	} else if Args.Open {
+		return Open()
+	} else if Args.Stand {
+		return Stand()
+	} else if Args.Sid {
+		return Sid()
+	} else if Args.Race {
+		return Race()
+	} else if Args.Pull {
+		return Pull()
+	} else if Args.Clone {
+		return Clone()
+	} else if Args.Upgrade {
+		return Upgrade()
 	}
 	return nil
-}
-
-type ParseRequirement struct {
-	ContestID, ProblemID, SubmissionID, Filename, Alias, Username bool
-}
-
-type ParsedArgs struct {
-	ContestID       string `docopt:"<url | contest-id>"`
-	ProblemID       string `docopt:"<problem-id>"`
-	SubmissionID    string `docopt:"<submission-id>"`
-	Filename        string `docopt:"<filename>"`
-	Alias           string `docopt:"<alias>"`
-	Accepted        bool   `docopt:"ac"`
-	All             bool   `docopt:"all"`
-	Handle          string `docopt:"<handle>"`
-	Version         string `docopt:"{version}"`
-	Config          bool   `docopt:"config"`
-	Submit          bool   `docopt:"submit"`
-	List            bool   `docopt:"list"`
-	Parse           bool   `docopt:"parse"`
-	Generate        bool   `docopt:"gen"`
-	Test            bool   `docopt:"test"`
-	Watch           bool   `docopt:"watch"`
-	Open            bool   `docopt:"open"`
-	Standings       bool   `docopt:"stand"`
-	Sid             bool   `docopt:"sid"`
-	Race            bool   `docopt:"race"`
-	Pull            bool   `docopt:"pull"`
-	Clone           bool   `docopt:"clone"`
-	Upgrade         bool   `docopt:"upgrade"`
-	ContestRootPath string
-}
-
-func parseArgs(args interface{}, required ParseRequirement) (ParsedArgs, error) {
-	opts, ok := args.(docopt.Opts)
-	result := ParsedArgs{}
-	if !ok {
-		return result, errors.New("args must be docopt.Opts type")
-	}
-	opts.Bind(&result)
-	contestID, problemID, lastDir := "", "", ""
-	path, err := os.Getwd()
-	if err != nil {
-		return result, err
-	}
-	result.ContestRootPath = path
-	for {
-		c := filepath.Base(path)
-		if _, err := strconv.Atoi(c); err == nil {
-			contestID, problemID = c, strings.ToLower(lastDir)
-			if result.ContestID == "" {
-				result.ContestRootPath = filepath.Dir(path)
-			}
-			break
-		}
-		if filepath.Dir(path) == path {
-			break
-		}
-		path, lastDir = filepath.Dir(path), c
-	}
-	if result.ProblemID != "" {
-		problemID = strings.ToLower(result.ProblemID)
-	}
-	if util.IsUrl(result.ContestID) {
-		parsed, err := parseUrl(result.ContestID)
-		if err != nil {
-			return result, err
-		}
-		if value, ok := parsed["contestID"]; ok {
-			contestID = value
-		}
-		if value, ok := parsed["problemID"]; ok {
-			problemID = strings.ToLower(value)
-		}
-	} else if _, err := strconv.Atoi(result.ContestID); err == nil {
-		contestID = result.ContestID
-	}
-	result.ContestID = contestID
-	result.ProblemID = problemID
-	if required.ContestID && contestID == "" {
-		return result, errors.New("Unable to find <contest-id>")
-	}
-	if required.ProblemID && problemID == "" {
-		return result, errors.New("Unable to find <problem-id>")
-	}
-	if required.SubmissionID && result.SubmissionID == "" {
-		return result, errors.New("Unable to find <submission-id>")
-	}
-	if required.Alias && result.Alias == "" {
-		return result, errors.New("Unable to find <alias>")
-	}
-	if required.Filename && result.Filename == "" {
-		return result, errors.New("Unable to find <filename>")
-	}
-
-	return result, nil
-}
-
-func parseUrl(url string) (map[string]string, error) {
-	reg := regexp.MustCompile(`/(?P<type>problemset|gym|contest|group)`)
-	url_type := ""
-	for i, val := range reg.FindStringSubmatch(url) {
-		if reg.SubexpNames()[i] == "type" {
-			url_type = val
-			break
-		}
-	}
-
-	reg_str := ""
-	switch url_type {
-	case "contest":
-		reg_str = `/contest/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
-	case "gym":
-		reg_str = `/gym/(?P<contestID>\d+)(/problem/(?P<problemID>[\w\d]+))?`
-	case "problemset":
-		reg_str = `/problemset/problem/(?P<contestID>\d+)/(?P<problemID>[\w\d]+)?`
-	case "group":
-		return nil, errors.New("Groups are not supported")
-	default:
-		return nil, errors.New("Invalid url")
-	}
-
-	output := make(map[string]string)
-	reg = regexp.MustCompile(reg_str)
-	names := reg.SubexpNames()
-	for i, val := range reg.FindStringSubmatch(url) {
-		if names[i] != "" && val != "" {
-			output[names[i]] = val
-		}
-	}
-	output["type"] = url_type
-	return output, nil
 }
 
 func getSampleID() (samples []string) {
@@ -280,7 +155,7 @@ func getOneCode(filename string, templates []config.CodeTemplate) (name string, 
 	return codes[0].Name, codes[0].Index[0], nil
 }
 
-func loginAgain(cfg *config.Config, cln *client.Client, err error) error {
+func loginAgain(cln *client.Client, err error) error {
 	if err != nil && err.Error() == client.ErrorNotLogged {
 		color.Red("Not logged. Try to login\n")
 		err = cln.Login()

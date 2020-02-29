@@ -16,7 +16,7 @@ It's fast, small, cross-platform and powerful.
 ## Features
 
 * Support all programming languages in Codeforces.
-* Support contests and gym.
+* Support contests, gym and groups.
 * Submit codes.
 * Watch submissions' status dynamically.
 * Fetch problems' samples.

@@ -56,14 +56,12 @@ func gen(source, currentPath, ext string) error {
 }
 
 // Gen command
-func Gen(args interface{}) error {
+func Gen() (err error) {
 	cfg := config.Instance
-	cln := client.Instance
 	if len(cfg.Template) == 0 {
 		return errors.New("You have to add at least one code template by `cf config`")
 	}
-	parsedArgs, _ := parseArgs(args, ParseRequirement{})
-	alias := parsedArgs.Alias
+	alias := Args.Alias
 	var path string
 
 	if alias != "" {
@@ -85,17 +83,17 @@ func Gen(args interface{}) error {
 		path = cfg.Template[cfg.Default].Path
 	}
 
+	cln := client.Instance
 	source, err := readTemplateSource(path, cln)
 	if err != nil {
-		return err
+		return
 	}
 
 	currentPath, err := os.Getwd()
 	if err != nil {
-		return err
+		return
 	}
 
 	ext := filepath.Ext(path)
-	gen(source, currentPath, ext)
-	return err
+	return gen(source, currentPath, ext)
 }

@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/xalanq/cf-tool/util"
+
 	"github.com/fatih/color"
 )
 
@@ -37,7 +39,7 @@ func findMessage(body []byte) (string, error) {
 }
 
 // PullCode pull problem's code to path
-func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool) (filename string, err error) {
+func (c *Client) PullCode(URL, path, ext string, rename bool) (filename string, err error) {
 	filename = path + ext
 	if rename {
 		i := 1
@@ -50,13 +52,7 @@ func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool
 		return "", fmt.Errorf("Exists, skip")
 	}
 
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/submission/%v", contestID, submissionID), contestID)
-	resp, err := c.client.Get(URL)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := util.GetBody(c.client, URL)
 	if err != nil {
 		return
 	}
@@ -80,11 +76,15 @@ func (c *Client) PullCode(contestID, submissionID, path, ext string, rename bool
 	return
 }
 
-// PullContest pull all latest codes or ac codes of contest's problem
-func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (err error) {
-	color.Cyan("Pull code from %v%v, ac: %v", contestID, problemID, ac)
+// Pull pull all latest codes or ac codes
+func (c *Client) Pull(info Info, rootPath string, ac bool) (err error) {
+	color.Cyan("Pull " + info.Hint())
 
-	URL := ToGym(fmt.Sprintf(c.host+"/contest/%v/my", contestID), contestID)
+	URL, err := info.MySubmissionURL(c.host)
+	if err != nil {
+		return
+	}
+
 	submissions, err := c.getSubmissions(URL, -1)
 	if err != nil {
 		return
@@ -93,8 +93,8 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 	used := []Submission{}
 
 	for _, submission := range submissions {
-		pid := strings.ToLower(strings.Split(submission.name, " ")[0])
-		if problemID != "" && problemID != pid {
+		problemID := strings.ToLower(strings.Split(submission.name, " ")[0])
+		if info.ProblemID != "" && strings.ToLower(info.ProblemID) != problemID {
 			continue
 		}
 		if ac && !(strings.Contains(submission.status, "Accepted") || strings.Contains(submission.status, "Pretests passed")) {
@@ -105,15 +105,19 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 			continue
 		}
 		path := ""
-		if problemID == "" {
-			path = filepath.Join(rootPath, pid, pid)
+		if info.ProblemID == "" {
+			path = filepath.Join(rootPath, problemID, problemID)
 		} else {
-			path = filepath.Join(rootPath, strings.ToLower(problemID))
+			path = filepath.Join(rootPath, problemID)
 		}
-		submissionID := fmt.Sprintf("%v", submission.id)
+		newInfo := info
+		newInfo.SubmissionID = fmt.Sprintf("%v", submission.id)
+		URL, err := newInfo.SubmissionURL(c.host)
+		if err != nil {
+			return err
+		}
 		filename, err := c.PullCode(
-			contestID,
-			submissionID,
+			URL,
 			path,
 			"."+ext,
 			true,
@@ -122,7 +126,7 @@ func (c *Client) PullContest(contestID, problemID, rootPath string, ac bool) (er
 			color.Green(fmt.Sprintf(`Saved %v`, filename))
 			used = append(used, submission)
 		} else {
-			color.Red(fmt.Sprintf(`Error in %v|%v: %v`, contestID, submissionID, err.Error()))
+			color.Red(fmt.Sprintf(`Error %v: %v`, newInfo.Hint(), err.Error()))
 		}
 	}
 
