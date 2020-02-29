@@ -15,7 +15,7 @@ It's fast, small, cross-platform and powerful.
 
 ## Features
 
-* Support contests, gym, groups and acmsguru.
+* Support Contests, Gym, Groups and acmsguru.
 * Support all programming languages in Codeforces.
 * Submit codes.
 * Watch submissions' status dynamically.
