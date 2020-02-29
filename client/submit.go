@@ -1,24 +1,24 @@
 package client
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/xalanq/cf-tool/util"
 
 	"github.com/fatih/color"
 )
 
-func findErrorMessage(body []byte) ([]byte, error) {
+func findErrorMessage(body []byte) (string, error) {
 	reg := regexp.MustCompile(`error[a-zA-Z_\-\ ]*">(.*?)</span>`)
 	tmp := reg.FindSubmatch(body)
 	if tmp == nil {
-		return nil, errors.New("Cannot find error")
+		return "", errors.New("Cannot find error")
 	}
-	return tmp[1], nil
+	return string(tmp[1]), nil
 }
 
 // Submit submit (block while pending)
@@ -63,13 +63,19 @@ func (c *Client) Submit(info Info, langID, source string) (err error) {
 		return
 	}
 
-	errorMessage, err := findErrorMessage(body)
+	errMsg, err := findErrorMessage(body)
 	if err == nil {
-		return errors.New(string(errorMessage))
+		return errors.New(errMsg)
 	}
-	if !bytes.Contains(body, []byte("submitted successfully")) {
+
+	msg, err := findMessage(body)
+	if err != nil {
 		return errors.New("Submit failed")
 	}
+	if !strings.Contains(msg, "submitted successfully") {
+		return errors.New(msg)
+	}
+
 	color.Green("Submitted")
 
 	submissions, err := c.WatchSubmission(info, 1, true)

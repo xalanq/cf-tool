@@ -55,18 +55,22 @@ func (info *Info) errorContest() (string, error) {
 
 // Hint hint text
 func (info *Info) Hint() string {
-	text := info.ProblemType
+	text := strings.ToUpper(info.ProblemType)
 	if info.GroupID != "" {
-		text = text + ", Group " + info.GroupID
+		text = text + " " + info.GroupID
 	}
 	if info.ProblemType != "acmsguru" && info.ContestID != "" {
-		text = text + ", Contest " + info.ContestID
+		if info.ProblemType != "group" {
+			text = text + " " + info.ContestID
+		} else {
+			text = text + ", contest " + info.ContestID
+		}
 	}
 	if info.ProblemID != "" {
-		text = text + ", Problem " + info.ProblemID
+		text = text + ", problem " + info.ProblemID
 	}
 	if info.SubmissionID != "" {
-		text = text + ", Submission " + info.SubmissionID
+		text = text + ", submission " + info.SubmissionID
 	}
 	return text
 }

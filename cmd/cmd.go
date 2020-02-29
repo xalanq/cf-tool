@@ -85,7 +85,7 @@ type CodeList struct {
 	Index []int
 }
 
-func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList) {
+func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList, err error) {
 	mp := make(map[string][]int)
 	for i, temp := range templates {
 		suffixMap := map[string]bool{}
@@ -101,9 +101,9 @@ func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList
 	if filename != "" {
 		ext := filepath.Ext(filename)
 		if idx, ok := mp[ext]; ok {
-			return []CodeList{CodeList{filename, idx}}
+			return []CodeList{CodeList{filename, idx}}, nil
 		}
-		return
+		return nil, fmt.Errorf("%v can not match any template. You could add a new template by `cf config`", filename)
 	}
 
 	path, err := os.Getwd()
@@ -123,11 +123,14 @@ func getCode(filename string, templates []config.CodeTemplate) (codes []CodeList
 		}
 	}
 
-	return codes
+	return codes, nil
 }
 
 func getOneCode(filename string, templates []config.CodeTemplate) (name string, index int, err error) {
-	codes := getCode(filename, templates)
+	codes, err := getCode(filename, templates)
+	if err != nil {
+		return
+	}
 	if len(codes) < 1 {
 		return "", 0, errors.New("Cannot find any code.\nMaybe you should add a new template by `cf config`")
 	}

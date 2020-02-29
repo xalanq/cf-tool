@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/xalanq/cf-tool/util"
-
-	"github.com/fatih/color"
 )
 
 // StatisInfo statis information
@@ -76,8 +74,6 @@ func findProblems(body []byte) ([]StatisInfo, error) {
 
 // Statis get statis
 func (c *Client) Statis(info Info) (problems []StatisInfo, err error) {
-	color.Cyan("Statis " + info.Hint())
-
 	URL, err := info.ProblemSetURL(c.host)
 	if err != nil {
 		return

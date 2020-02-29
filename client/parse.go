@@ -98,6 +98,7 @@ func (c *Client) Parse(info Info) (problems []string, paths []string, err error)
 	if err != nil {
 		return
 	}
+	info.ProblemID = ""
 	if problemID == "" {
 		statics, err := c.Statis(info)
 		if err != nil {
@@ -110,9 +111,8 @@ func (c *Client) Parse(info Info) (problems []string, paths []string, err error)
 	} else {
 		problems = []string{problemID}
 	}
-	info.ProblemID = ""
 	contestPath := info.Path()
-	color.Green("The problem(s) will be saved to %v", contestPath)
+	ansi.Printf(color.CyanString("The problem(s) will be saved to %v\n"), color.GreenString(contestPath))
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(problems))

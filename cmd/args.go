@@ -132,6 +132,7 @@ func parseArgs(opts docopt.Opts) error {
 	}
 	info.RootPath = filepath.Join(info.RootPath, cfg.FolderName[info.ProblemType])
 	Args.Info = info
+	// util.DebugJSON(Args)
 	return nil
 }
 
