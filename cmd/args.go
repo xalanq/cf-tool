@@ -17,8 +17,8 @@ type ParsedArgs struct {
 	File        string
 	Specifier   []string `docopt:"<specifier>"`
 	Alias       string   `docopt:"<alias>"`
-	LanguageID  string `docopt:"<language-id>"`
-	InputFile   string `docopt:"<input-file>"`
+	LanguageID  string   `docopt:"--language-id"`
+	InputFile   string   `docopt:"<input-file>"`
 	Accepted    bool     `docopt:"ac"`
 	All         bool     `docopt:"all"`
 	Handle      string   `docopt:"<handle>"`

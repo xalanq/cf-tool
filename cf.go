@@ -34,7 +34,7 @@ Usage:
   cf parse [<specifier>...]
   cf gen [<alias>]
   cf test [<file>]
-  cf customtest <file> <language-id> [<input-file>]
+  cf customtest [-l <language-id>] <file> [<input-file>]
   cf watch [all] [<specifier>...]
   cf open [<specifier>...]
   cf stand [<specifier>...]
@@ -49,6 +49,9 @@ Options:
   --version            Show version.
   -f <file>, --file <file>, <file>
                        Path to file. E.g. "a.cpp", "./temp/a.cpp"
+  -l <language-id>, --language-id <language-id>
+                       Language ID. Choose "Add a template" option in "cf config"
+                       to view the list of available language ID.
   <specifier>          Any useful text. E.g.
                        "https://codeforces.com/contest/100",
                        "https://codeforces.com/contest/180/problem/A",

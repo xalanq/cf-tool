@@ -7,10 +7,11 @@ import (
 	"os"
 
 	"github.com/xalanq/cf-tool/client"
+	"github.com/xalanq/cf-tool/config"
 )
 
 // CustomTest command
-func CustomTest() error {
+func CustomTest() (err error) {
 	input := ""
 	if Args.InputFile != "" {
 		file, err := os.Open(Args.InputFile)
@@ -23,8 +24,16 @@ func CustomTest() error {
 		input = string(bytes)
 	}
 
-	langId, err := strconv.Atoi(Args.LanguageID)
-	if err != nil { return err }
+	langId := 0
+	if Args.LanguageID == "" {
+		cfg := config.Instance
+		_, index, err := getOneCode(Args.File, cfg.Template)
+		if err != nil { return err }
+		langId, _ = strconv.Atoi(cfg.Template[index].Lang)
+	} else {
+		langId, err = strconv.Atoi(Args.LanguageID)
+		if err != nil { return err }
+	}
 
 	file, err := os.Open(Args.File)
 	if err != nil { return err }
