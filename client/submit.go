@@ -54,6 +54,7 @@ func (c *Client) Submit(info Info, langID, source string) (err error) {
 		"action":                {"submitSolutionFormSubmitted"},
 		"submittedProblemIndex": {info.ProblemID},
 		"programTypeId":         {langID},
+		"contestId":             {info.ContestID},
 		"source":                {source},
 		"tabSize":               {"4"},
 		"_tta":                  {"594"},
