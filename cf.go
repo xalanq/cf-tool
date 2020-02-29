@@ -22,11 +22,10 @@ const sessionPath = "~/.cf/session"
 func main() {
 	usage := `Codeforces Tool $%version%$ (cf). https://github.com/xalanq/cf-tool
 
-You should run "cf config" to configure your handle, password and the code
-template at first.
+You should run "cf config" to configure your handle, password and code
+templates at first.
 
-If you want to compete, the best command is "cf race 1111" where "1111" is
-the contest id.
+If you want to compete, the best command is "cf race"
 
 Usage:
   cf config
@@ -49,7 +48,7 @@ Options:
   --version            Show version.
   -f <file>, --file <file>, <file>
                        Path to file. E.g. "a.cpp", "./temp/a.cpp"
-  <specifier>          Any useful format. E.g.
+  <specifier>          Any useful text. E.g.
                        "https://codeforces.com/contest/100",
                        "https://codeforces.com/contest/180/problem/A",
                        "https://codeforces.com/group/Cw4JRyRGXR/contest/269760"
@@ -61,19 +60,23 @@ Options:
 
 Examples:
   cf config            Configure the cf-tool.
-  cf submit            If current path is "<contest-id>/<problem-id>", cf will
-                       find the code which can be submitted. Then submit to
-                       <contest-id> <problem-id>.
+  cf submit            cf will detect what you want to submit automatically.
   cf submit -f a.cpp
-  cf submit https://codeforces.com/contest/100 a
-  cf submit -f a.cpp https://codeforces.com/problemset/problem/100/A 
+  cf submit https://codeforces.com/contest/100/A
+  cf submit -f a.cpp 100A 
   cf submit -f a.cpp 100 a
+  cf submit contest 100 a
+  cf submit gym 100001 a
   cf list              List all problems' stats of a contest.
   cf list 1119
   cf parse 100         Fetch all problems' samples of contest 100 into
-                       "./100/<problem-id>".
-  cf parse 100 a       Fetch samples of problem "a" of contest 100 into
-                       "./100/a".
+                       "{cf}/{contest}/100/<problem-id>".
+  cf parse gym 100001a
+                       Fetch samples of problem "a" of gym 100001 into
+                       "{cf}/{gym}/100001/a".
+  cf parse gym 100001
+                       Fetch all problems' samples of gym 100001 into
+                       "{cf}/{gym}/100001".
   cf parse             Fetch samples of current problem into current path.
   cf gen               Generate a code from default template.
   cf gen cpp           Generate a code from the template whose alias is "cpp"
@@ -84,10 +87,10 @@ Examples:
                        a string with 0~9.
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
-  cf open 1136 a       Use default web browser to open the page of contest
+  cf open 1136a        Use default web browser to open the page of contest
                        1136, problem a.
-  cf open 1136         Use default web browser to open the page of contest
-                       1136.
+  cf open gym 100136   Use default web browser to open the page of gym
+                       100136.
   cf stand             Use default web browser to open the standing page.
   cf sid 52531875      Use default web browser to open the submission
                        52531875's page.
