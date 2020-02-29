@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/docopt/docopt-go"
 	"github.com/xalanq/cf-tool/client"
@@ -78,7 +77,6 @@ func parseArgs(opts docopt.Opts) error {
 			info.GroupID = value
 		}
 		if value, ok := parsed["problemID"]; ok {
-			value = strings.ToLower(value)
 			if info.ProblemID != "" && info.ProblemID != value {
 				return fmt.Errorf("Problem ID conflicts: %v %v", info.ProblemID, value)
 			}
@@ -113,7 +111,10 @@ func parseArgs(opts docopt.Opts) error {
 			info.ProblemType = "gym"
 		}
 	}
-	if info.ProblemType == "acmsguru" && info.ContestID == "" {
+	if info.ProblemType == "acmsguru" {
+		if info.ContestID != "99999" && info.ContestID != "" {
+			info.ProblemID = info.ContestID
+		}
 		info.ContestID = "99999"
 	}
 	root := cfg.FolderName["root"]
@@ -154,7 +155,7 @@ var ArgRegStr = [...]string{
 	`^[cC][oO][nN][tT][eE][sS][tT][sS]?$`,
 	`^[gG][yY][mM][sS]?$`,
 	`^[gG][rR][oO][uU][pP][sS]?$`,
-	`^[aA][cC][mM][uU][pP][sS]?$`,
+	`^[aA][cC][mM][sS][gG][uU][rR][uU]$`,
 	fmt.Sprintf(`/contest/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr),
 	fmt.Sprintf(`/gym/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr),
 	fmt.Sprintf(`/problemset/problem/(?P<contestID>%v)/(?P<problemID>%v)`, ContestRegStr, ProblemRegStr),
@@ -192,6 +193,7 @@ var ArgType = [...]string{
 	"",
 	"",
 	"",
+	"",
 }
 
 func parseArg(arg string) map[string]string {
@@ -203,7 +205,12 @@ func parseArg(arg string) map[string]string {
 			if names[i] != "" && val != "" {
 				output[names[i]] = val
 			}
-			output["problemType"] = ArgType[k]
+			if ArgType[k] != "" {
+				output["problemType"] = ArgType[k]
+				if k < 4 {
+					return output
+				}
+			}
 		}
 	}
 	return output
