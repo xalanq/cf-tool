@@ -15,8 +15,8 @@ Codeforces Tool 是 [Codeforces](https://codeforces.com) 的命令行界面的�
 
 ## 特点
 
-* 支持 Codeforces 中的所有编程语言
 * 支持 contests、gym、groups 和 acmsguru
+* 支持 Codeforces 中的所有编程语言
 * 提交代码
 * 动态刷新提交后的情况
 * 拉取问题的样例
@@ -147,8 +147,8 @@ $ go build -ldflags "-s -w" cf.go
                        新建两个文件 "inK.txt" 和 "ansK.txt" 即可，其中 K 是包含 0~9 的字符串。
   cf watch             查看自己在当前比赛的最后 10 次提交结果。
   cf watch all         查看自己在当前比赛的全部提交结果
-  cf open 1136 a       用默认的浏览器打开比赛 id 为 1136 的题目 a。
-  cf open 1136         用默认的浏览器打开比赛 id 为 1136 的总览页面。
+  cf open 1136a        用默认的浏览器打开比赛 contest 1136, problem a.
+  cf open gym 100136   用默认的浏览器打开比赛 gym 100136.
   cf stand             用默认的浏览器打开当前比赛的榜单。
   cf sid 52531875      用默认的浏览器打开 52531875 这个提交页面。
   cf sid               打开最后一次提交的页面。

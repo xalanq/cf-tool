@@ -15,15 +15,15 @@ It's fast, small, cross-platform and powerful.
 
 ## Features
 
-* Support all programming languages in Codeforces.
 * Support contests, gym, groups and acmsguru.
+* Support all programming languages in Codeforces.
 * Submit codes.
 * Watch submissions' status dynamically.
 * Fetch problems' samples.
 * Compile and test locally.
 * Clone all codes of someone.
 * Generate codes from the specified template (including timestamp, author, etc.)
-* List problems' stats of one contest/gym.
+* List problems' stats of one contest.
 * Use default web browser to open problems' pages, standings' page, etc.
 * Setup a network proxy.
 * Colorful CLI.
