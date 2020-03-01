@@ -119,6 +119,15 @@ func (j *Jar) Copy() *Jar {
 	}
 }
 
+// GetCookie custom impl
+func (j *Jar) GetEntry(domain, path, name string) (entry, error) {
+	id := fmt.Sprintf("%s;%s;%s", domain, path, name)
+	if cookie, ok := j.entries[domain][id]; ok {
+		return cookie, nil
+	}
+	return entry{}, errors.New("Cookie not found")
+}
+
 // MarshalJSON my impl
 func (j *Jar) MarshalJSON() ([]byte, error) {
 	return json.Marshal(j.entries)

@@ -41,6 +41,9 @@ Usage:
   cf race [<specifier>...]
   cf pull [ac] [<specifier>...]
   cf clone [ac] [<handle>]
+  cf contests
+  cf register [<specifier>...]
+  cf unregister [<specifier>...]
   cf upgrade
 
 Options:
@@ -107,6 +110,9 @@ Examples:
   cf pull              Pull the latest codes of current problem into current
                        path.
   cf clone xalanq      Clone all codes of xalanq.
+  cf contests          List upcoming contests
+  cf register 1270     Register for contest "Good Bye 2019"
+  cf unregister 1270   Unregister from a contest "Good Bye 2019"
   cf upgrade           Upgrade the "cf" to the latest version from GitHub.
 
 File:
