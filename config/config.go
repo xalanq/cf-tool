@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	"github.com/xalanq/cf-tool/client"
+	//"github.com/xalanq/cf-tool/client"
 )
 
 // CodeTemplate config parse code template
@@ -28,7 +28,8 @@ type Config struct {
 	GenAfterParse bool              `json:"gen_after_parse"`
 	Host          string            `json:"host"`
 	Proxy         string            `json:"proxy"`
-	FolderName    map[string]string `json:"folder_name"`
+	//FolderName    map[string]string `json:"folder_name"`
+	PathSpecifier [][2]string        `json:"path_specifier"`
 	path          string
 }
 
@@ -45,6 +46,7 @@ func Init(path string) {
 	if c.Default < 0 || c.Default >= len(c.Template) {
 		c.Default = 0
 	}
+	/*
 	if c.FolderName == nil {
 		c.FolderName = map[string]string{}
 	}
@@ -54,6 +56,15 @@ func Init(path string) {
 	for _, problemType := range client.ProblemTypes {
 		if _, ok := c.FolderName[problemType]; !ok {
 			c.FolderName[problemType] = problemType
+		}
+	}
+	*/
+	if c.PathSpecifier == nil {
+		c.PathSpecifier = [][2]string{
+			[2]string{ "contest", "cf/contest/%contestID%/%problemID%" },
+			[2]string{ "gym", "cf/gym/%contestID%/%problemID%" },
+			[2]string{ "group", "cf/group/%groupID%/%contestID%/%problemID%" },
+			[2]string{ "acmsguru", "cf/acmsguru/%problemID%" },
 		}
 	}
 	c.save()

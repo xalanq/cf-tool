@@ -3,7 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
+	//"path/filepath"
 	"strings"
 )
 
@@ -22,7 +22,8 @@ type Info struct {
 	GroupID      string `json:"group_id"`
 	ProblemID    string `json:"problem_id"`
 	SubmissionID string `json:"submission_id"`
-	RootPath     string
+	PathField string
+	//RootPath     string
 }
 
 // ErrorNeedProblemID error
@@ -77,6 +78,9 @@ func (info *Info) Hint() string {
 
 // Path path
 func (info *Info) Path() string {
+	fmt.Println(info)
+	return info.PathField
+	/*
 	path := info.RootPath
 	if info.GroupID != "" {
 		path = filepath.Join(path, info.GroupID)
@@ -88,6 +92,7 @@ func (info *Info) Path() string {
 		path = filepath.Join(path, strings.ToLower(info.ProblemID))
 	}
 	return path
+	*/
 }
 
 // ProblemSetURL parse problem set url
