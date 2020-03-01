@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"bytes"
 	"path/filepath"
 
 	"github.com/fatih/color"
@@ -79,10 +80,14 @@ func (c *Config) load() (err error) {
 
 // save file to path
 func (c *Config) save() (err error) {
-	data, err := json.MarshalIndent(c, "", "  ")
+	var data bytes.Buffer
+	encoder := json.NewEncoder(&data)
+	encoder.SetIndent("", "  ")
+	encoder.SetEscapeHTML(false)
+	err = encoder.Encode(c)
 	if err == nil {
 		os.MkdirAll(filepath.Dir(c.path), os.ModePerm)
-		err = ioutil.WriteFile(c.path, data, 0644)
+		err = ioutil.WriteFile(c.path, data.Bytes(), 0644)
 	}
 	if err != nil {
 		color.Red("Cannot save config to %v\n%v", c.path, err.Error())
