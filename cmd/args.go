@@ -265,7 +265,7 @@ func min(a, b int) int {
 
 func parsePath(path string) (output map[string]string) {
 	//path = filepath.ToSlash(path) + "/"
-	components := filepath.SplitList(path)
+	components := strings.Split(path, string(filepath.Separator))
 
 	// output := make(map[string]string)
 	cfg := config.Instance
@@ -282,23 +282,24 @@ func parsePath(path string) (output map[string]string) {
 			reg := regexp.MustCompile("^" + strings.Join(specifier[:length], "/") + "$")
 			names := reg.SubexpNames()
 			output = make(map[string]string)
-			for i, val := range reg.FindStringSubmatch(
-				strings.Join(components[len(components)-length:], "/")) {
-				if names[i] != "" && val != "" {
-					// (how can val be empty anyway?)
-					// it's possible to use noncapturing group to avoid having to check this
-					if existing, ok := output[names[i]]; ok {
-						if existing != val {
-							continue outer
+			match := reg.FindStringSubmatch(strings.Join(components[len(components)-length:], "/"))
+			if match != nil {
+				for i, val := range match {
+					if names[i] != "" && val != "" {
+						// (how can val be empty anyway?)
+						// it's possible to use noncapturing group to avoid having to check this
+						if existing, ok := output[names[i]]; ok {
+							if existing != val {
+								continue outer
+							}
+						} else {
+							output[names[i]] = val
 						}
-					} else {
-						output[names[i]] = val
 					}
 				}
+				output["problemType"] = problemType
+				return
 			}
-			// Full match.
-			output["problemType"] = problemType
-			return nil
 			/*
 			for index, component := range components[len(components) - length] {
 				specifier[index]
