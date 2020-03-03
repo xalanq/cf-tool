@@ -126,8 +126,8 @@ func parseArgs(opts docopt.Opts) error {
 			specifier := value[1]
 			expectedPath := strings.NewReplacer(
 				"%%", "%",
-				"%problemID%", info.ContestID,
-				"%contestID%", info.ProblemID,
+				"%contestID%", info.ContestID,
+				"%problemID%", info.ProblemID,
 				"%groupID%", info.GroupID,
 			).Replace(specifier)
 			var components []string = strings.Split(expectedPath, "/")
