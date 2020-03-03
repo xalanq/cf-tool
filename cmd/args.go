@@ -171,7 +171,7 @@ const ProblemRegStr = `\w+`
 // StrictProblemRegStr strict problem
 const StrictProblemRegStr = `[a-zA-Z]+\d*`
 
-// ContestRegStr contest
+// ContestRegStr regex to match a contest or gym ID
 const ContestRegStr = `\d+`
 
 // GroupRegStr group
@@ -180,65 +180,40 @@ const GroupRegStr = `\w{10}`
 // SubmissionRegStr submission
 const SubmissionRegStr = `\d+`
 
+type pattern struct {
+	ProblemType string
+	Regex regexp.Regexp
+}
+
 // ArgRegStr for parsing arg
-var ArgRegStr = [...]string{
-	`^[cC][oO][nN][tT][eE][sS][tT][sS]?$`,
-	`^[gG][yY][mM][sS]?$`,
-	`^[gG][rR][oO][uU][pP][sS]?$`,
-	`^[aA][cC][mM][sS][gG][uU][rR][uU]$`,
-	fmt.Sprintf(`/contest/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf(`/gym/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf(`/problemset/problem/(?P<contestID>%v)/(?P<problemID>%v)`, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf(`/group/(?P<groupID>%v)(/contest/(?P<contestID>%v)(/problem/(?P<problemID>%v))?)?`, GroupRegStr, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf(`/problemsets/acmsguru/problem/(?P<contestID>%v)/(?P<problemID>%v)`, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf(`/problemsets/acmsguru/submission/(?P<contestID>%v)/(?P<submissionID>%v)`, ContestRegStr, SubmissionRegStr),
-	fmt.Sprintf(`/submission/(?P<submissionID>%v)`, SubmissionRegStr),
-	fmt.Sprintf(`^(?P<contestID>%v)(?P<problemID>%v)$`, ContestRegStr, StrictProblemRegStr),
-	fmt.Sprintf(`^(?P<contestID>%v)$`, ContestRegStr),
-	fmt.Sprintf(`^(?P<problemID>%v)$`, StrictProblemRegStr),
-	fmt.Sprintf(`^(?P<groupID>%v)$`, GroupRegStr),
-}
-
-/*
-// ArgTypePathRegStr path
-var ArgTypePathRegStr = [...]string{
-	fmt.Sprintf("%v/%v/((?P<contestID>%v)/((?P<problemID>%v)/)?)?", "%v", "%v", ContestRegStr, ProblemRegStr),
-	fmt.Sprintf("%v/%v/((?P<contestID>%v)/((?P<problemID>%v)/)?)?", "%v", "%v", ContestRegStr, ProblemRegStr),
-	fmt.Sprintf("%v/%v/((?P<groupID>%v)/((?P<contestID>%v)/((?P<problemID>%v)/)?)?)?", "%v", "%v", GroupRegStr, ContestRegStr, ProblemRegStr),
-	fmt.Sprintf("%v/%v/((?P<problemID>%v)/)?", "%v", "%v", ProblemRegStr),
-}
-*/
-
-// ArgType type
-var ArgType = [...]string{
-	"contest",
-	"gym",
-	"group",
-	"acmsguru",
-	"contest",
-	"gym",
-	"contest",
-	"group",
-	"acmsguru",
-	"acmsguru",
-	"",
-	"",
-	"",
-	"",
-	"",
+var ArgRegStr = [...]pattern{
+	pattern{"contest",  *regexp.MustCompile(`^[cC][oO][nN][tT][eE][sS][tT][sS]?$`)},
+	pattern{"gym",      *regexp.MustCompile(`^[gG][yY][mM][sS]?$`)},
+	pattern{"group",    *regexp.MustCompile(`^[gG][rR][oO][uU][pP][sS]?$`)},
+	pattern{"acmsguru", *regexp.MustCompile(`^[aA][cC][mM][sS][gG][uU][rR][uU]$`)},
+	pattern{"contest",  *regexp.MustCompile(fmt.Sprintf(`/contest/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr))},
+	pattern{"gym",      *regexp.MustCompile(fmt.Sprintf(`/gym/(?P<contestID>%v)(/problem/(?P<problemID>%v))?`, ContestRegStr, ProblemRegStr))},
+	pattern{"contest",  *regexp.MustCompile(fmt.Sprintf(`/problemset/problem/(?P<contestID>%v)/(?P<problemID>%v)`, ContestRegStr, ProblemRegStr))},
+	pattern{"group",    *regexp.MustCompile(fmt.Sprintf(`/group/(?P<groupID>%v)(/contest/(?P<contestID>%v)(/problem/(?P<problemID>%v))?)?`, GroupRegStr, ContestRegStr, ProblemRegStr))},
+	pattern{"acmsguru", *regexp.MustCompile(fmt.Sprintf(`/problemsets/acmsguru/problem/(?P<contestID>%v)/(?P<problemID>%v)`, ContestRegStr, ProblemRegStr))},
+	pattern{"acmsguru", *regexp.MustCompile(fmt.Sprintf(`/problemsets/acmsguru/submission/(?P<contestID>%v)/(?P<submissionID>%v)`, ContestRegStr, SubmissionRegStr))},
+	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`/submission/(?P<submissionID>%v)`, SubmissionRegStr))},
+	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<contestID>%v)(?P<problemID>%v)$`, ContestRegStr, StrictProblemRegStr))},
+	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<contestID>%v)$`, ContestRegStr))},
+	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<problemID>%v)$`, StrictProblemRegStr))},
+	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<groupID>%v)$`, GroupRegStr))},
 }
 
 func parseArg(arg string) map[string]string {
 	output := make(map[string]string)
-	for k, regStr := range ArgRegStr {
-		reg := regexp.MustCompile(regStr)
-		names := reg.SubexpNames()
-		for i, val := range reg.FindStringSubmatch(arg) {
+	for k, pattern := range ArgRegStr {
+		names := pattern.Regex.SubexpNames()
+		for i, val := range pattern.Regex.FindStringSubmatch(arg) {
 			if names[i] != "" && val != "" {
 				output[names[i]] = val
 			}
-			if ArgType[k] != "" {
-				output["problemType"] = ArgType[k]
+			if pattern.ProblemType != "" {
+				output["problemType"] = pattern.ProblemType
 				if k < 4 {
 					return output
 				}
