@@ -91,6 +91,13 @@ func parseArgs(opts docopt.Opts) error {
 			info.SubmissionID = value
 		}
 	}
+	if info.ProblemType == "" || info.ProblemType == "contest" || info.ProblemType == "gym" {
+		if len(info.ContestID) < 6 {
+			info.ProblemType = "contest"
+		} else {
+			info.ProblemType = "gym"
+		}
+	}
 	if info.ProblemType == "" {
 		parsed := parsePath(path)
 		if value, ok := parsed["problemType"]; ok {
@@ -104,13 +111,6 @@ func parseArgs(opts docopt.Opts) error {
 		}
 		if value, ok := parsed["problemID"]; ok && info.ProblemID == "" {
 			info.ProblemID = value
-		}
-	}
-	if info.ProblemType == "" || info.ProblemType == "contest" {
-		if len(info.ContestID) < 6 {
-			info.ProblemType = "contest"
-		} else {
-			info.ProblemType = "gym"
 		}
 	}
 	if info.ProblemType == "acmsguru" {
@@ -201,7 +201,7 @@ var ArgRegStr = [...]pattern{
 	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<contestID>%v)(?P<problemID>%v)$`, ContestRegStr, StrictProblemRegStr))},
 	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<contestID>%v)$`, ContestRegStr))},
 	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<problemID>%v)$`, StrictProblemRegStr))},
-	pattern{"",         *regexp.MustCompile(fmt.Sprintf(`^(?P<groupID>%v)$`, GroupRegStr))},
+	pattern{"group",    *regexp.MustCompile(fmt.Sprintf(`^(?P<groupID>%v)$`, GroupRegStr))},
 }
 
 func parseArg(arg string) map[string]string {
