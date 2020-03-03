@@ -122,14 +122,13 @@ func parseArgs(opts docopt.Opts) error {
 
 	info.PathField = ""
 	for _, value := range cfg.PathSpecifier {
-		if value[0] == info.ProblemType {
-			specifier := value[1]
+		if value.Type == info.ProblemType {
 			expectedPath := strings.NewReplacer(
 				"%%", "%",
 				"%contestID%", info.ContestID,
 				"%problemID%", info.ProblemID,
 				"%groupID%", info.GroupID,
-			).Replace(specifier)
+			).Replace(value.Pattern)
 			var components []string = strings.Split(expectedPath, "/")
 			for length := len(components); length >= 0; length-- {
 				if strings.HasSuffix(path, filepath.Join(components[:length]...)) {
@@ -270,9 +269,8 @@ func parsePath(path string) (output map[string]string) {
 	// output := make(map[string]string)
 	cfg := config.Instance
 	for _, value := range cfg.PathSpecifier {
-		problemType := value[0]
 		var specifier []string
-		for _, value := range strings.Split(value[1], "/") {
+		for _, value := range strings.Split(value.Pattern, "/") {
 			specifier = append(specifier, specifierToRegex.Replace(regexp.QuoteMeta(value)))
 		}
 		// note that both the path separator "/" and the variable separator "%" must not be
@@ -297,7 +295,7 @@ func parsePath(path string) (output map[string]string) {
 						}
 					}
 				}
-				output["problemType"] = problemType
+				output["problemType"] = value.Type
 				return
 			}
 			/*

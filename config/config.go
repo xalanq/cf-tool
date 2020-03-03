@@ -21,6 +21,12 @@ type CodeTemplate struct {
 	AfterScript  string   `json:"after_script"`
 }
 
+// PathSpecifier path pattern for some problem type
+type PathSpecifier struct {
+	Type    string `json:"type"` // must be an element of ProblemTypes
+	Pattern string `json:"pattern"`
+}
+
 // Config load and save configuration
 type Config struct {
 	Template      []CodeTemplate    `json:"template"`
@@ -28,8 +34,7 @@ type Config struct {
 	GenAfterParse bool              `json:"gen_after_parse"`
 	Host          string            `json:"host"`
 	Proxy         string            `json:"proxy"`
-	//FolderName    map[string]string `json:"folder_name"`
-	PathSpecifier [][2]string        `json:"path_specifier"`
+	PathSpecifier []PathSpecifier   `json:"path_specifier"`
 	path          string
 }
 
@@ -60,11 +65,11 @@ func Init(path string) {
 	}
 	*/
 	if c.PathSpecifier == nil {
-		c.PathSpecifier = [][2]string{
-			[2]string{ "contest", "cf/contest/%contestID%/%problemID%" },
-			[2]string{ "gym", "cf/gym/%contestID%/%problemID%" },
-			[2]string{ "group", "cf/group/%groupID%/%contestID%/%problemID%" },
-			[2]string{ "acmsguru", "cf/acmsguru/%problemID%" },
+		c.PathSpecifier = []PathSpecifier{
+			PathSpecifier{ "contest", "cf/contest/%contestID%/%problemID%" },
+			PathSpecifier{ "gym", "cf/gym/%contestID%/%problemID%" },
+			PathSpecifier{ "group", "cf/group/%groupID%/%contestID%/%problemID%" },
+			PathSpecifier{ "acmsguru", "cf/acmsguru/%problemID%" },
 		}
 	}
 	c.save()
