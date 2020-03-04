@@ -60,6 +60,9 @@ func parseArgs(opts docopt.Opts) error {
 	info := client.Info{}
 	for _, arg := range Args.Specifier {
 		parsed := parseArg(arg)
+		if len(parsed) == 0 {
+			return fmt.Errorf("Invalid specifier: %v", arg)
+		}
 		if value, ok := parsed["problemType"]; ok {
 			if info.ProblemType != "" && info.ProblemType != value {
 				return fmt.Errorf("Problem Type conflicts: %v %v", info.ProblemType, value)
