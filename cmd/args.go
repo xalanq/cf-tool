@@ -91,12 +91,8 @@ func parseArgs(opts docopt.Opts) error {
 			info.SubmissionID = value
 		}
 	}
-	if info.ProblemType == "" || info.ProblemType == "contest" || info.ProblemType == "gym" {
-		if len(info.ContestID) < 6 {
-			info.ProblemType = "contest"
-		} else {
-			info.ProblemType = "gym"
-		}
+	if info.ContestID != "" && len(info.ContestID) < 6 {
+		info.ProblemType = "contest"
 	}
 	if info.ProblemType == "" {
 		parsed := parsePath(path)
@@ -111,6 +107,13 @@ func parseArgs(opts docopt.Opts) error {
 		}
 		if value, ok := parsed["problemID"]; ok && info.ProblemID == "" {
 			info.ProblemID = value
+		}
+	}
+	if info.ProblemType == "" || info.ProblemType == "contest" || info.ProblemType == "gym" {
+		if len(info.ContestID) < 6 {
+			info.ProblemType = "contest"
+		} else {
+			info.ProblemType = "gym"
 		}
 	}
 	if info.ProblemType == "acmsguru" {
