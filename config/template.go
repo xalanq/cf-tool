@@ -10,7 +10,6 @@ import (
 	"github.com/fatih/color"
 	ansi "github.com/k0kubun/go-ansi"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/util"
 )
 
@@ -22,7 +21,7 @@ func (c *Config) AddTemplate() (err error) {
 		K, V string
 	}
 	langs := []kv{}
-	for k, v := range client.Langs {
+	for k, v := range util.Langs {
 		langs = append(langs, kv{k, v})
 	}
 	sort.Slice(langs, func(i, j int) bool { return langs[i].V < langs[j].V })
@@ -33,7 +32,7 @@ func (c *Config) AddTemplate() (err error) {
 	lang := ""
 	for {
 		lang = util.ScanlineTrim()
-		if val, ok := client.Langs[lang]; ok {
+		if val, ok := util.Langs[lang]; ok {
 			color.Green(val)
 			break
 		}
