@@ -6,7 +6,6 @@ import (
 	"strings"
 	"path/filepath"
 	"regexp"
-	"errors"
 
 	"github.com/docopt/docopt-go"
 	"github.com/xalanq/cf-tool/client"
@@ -43,7 +42,6 @@ type ParsedArgs struct {
 var Args *ParsedArgs
 
 func parseArgs(opts docopt.Opts) error {
-	cfg := config.Instance
 	cln := client.Instance
 	path, err := os.Getwd()
 	if err != nil {
@@ -124,30 +122,6 @@ func parseArgs(opts docopt.Opts) error {
 			info.ProblemID = info.ContestID
 		}
 		info.ContestID = "99999"
-	}
-
-	info.PathField = ""
-	for _, value := range cfg.PathSpecifier {
-		if value.Type == info.ProblemType {
-			expectedPath := strings.NewReplacer(
-				"%%", "%",
-				"%contestID%", info.ContestID,
-				"%problemID%", info.ProblemID,
-				"%groupID%", info.GroupID,
-			).Replace(value.Pattern)
-			var components []string = strings.Split(expectedPath, "/")
-			for length := len(components); length >= 0; length-- {
-				if strings.HasSuffix(path, filepath.Join(components[:length]...)) {
-					//info.PathField = filepath.Join(string(path), components[length:]...)
-					info.PathField = filepath.Join(append([]string{path}, components[length:]...)...)
-					break
-				}
-			}
-			break
-		}
-	}
-	if info.PathField == "" {
-		return errors.New("Invalid configuration! Need to specify path specifier for " + info.ProblemType)
 	}
 
 	/*

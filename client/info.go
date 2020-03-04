@@ -3,8 +3,11 @@ package client
 import (
 	"errors"
 	"fmt"
-	//"path/filepath"
+	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/xalanq/cf-tool/config"
 )
 
 // ProblemTypes problem types
@@ -22,7 +25,6 @@ type Info struct {
 	GroupID      string `json:"group_id"`
 	ProblemID    string `json:"problem_id"`
 	SubmissionID string `json:"submission_id"`
-	PathField string
 	//RootPath     string
 }
 
@@ -76,23 +78,50 @@ func (info *Info) Hint() string {
 	return text
 }
 
-// Path path
+// PathMayError get directory for problem, check for configuration error
+func (info *Info) PathMayError() (path string, err error) {
+	// this function must recompute the result every time it's called,
+	// because `Parse` is implemented by modifying the info struct and recompute the path
+	cfg := config.Instance
+
+	currentDirectory, err := os.Getwd()
+	if err != nil { return }
+
+	path = ""
+	if info.ProblemID == "" {
+		panic("Internal error: cannot get problem path from incomplete info")
+	}
+	for _, value := range cfg.PathSpecifier {
+		if value.Type == info.ProblemType {
+			expectedPath := strings.NewReplacer(
+				"%%", "%",
+				"%contestID%", info.ContestID,
+				"%problemID%", info.ProblemID,
+				"%groupID%", info.GroupID,
+			).Replace(value.Pattern)
+			components := strings.Split(expectedPath, "/")
+			for length := len(components); length >= 0; length-- {
+				if strings.HasSuffix(currentDirectory, filepath.Join(components[:length]...)) {
+					path = filepath.Join(append([]string {currentDirectory}, components[length:]...)...)
+					break
+				}
+			}
+			break
+		}
+	}
+	if path == "" {
+		return "", errors.New("Invalid configuration! Need to specify path specifier for " + info.ProblemType)
+	}
+	return
+}
+
+// Path get directory for problem, panic if the configuration is incorrect
 func (info *Info) Path() string {
-	fmt.Println(info)
-	return info.PathField
-	/*
-	path := info.RootPath
-	if info.GroupID != "" {
-		path = filepath.Join(path, info.GroupID)
-	}
-	if info.ProblemType != "acmsguru" && info.ContestID != "" {
-		path = filepath.Join(path, info.ContestID)
-	}
-	if info.ProblemID != "" {
-		path = filepath.Join(path, strings.ToLower(info.ProblemID))
+	path, err := info.PathMayError()
+	if err != nil {
+		panic(err)
 	}
 	return path
-	*/
 }
 
 // ProblemSetURL parse problem set url
