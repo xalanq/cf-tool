@@ -25,7 +25,6 @@ type Info struct {
 	GroupID      string `json:"group_id"`
 	ProblemID    string `json:"problem_id"`
 	SubmissionID string `json:"submission_id"`
-	//RootPath     string
 }
 
 // ErrorNeedProblemID error

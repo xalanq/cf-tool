@@ -124,22 +124,6 @@ func parseArgs(opts docopt.Opts) error {
 		info.ContestID = "99999"
 	}
 
-	/*
-	//root := cfg.FolderName["root"]
-	//info.RootPath = filepath.Join(path, root)
-	for {
-		base := filepath.Base(path)
-		if base == root {
-			info.RootPath = path
-			break
-		}
-		if filepath.Dir(path) == path {
-			break
-		}
-		path = filepath.Dir(path)
-	}
-	//info.RootPath = filepath.Join(info.RootPath, cfg.FolderName[info.ProblemType]
-	*/
 	Args.Info = info
 	// util.DebugJSON(Args)
 	return nil
@@ -253,35 +237,9 @@ func parsePath(path string) (output map[string]string) {
 				output["problemType"] = value.Type
 				return
 			}
-			/*
-			for index, component := range components[len(components) - length] {
-				specifier[index]
-			}
-			*/
 		}
 
-		/*
-		reg := regexp.MustCompile(fmt.Sprintf(ArgTypePathRegStr[k], cfg.FolderName["root"], cfg.FolderName[problemType]))
-		names := reg.SubexpNames()
-		for i, val := range reg.FindStringSubmatch(path) {
-			if names[i] != "" && val != "" {
-				output[names[i]] = val
-			}
-			output["problemType"] = problemType
-		}
-		*/
 	}
-
-	/*
-	if (output["problemType"] != "" && output["problemType"] != "group") ||
-		output["groupID"] == output["contestID"] ||
-		output["groupID"] == fmt.Sprintf("%v%v", output["contestID"], output["problemID"]) {
-		output["groupID"] = ""
-	}
-	if output["groupID"] != "" && output["problemType"] == "" {
-		output["problemType"] = "group"
-	}
-	*/
 
 	return
 }

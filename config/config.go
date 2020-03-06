@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	//"github.com/xalanq/cf-tool/client"
 )
 
 // CodeTemplate config parse code template
@@ -51,19 +50,6 @@ func Init(path string) {
 	if c.Default < 0 || c.Default >= len(c.Template) {
 		c.Default = 0
 	}
-	/*
-	if c.FolderName == nil {
-		c.FolderName = map[string]string{}
-	}
-	if _, ok := c.FolderName["root"]; !ok {
-		c.FolderName["root"] = "cf"
-	}
-	for _, problemType := range client.ProblemTypes {
-		if _, ok := c.FolderName[problemType]; !ok {
-			c.FolderName[problemType] = problemType
-		}
-	}
-	*/
 	if c.PathSpecifier == nil {
 		c.PathSpecifier = []PathSpecifier{
 			PathSpecifier{ "contest", "cf/contest/%contestID%/%problemID%" },
