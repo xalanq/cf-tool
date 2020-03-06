@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"os"
 	"time"
 
 	"github.com/fatih/color"
@@ -110,6 +111,10 @@ func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
 			}
 		}()
 	}
+
+	os.MkdirAll(handle, os.ModePerm)
+	os.Chdir(handle)
+
 	for _, _submission := range submissions {
 		func() {
 			defer func() {
@@ -155,10 +160,7 @@ func (c *Client) Clone(handle, rootPath string, ac bool) (err error) {
 				testCount := int64(submission["passedTestCount"].(float64))
 				filename = fmt.Sprintf("%v_%v_%v", submissionID, strings.ToLower(verdict), testCount)
 			}
-			/*
-			info.RootPath = filepath.Join(rootPath, handle, info.ProblemType)
-			// NOTE this path scheme is incompatible with other commands. "handle/cf/contest/..." would be compatible, however.
-			*/
+
 			URL, _ := info.SubmissionURL(c.host)
 			data := cloneData{URL, filepath.Join(info.Path(), filename), "." + ext}
 			ch <- data
