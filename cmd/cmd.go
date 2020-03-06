@@ -145,7 +145,7 @@ func getOneCode(filename string, templates []config.CodeTemplate) (name string, 
 	if len(codes[0].Index) > 1 {
 		color.Cyan("There are multiple languages match the file.")
 		for i, idx := range codes[0].Index {
-			fmt.Printf("%3v: %v\n", i, client.Langs[templates[idx].Lang])
+			fmt.Printf("%3v: %v\n", i, util.Langs[templates[idx].Lang])
 		}
 		i := util.ChooseIndex(len(codes[0].Index))
 		codes[0].Index[0] = codes[0].Index[i]

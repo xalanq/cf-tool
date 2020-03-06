@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	"github.com/xalanq/cf-tool/client"
 )
 
 // CodeTemplate config parse code template
@@ -22,6 +21,12 @@ type CodeTemplate struct {
 	AfterScript  string   `json:"after_script"`
 }
 
+// PathSpecifier path pattern for some problem type
+type PathSpecifier struct {
+	Type    string `json:"type"` // must be an element of ProblemTypes
+	Pattern string `json:"pattern"`
+}
+
 // Config load and save configuration
 type Config struct {
 	Template      []CodeTemplate    `json:"template"`
@@ -29,7 +34,7 @@ type Config struct {
 	GenAfterParse bool              `json:"gen_after_parse"`
 	Host          string            `json:"host"`
 	Proxy         string            `json:"proxy"`
-	FolderName    map[string]string `json:"folder_name"`
+	PathSpecifier []PathSpecifier   `json:"path_specifier"`
 	path          string
 }
 
@@ -46,15 +51,12 @@ func Init(path string) {
 	if c.Default < 0 || c.Default >= len(c.Template) {
 		c.Default = 0
 	}
-	if c.FolderName == nil {
-		c.FolderName = map[string]string{}
-	}
-	if _, ok := c.FolderName["root"]; !ok {
-		c.FolderName["root"] = "cf"
-	}
-	for _, problemType := range client.ProblemTypes {
-		if _, ok := c.FolderName[problemType]; !ok {
-			c.FolderName[problemType] = problemType
+	if c.PathSpecifier == nil {
+		c.PathSpecifier = []PathSpecifier{
+			PathSpecifier{ "contest", "cf/contest/%contestID%/%problemID%" },
+			PathSpecifier{ "gym", "cf/gym/%contestID%/%problemID%" },
+			PathSpecifier{ "group", "cf/group/%groupID%/%contestID%/%problemID%" },
+			PathSpecifier{ "acmsguru", "cf/acmsguru/%problemID%" },
 		}
 	}
 	c.save()

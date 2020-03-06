@@ -5,7 +5,6 @@ import (
 	"regexp"
 
 	"github.com/fatih/color"
-	"github.com/xalanq/cf-tool/client"
 	"github.com/xalanq/cf-tool/util"
 )
 
@@ -85,6 +84,7 @@ func (c *Config) SetProxy() (err error) {
 	return c.save()
 }
 
+/*
 // SetFolderName set folder name
 func (c *Config) SetFolderName() (err error) {
 	color.Cyan(`Set folders' name`)
@@ -101,3 +101,4 @@ func (c *Config) SetFolderName() (err error) {
 	}
 	return c.save()
 }
+*/

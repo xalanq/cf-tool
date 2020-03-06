@@ -98,7 +98,7 @@ func (c *Client) Parse(info Info) (problems []string, paths []string, err error)
 	if err != nil {
 		return
 	}
-	info.ProblemID = ""
+	info.ProblemID = "<problem>"
 	if problemID == "" {
 		statics, err := c.Statis(info)
 		if err != nil {
@@ -119,7 +119,8 @@ func (c *Client) Parse(info Info) (problems []string, paths []string, err error)
 	mu := sync.Mutex{}
 	paths = make([]string, len(problems))
 	for i, problemID := range problems {
-		paths[i] = filepath.Join(contestPath, strings.ToLower(problemID))
+		info.ProblemID = strings.ToLower(problemID)
+		paths[i] = info.Path()
 		go func(problemID, path string) {
 			defer wg.Done()
 			mu.Lock()

@@ -101,7 +101,7 @@ func (c *Client) Pull(info Info, rootPath string, ac bool) (err error) {
 		if ac && !(strings.Contains(submission.status, "Accepted") || strings.Contains(submission.status, "Pretests passed")) {
 			continue
 		}
-		ext, ok := LangsExt[submission.lang]
+		ext, ok := util.LangsExt[submission.lang]
 		if !ok {
 			continue
 		}

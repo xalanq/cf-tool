@@ -37,7 +37,7 @@ func Config() (err error) {
 	} else if index == 6 {
 		return cfg.SetProxy()
 	} else if index == 7 {
-		return cfg.SetFolderName()
+		//return cfg.SetFolderName()
 	}
 	return
 }
