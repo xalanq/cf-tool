@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"strconv"
 	"time"
+	"strings"
+	"errors"
 	"net/url"
 	"encoding/json"
 
@@ -55,18 +57,28 @@ func (c *Client) CustomTest(langId int, source, input string) (err error) {
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil { return }
 
-	var customtestInfo struct {
-		CustomTestSubmitId string
-	}
-	json.Unmarshal(body, &customtestInfo)
+	var customTestInfo map[string]string
+	json.Unmarshal(body, &customTestInfo)
 
+	var customTestSubmitId string
+	var ok bool
+	if customTestSubmitId, ok = customTestInfo["customTestSubmitId"]; !ok {
+		errorMessage := ""
+		for key, message := range customTestInfo {
+			if errorMessage != "" {
+				errorMessage += "; "
+			}
+			errorMessage += strings.TrimPrefix(key, "error__") + ": " + message
+		}
+		return errors.New(errorMessage)
+	}
 
 	color.Green("Submitted")
 	for {
 		time.Sleep(2500 * time.Millisecond)
 
 		resp, err = c.client.PostForm(c.host+"/data/customtest", url.Values{
-			"customTestSubmitId":    {customtestInfo.CustomTestSubmitId},
+			"customTestSubmitId":    {customTestSubmitId},
 			"csrf_token":            {csrf},
 			//"communityCode":         {},
 			"action":                {"getVerdict"},
@@ -84,8 +96,8 @@ func (c *Client) CustomTest(langId int, source, input string) (err error) {
 			Verdict string
 		}
 		json.Unmarshal(body, &output)
-		if output.CustomTestSubmitId != customtestInfo.CustomTestSubmitId {
-			color.Red("Error: Expected %v, actual %v", customtestInfo.CustomTestSubmitId, output.CustomTestSubmitId)
+		if output.CustomTestSubmitId != customTestSubmitId {
+			color.Red("Error: Expected %v, actual %v", customTestSubmitId, output.CustomTestSubmitId)
 		}
 		if output.Verdict == "OK" {
 			fmt.Printf("%v\n=====\nUsed: %v\n", output.Output, output.Stat)

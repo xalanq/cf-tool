@@ -51,5 +51,5 @@ func CustomTest() (err error) {
 		}
 	}
 
-	return nil
+	return
 }
