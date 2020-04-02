@@ -99,7 +99,7 @@ func (c *Client) CustomTest(langId int, source, input string) (err error) {
 		if output.CustomTestSubmitId != customTestSubmitId {
 			color.Red("Error: Expected %v, actual %v", customTestSubmitId, output.CustomTestSubmitId)
 		}
-		if output.Verdict == "OK" {
+		if output.Verdict != "" {
 			fmt.Printf("%v\n=====\nUsed: %v\n", output.Output, output.Stat)
 			return
 		}
