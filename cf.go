@@ -34,6 +34,7 @@ Usage:
   cf parse [<specifier>...]
   cf gen [<alias>]
   cf test [<file>]
+  cf customtest [-l <language-id>] <file> [<input-file>]
   cf watch [all] [<specifier>...]
   cf open [<specifier>...]
   cf stand [<specifier>...]
@@ -48,6 +49,9 @@ Options:
   --version            Show version.
   -f <file>, --file <file>, <file>
                        Path to file. E.g. "a.cpp", "./temp/a.cpp"
+  -l <language-id>, --language-id <language-id>
+                       Language ID. Choose "Add a template" option in "cf config"
+                       to view the list of available language ID.
   <specifier>          Any useful text. E.g.
                        "https://codeforces.com/contest/100",
                        "https://codeforces.com/contest/180/problem/A",
@@ -85,6 +89,8 @@ Examples:
                        test all samples. If you want to add a new testcase,
                        create two files "inK.txt" and "ansK.txt" where K is
                        a string with 0~9.
+  cf customtest a.py 31
+  cf customtest a.py 31 input.txt
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136a        Use default web browser to open the page of contest
