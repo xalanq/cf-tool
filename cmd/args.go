@@ -19,6 +19,7 @@ type ParsedArgs struct {
 	Alias     string   `docopt:"<alias>"`
 	Accepted  bool     `docopt:"ac"`
 	All       bool     `docopt:"all"`
+	Debug     bool     `docopt:"--debug"`
 	Handle    string   `docopt:"<handle>"`
 	Version   string   `docopt:"{version}"`
 	Config    bool     `docopt:"config"`

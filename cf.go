@@ -33,7 +33,7 @@ Usage:
   cf list [<specifier>...]
   cf parse [<specifier>...]
   cf gen [<alias>]
-  cf test [<file>]
+  cf test [-d] [<file>]
   cf watch [all] [<specifier>...]
   cf open [<specifier>...]
   cf stand [<specifier>...]
@@ -48,6 +48,7 @@ Options:
   --version            Show version.
   -f <file>, --file <file>, <file>
                        Path to file. E.g. "a.cpp", "./temp/a.cpp"
+  -d --debug           Run with debugging before script.
   <specifier>          Any useful text. E.g.
                        "https://codeforces.com/contest/100",
                        "https://codeforces.com/contest/180/problem/A",
@@ -85,6 +86,7 @@ Examples:
                        test all samples. If you want to add a new testcase,
                        create two files "inK.txt" and "ansK.txt" where K is
                        a string with 0~9.
+  cf test -d           Run with debugging before script
   cf watch             Watch the first 10 submissions of current contest.
   cf watch all         Watch all submissions of current contest.
   cf open 1136a        Use default web browser to open the page of contest

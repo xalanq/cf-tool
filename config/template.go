@@ -118,12 +118,15 @@ func (c *Config) AddTemplate() (err error) {
 		color.Red("Script can not be empty. Please input again: ")
 	}
 
+	color.Cyan(`Debugging before script (e.g.  "g++ $%full%$ -o $%file%$.exe -std=c++11 -Donline_judge"), empty is ok: `)
+	dbgBeforeScript := util.ScanlineTrim()
+
 	color.Cyan(`After script (e.g. "rm $%file%$.exe" or "cmd.exe /C del $%file%$.exe" in windows), empty is ok: `)
 	afterScript := util.ScanlineTrim()
 
 	c.Template = append(c.Template, CodeTemplate{
 		alias, lang, path, suffix,
-		beforeScript, script, afterScript,
+		beforeScript, dbgBeforeScript, script, afterScript,
 	})
 
 	if util.YesOrNo("Make it default (y/n)? ") {
