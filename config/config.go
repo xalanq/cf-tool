@@ -1,10 +1,10 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"bytes"
 	"path/filepath"
 
 	"github.com/fatih/color"
@@ -13,13 +13,14 @@ import (
 
 // CodeTemplate config parse code template
 type CodeTemplate struct {
-	Alias        string   `json:"alias"`
-	Lang         string   `json:"lang"`
-	Path         string   `json:"path"`
-	Suffix       []string `json:"suffix"`
-	BeforeScript string   `json:"before_script"`
-	Script       string   `json:"script"`
-	AfterScript  string   `json:"after_script"`
+	Alias           string   `json:"alias"`
+	Lang            string   `json:"lang"`
+	Path            string   `json:"path"`
+	Suffix          []string `json:"suffix"`
+	BeforeScript    string   `json:"before_script"`
+	DbgBeforeScript string   `json:"debugging_before_script"`
+	Script          string   `json:"script"`
+	AfterScript     string   `json:"after_script"`
 }
 
 // Config load and save configuration

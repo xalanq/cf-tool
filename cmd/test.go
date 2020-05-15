@@ -188,7 +188,14 @@ func Test() (err error) {
 		return nil
 	}
 
-	if err = run(template.BeforeScript); err != nil {
+	beforeScript := template.BeforeScript
+	if Args.Debug  {
+		if template.DbgBeforeScript==""{
+			return errors.New("debugging_before_script is not set in ~/.cf/config")
+		}
+		beforeScript = template.DbgBeforeScript
+	}
+	if err = run(beforeScript); err != nil {
 		return
 	}
 	if s := filter(template.Script); len(s) > 0 {
