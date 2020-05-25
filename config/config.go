@@ -27,6 +27,7 @@ type Config struct {
 	Template      []CodeTemplate    `json:"template"`
 	Default       int               `json:"default"`
 	GenAfterParse bool              `json:"gen_after_parse"`
+	SaveOutput    bool              `json:"save_output"`
 	Host          string            `json:"host"`
 	Proxy         string            `json:"proxy"`
 	FolderName    map[string]string `json:"folder_name"`

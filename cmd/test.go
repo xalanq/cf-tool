@@ -61,7 +61,7 @@ func plain(raw []byte) string {
 	return b.String()
 }
 
-func judge(sampleID, command string) error {
+func judge(sampleID, command string, saveOutput bool) error {
 	inPath := fmt.Sprintf("in%v.txt", sampleID)
 	ansPath := fmt.Sprintf("ans%v.txt", sampleID)
 	input, err := os.Open(inPath)
@@ -112,6 +112,13 @@ func judge(sampleID, command string) error {
 	}
 	ans := plain(b)
 	out := plain(o.Bytes())
+
+	if saveOutput {
+		outputPath := fmt.Sprintf("out%v.txt", sampleID)
+		if err := ioutil.WriteFile(outputPath, []byte(out), 0644); err != nil{
+			fmt.Println( color.New(color.FgRed).Sprintf("Error while writing output file. error: %v", err))
+		}
+	}
 
 	state := ""
 	diff := ""
@@ -193,7 +200,7 @@ func Test() (err error) {
 	}
 	if s := filter(template.Script); len(s) > 0 {
 		for _, i := range samples {
-			err := judge(i, s)
+			err := judge(i, s, cfg.SaveOutput)
 			if err != nil {
 				color.Red(err.Error())
 			}
