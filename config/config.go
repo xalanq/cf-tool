@@ -1,10 +1,10 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"bytes"
 	"path/filepath"
 
 	"github.com/fatih/color"
