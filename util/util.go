@@ -115,6 +115,7 @@ func GetBody(client *http.Client, URL string) ([]byte, error) {
 	body, err := ioutil.ReadAll(resp.Body);
 	reg := regexp.MustCompile(`Redirecting...`)
 	is_redirected := ( len( reg.FindSubmatch(body) ) > 0 );
+
 	if is_redirected {
 		return SetRCPC(client, body, URL)
 	}
@@ -123,8 +124,6 @@ func GetBody(client *http.Client, URL string) ([]byte, error) {
 
 // PostBody read post body
 func PostBody(client *http.Client, URL string, data url.Values) ([]byte, error) {
-	// TODO: Rewrite to avoid visit this page
-	GetBody( client, "https://codeforces.com" );
 
 	resp, err := client.PostForm(URL, data)
 	if err != nil {
@@ -136,7 +135,6 @@ func PostBody(client *http.Client, URL string, data url.Values) ([]byte, error) 
 
 // GetJSONBody read json body
 func GetJSONBody(client *http.Client, url string) (map[string]interface{}, error) {
-	GetBody( client, "https://codeforces.com" );
 
 	resp, err := client.Get(url)
 	if err != nil {
