@@ -89,8 +89,6 @@ func SetRCPC(client *http.Client, body []byte, URL string) ([]byte, error) {
 
 	mode.CryptBlocks([]byte(text), []byte(text))
 
-	fmt.Println(hex.EncodeToString(text));
-
 	var cookies []*http.Cookie
 	cookie := &http.Cookie{
 		Name:   "RCPC",
@@ -103,9 +101,8 @@ func SetRCPC(client *http.Client, body []byte, URL string) ([]byte, error) {
 	client.Jar.SetCookies(u, cookies)
 
 	reg = regexp.MustCompile(`href="(.+?)"`)
-	tmp := reg.FindSubmatch(body)
-	fmt.Println(string(tmp[1]));
-	return GetBody(client, string(tmp[1]) )
+	link := reg.FindSubmatch(body)[1]
+	return GetBody( client, string(link) )
 }
 
 // GetBody read body
