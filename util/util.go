@@ -124,7 +124,6 @@ func GetBody(client *http.Client, URL string) ([]byte, error) {
 
 // PostBody read post body
 func PostBody(client *http.Client, URL string, data url.Values) ([]byte, error) {
-
 	resp, err := client.PostForm(URL, data)
 	if err != nil {
 		return nil, err
@@ -135,7 +134,6 @@ func PostBody(client *http.Client, URL string, data url.Values) ([]byte, error) 
 
 // GetJSONBody read json body
 func GetJSONBody(client *http.Client, url string) (map[string]interface{}, error) {
-
 	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
