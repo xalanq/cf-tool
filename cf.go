@@ -15,7 +15,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-const version = "v1.0.0"
+const version = "v1.0.1"
 const configPath = "~/.cf/config"
 const sessionPath = "~/.cf/session"
 
@@ -63,7 +63,7 @@ Examples:
   cf submit            cf will detect what you want to submit automatically.
   cf submit -f a.cpp
   cf submit https://codeforces.com/contest/100/A
-  cf submit -f a.cpp 100A 
+  cf submit -f a.cpp 100A
   cf submit -f a.cpp 100 a
   cf submit contest 100 a
   cf submit gym 100001 a
