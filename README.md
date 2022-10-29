@@ -1,11 +1,11 @@
 # Codeforces Tool
 
-[![Github release](https://img.shields.io/github/release/xalanq/cf-tool.svg)](https://github.com/xalanq/cf-tool/releases)
-[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)](https://github.com/xalanq/cf-tool/releases)
-[![Build Status](https://travis-ci.org/xalanq/cf-tool.svg?branch=master)](https://travis-ci.org/xalanq/cf-tool)
-[![Go Report Card](https://goreportcard.com/badge/github.com/xalanq/cf-tool)](https://goreportcard.com/report/github.com/xalanq/cf-tool)
+[![Github release](https://img.shields.io/github/release/sahroush/cf-tool.svg)](https://github.com/sahroush/cf-tool/releases)
+[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)](https://github.com/sahroush/cf-tool/releases)
+[![Build Status](https://travis-ci.org/sahroush/cf-tool.svg?branch=master)](https://travis-ci.org/sahroush/cf-tool)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sahroush/cf-tool)](https://goreportcard.com/report/github.com/sahroush/cf-tool)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.12-green.svg)](https://github.com/golang)
-[![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/xalanq/cf-tool/master/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-%23373737.svg)](https://raw.githubusercontent.com/sahroush/cf-tool/master/LICENSE)
 
 Codeforces Tool is a command-line interface tool for [Codeforces](https://codeforces.com).
 
@@ -34,15 +34,15 @@ Pull requests are always welcome.
 
 ## Installation
 
-You can download the pre-compiled binary file in [here](https://github.com/xalanq/cf-tool/releases).
+You can download the pre-compiled binary file in [here](https://github.com/sahroush/cf-tool/releases).
 
 Then enjoy the cf-tool~
 
 Or you can compile it from the source **(go >= 1.12)**:
 
 ```plain
-$ go get github.com/xalanq/cf-tool
-$ cd $GOPATH/src/github.com/xalanq/cf-tool
+$ go get github.com/sahroush/cf-tool
+$ cd $GOPATH/src/github.com/sahroush/cf-tool
 $ go build -ldflags "-s -w" cf.go
 ```
 
