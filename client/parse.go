@@ -32,8 +32,19 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 		s := html.UnescapeString(string(src))
 		return []byte(strings.TrimSpace(s) + "\n")
 	}
+	mikedodo := regexp.MustCompile(`<.*?>`)
+	fuckmike := regexp.MustCompile(`</div>`)
+	filterinp := func(src []byte) []byte{
+		src = newline.ReplaceAll(src, []byte("\n"))
+		s := html.UnescapeString(string(src))
+		src = []byte(s)
+		src = fuckmike.ReplaceAll(src, []byte(""))
+		src = mikedodo.ReplaceAll(src, []byte("\n"))
+		s = string(src)
+		return []byte(strings.TrimSpace(s) + "\n")
+	}
 	for i := 0; i < len(a); i++ {
-		input = append(input, filter(a[i][1]))
+		input = append(input, filterinp(a[i][1]))
 		output = append(output, filter(b[i][1]))
 	}
 	return
