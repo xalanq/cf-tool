@@ -46,6 +46,11 @@ $ cd $GOPATH/src/github.com/xalanq/cf-tool
 $ go build -ldflags "-s -w" cf.go
 ```
 
+Or you can install it
+```plain
+$ go install github.com/xalanq/cf-tool@latest
+```
+
 If you don't know what's the `$GOPATH`, please see here <https://github.com/golang/go/wiki/GOPATH>.
 
 ## Usage
