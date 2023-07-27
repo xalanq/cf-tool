@@ -19,23 +19,29 @@ import (
 )
 
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
-	irg := regexp.MustCompile(`class="input"[\s\S]*?<pre>([\s\S]*?)</pre>`)
-	org := regexp.MustCompile(`class="output"[\s\S]*?<pre>([\s\S]*?)</pre>`)
+	irg := regexp.MustCompile(`<div class="input">[\s\S]*?<pre[^>]*>([\s\S]*?)</pre>`)
+	org := regexp.MustCompile(`<div class="output">[\s\S]*?<pre[^>]*>([\s\S]*?)</pre>`)
+
 	a := irg.FindAllSubmatch(body, -1)
 	b := org.FindAllSubmatch(body, -1)
+
 	if a == nil || b == nil || len(a) != len(b) {
 		return nil, nil, fmt.Errorf("Cannot parse sample with input %v and output %v", len(a), len(b))
 	}
-	newline := regexp.MustCompile(`<[\s/br]+?>`)
+
+	tagRegex := regexp.MustCompile(`<div[^>]*>|</div>`)
 	filter := func(src []byte) []byte {
-		src = newline.ReplaceAll(src, []byte("\n"))
+		src = tagRegex.ReplaceAll(src, []byte("\n"))
+		src = bytes.ReplaceAll(src, []byte("\n\n"), []byte("\n"))
 		s := html.UnescapeString(string(src))
-		return []byte(strings.TrimSpace(s) + "\n")
+		return []byte(strings.TrimSpace(s))
 	}
+
 	for i := 0; i < len(a); i++ {
 		input = append(input, filter(a[i][1]))
 		output = append(output, filter(b[i][1]))
 	}
+
 	return
 }
 
