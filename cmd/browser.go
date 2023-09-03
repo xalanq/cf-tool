@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/fatih/color"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/xalanq/cf-tool/client"
+	"github.com/Sahaj-Bamba/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 

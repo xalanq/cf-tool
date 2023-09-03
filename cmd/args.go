@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	"github.com/docopt/docopt-go"
-	"github.com/xalanq/cf-tool/client"
+	"github.com/Sahaj-Bamba/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 

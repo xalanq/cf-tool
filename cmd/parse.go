@@ -4,7 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/xalanq/cf-tool/client"
+	"../client"
 	"github.com/xalanq/cf-tool/config"
 )
 

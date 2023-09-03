@@ -3,7 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 
-	"github.com/xalanq/cf-tool/client"
+	"github.com/Sahaj-Bamba/cf-tool/client"
 	"github.com/xalanq/cf-tool/config"
 )
 
