@@ -16,3 +16,4 @@ cf
 *.out
 
 .vscode
+bin
