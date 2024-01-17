@@ -11,12 +11,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/xalanq/cf-tool/util"
-
-	"github.com/k0kubun/go-ansi"
-
+	"github.com/draychev/go-toolbox/pkg/logger"
 	"github.com/fatih/color"
+	"github.com/k0kubun/go-ansi"
+	"github.com/xalanq/cf-tool/util"
 )
+
+var log = logger.NewPretty("client")
 
 func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	irg := regexp.MustCompile(`class="input"[\s\S]*?<pre>([\s\S]*?)</pre>`)
@@ -123,13 +124,14 @@ func (c *Client) Parse(info Info) (problems []string, paths []string, err error)
 		go func(problemID, path string) {
 			defer wg.Done()
 			mu.Lock()
-			fmt.Printf("Parsing %v\n", problemID)
+			fmt.Printf("Parsing contest:%s, problem:%v into %s\n", info.ContestID, problemID, path)
 			mu.Unlock()
 
-			err = os.MkdirAll(path, os.ModePerm)
-			if err != nil {
+			if err = os.MkdirAll(path, os.ModePerm); err != nil {
+				log.Error().Err(err).Msgf("Error creating directory %s", path)
 				return
 			}
+			log.Debug().Msgf("Created directory: %s", path)
 			URL := fmt.Sprintf(urlFormatter, problemID)
 
 			samples, standardIO, err := c.ParseProblem(URL, path, &mu)
