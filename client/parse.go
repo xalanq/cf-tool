@@ -39,6 +39,22 @@ func findSample(body []byte) (input [][]byte, output [][]byte, err error) {
 	return
 }
 
+
+func stripHTMLTags(input string) string {
+	// Split the content by div tags and trim spaces
+	sections := regexp.MustCompile(`(?i)<div[^>]*>`).Split(input, -1)
+	var cleanSections []string
+	for _, section := range sections {
+		// Remove closing </div> tag and trim spaces
+		section = strings.TrimSpace(regexp.MustCompile(`(?i)</div>`).ReplaceAllString(section, ""))
+		if section != "" {
+			cleanSections = append(cleanSections, section)
+		}
+	}
+	// Join the sections with newlines
+	return html.UnescapeString(strings.Join(cleanSections, "\n"))
+}
+
 // ParseProblem parse problem to path. mu can be nil
 func (c *Client) ParseProblem(URL, path string, mu *sync.Mutex) (samples int, standardIO bool, err error) {
 	body, err := util.GetBody(c.client, URL)
@@ -64,7 +80,8 @@ func (c *Client) ParseProblem(URL, path string, mu *sync.Mutex) (samples int, st
 	for i := 0; i < len(input); i++ {
 		fileIn := filepath.Join(path, fmt.Sprintf("in%v.txt", i+1))
 		fileOut := filepath.Join(path, fmt.Sprintf("ans%v.txt", i+1))
-		e := ioutil.WriteFile(fileIn, input[i], 0644)
+    cleanInput := stripHTMLTags(string(input[i]))
+		e := ioutil.WriteFile(fileIn, []byte(cleanInput), 0644)
 		if e != nil {
 			if mu != nil {
 				mu.Lock()
